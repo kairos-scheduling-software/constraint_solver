@@ -27,6 +27,7 @@ public class Converter {
 		return (minsPerDay*dayMultiplier) + (minsPerHour*Integer.parseInt(hoursAndMins[0])) + Integer.parseInt(hoursAndMins[1]);
 	}
 	
+	
 	public int[] convertDayTimeToMinutes(String[] times){
 		int i;
 		

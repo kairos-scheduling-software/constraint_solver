@@ -1,6 +1,7 @@
 package tutorial;
 
 import solver.Solver;
+import solver.constraints.ICF;
 import solver.variables.IntVar;
 import solver.variables.VF;
 
@@ -12,25 +13,30 @@ public class ClassEvent {
 	private Converter converter;
 	private Solver solver;
 	
-	public ClassEvent(String n, int c, int f, int d){
+	public ClassEvent(String n, int c, int f, int d, Solver s){
 		name = n;
 		capacity = c;
 		frequency = f;
 		duration = d;
 		converter = new Converter();
-		solver = new Solver(n);
+		solver = s;
 		startTimes = calcStartTimes();
 		inSessionTimes = calcInSessionTimes();
 	}
 	
 	private IntVar[] calcInSessionTimes(){
 		IntVar[] times = new IntVar[duration/5];
-		int i;
+		int i, j;
 		
 		times[0] = VF.enumerated(name, startTimes, solver); 
 		for(i=1; i<duration/5; ++i){
-			times[i]
+			int[] iTimes = new int[startTimes.length];
+			for(j=0; j<startTimes.length; ++j)
+				iTimes[j] = startTimes[j] + i*5;
+			//solver.post(ICF.arithm(times[i], "==", times[i-1], "+", 5));
+			times[i] = VF.enumerated(name, iTimes, solver);
 		}
+		return times;
 	}
 	
 	private int[] calcStartTimes(){
@@ -51,7 +57,7 @@ public class ClassEvent {
 			return new int[]{90};
 		}
 		else if(frequency == 3){
-			return converter.convertDayTimeToMinutes(new String[]{"M0730","M0835","M0940","M1045","M1150","M1255","M1400","M1505","M1610"});
+			return converter.convertDayTimeToMinutes(new String[]{"M07:30","M08:35","M09:40","M10:45","M11:50","M12:55","M14:00","M15:05","M16:10"});
 		}
 		else if(frequency == 4){
 			//TODO: make this correct
