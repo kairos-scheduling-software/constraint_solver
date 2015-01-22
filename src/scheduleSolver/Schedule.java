@@ -35,7 +35,7 @@ public class Schedule {
 			//		- Space's availability (can just ignore for now...)
 			//    For now, we will assume that possibleStartTimes are in
 			//      correct format already (010910 instead of T:09:10 for instance)
-			// 2. time0 = IntVariable.enumerated(domain)
+			// 2. time0 = IntVar.enumerated(domain)
 			// 3. populate array of time_offset (c1_s1_t0, c1_s1_t1, c1_s1_t2...)
 			// 4. Do the same for all the events
 			// 5. create alldifferent(array) constraint
@@ -57,7 +57,7 @@ public class Schedule {
 			
 			// 3.
 			for (int i = 0; i < event.duration; i += 5) {
-				IntVar timeVar = VariableFactory.offset(time0, i);
+				IntVar timeVar = VariableFactory.offset(time0, i * 100);
 				timeBlocks.add(timeVar);
 			}
 			
