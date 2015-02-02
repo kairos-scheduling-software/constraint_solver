@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="lib/choco-solver-3.2.2-with-dependencies.jar"/>
 	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="/TestChoco/json-20090211.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
