@@ -2,7 +2,7 @@ package scheduleSolver;
 
 public class Time {
 	/* members */
-	private int asInt;         /*  */
+	private int asInt;         /* in range 0 - 61439, the set of valid asInt values is {0,1,...,59,100,101,...,159,...,2359,10000,10001,...,12359,...62359} */
 	private String asDayTime;  /* will be on character from {M,T,W,H,F,S,U} followed by four numeric digits representing the time, based on a 24-hour clock */
 	
 	/* constructors */
@@ -75,5 +75,9 @@ public class Time {
 			timeAsString = '0' + timeAsString;
 		
 		this.asDayTime = (day + timeAsString);
+	}
+	
+	@Override public String toString(){
+		return this.getDayTime() + ":\t" + Integer.toString(this.getInt());
 	}
 }
