@@ -121,16 +121,20 @@ public class Event {
 	
 	private IntVar getStartTime() {
 		IntVar result = null;
-		// ~~ IntVar.enumerate(str_to_int(possibleStartTime))
+		int[] tmp = new int[this.possibleStartTimes.size()];
+		for (int i = 0; i < tmp.length; i++) {
+			tmp[i] = this.possibleStartTimes.get(i).getInt();
+		}
+		result = VariableFactory.enumerated("possible start times", tmp, this.solver);
 		return result;
 	}
 	
 	private ArrayList<IntVar> getBlocks() {
-		int n = this.duration / 5;
+		int n = this.duration;
 		ArrayList<IntVar> _blocks = new ArrayList<IntVar>();
 		for (int i = 0; i < this.daysCount; i++) {
-			for (int j = 0; j < n; j++) {
-				_blocks.add(VariableFactory.offset(this.startTime, i * 60 * 48 / 5 + j));
+			for (int j = 0; j < n; j+=5) {
+				_blocks.add(VariableFactory.offset(this.startTime, i * 20000 + j));
 			}
 		}
 		
