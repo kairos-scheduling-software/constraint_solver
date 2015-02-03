@@ -1,33 +1,66 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.common.primitives.Ints;
 
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
+import solver.constraints.LogicalConstraintFactory;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
 
 public class Schedule {
 	public final String name;
-	public final Event events[];
-	public final Space spaces[];
-	public final Person persons[];
-	private Solver solver;
 	
-	public Schedule(String name, Event events[], Space spaces[], Person persons[]) {
+	public final Map<Integer, Event> events;
+	public final Map<Integer, Space> spaces;
+//	public final Map<Integer, Person> persons;
+	
+	private Solver solver;
+	private boolean modelBuilt = false;
+	private boolean solved = false;
+	
+	public Schedule(String name, Map<Integer, Event> events,
+			Map<Integer, Space> spaces /*, Map<Integer, Person> persons*/) {
 		this.name = name;
 		this.events = events;
 		this.spaces = spaces;
-		this.persons = persons;
+//		this.persons = persons;
 		this.solver = new Solver(this.name);
+	}
+	
+	public Schedule(JSONObject jsonObj) throws JSONException {
+		JSONArray jsonClasses, jsonResources;
+		ArrayList<JSONObject> jsonRooms = new ArrayList<JSONObject>();
+		// ArrayList<JSONObject> jsonProfs;
+		
+		jsonClasses = jsonObj.getJSONArray("events");
+		jsonResources = jsonObj.getJSONArray("resources");
+		
+		//jsonProfs = new ArrayList<JSONObject>();
+		for (int i = 0; i < jsonResources.length(); i++) {
+			JSONObject obj = jsonResources.getJSONObject(i);
+			if (obj.getString("type").equals("room")) {
+				jsonRooms.add(obj);
+			}
+		}
+		
+		this.name = jsonObj.getString("name");
+		this.solver = new Solver(this.name);
+		this.spaces = Space.parseSpaces(jsonRooms);
+		this.events = Event.parseClasses(this.solver, spaces, /*persons,*/ jsonClasses);
 	}
 	
 	public Constraint getConstraintsEventsSpaces() {
 		ArrayList<IntVar> timeBlocks = new ArrayList<IntVar>();
-		for (Event event : this.events) {
+		for (Event event : this.events.values()) {
 			// 1. Extract domain from event.possibleStartTimes
 			//		Things to consider:
 			//		- Convert from human-friendly strings to integers
@@ -42,11 +75,11 @@ public class Schedule {
 			
 			// 1.
 			ArrayList<Integer> domain = new ArrayList<Integer>();
-			for (String t : event.possibleStartTimes) {
-				Integer tmp = Integer.parseInt(t) * 100;
-				for (Space space : this.spaces) {
+			for (Time t : event.possibleStartTimes) {
+				Integer tmp = t.getInt() * 100;
+				for (Space space : this.spaces.values()) {
 					if (space.capacity >= event.maxParticipants) {
-						domain.add(tmp + space.id);
+						domain.add(tmp + space.ID);
 					}
 				}
 			}
@@ -68,6 +101,37 @@ public class Schedule {
 		return IntConstraintFactory.alldifferent((IntVar[]) timeBlocks.toArray());
 	}
 	
+	private void buildModel() {
+		Constraint constraint = IntConstraintFactory.TRUE(this.solver);
+		Event[] events_arr = this.events.values().toArray(new Event[0]);
+		int n = events_arr.length;
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				constraint = LogicalConstraintFactory.and(constraint,
+						events_arr[i].notOverlap(events_arr[j]));
+			}
+//			for (Space space : this.spaces) {
+//				constraint = LogicalConstraintFactory.and(constraint,
+//						this.events[i].roomConstraint(space));
+//			}
+//			constraint = LogicalConstraintFactory.and(constraint, this.events[i].eventConstraint);
+		}
+		
+		this.solver.post(constraint);
+		
+		modelBuilt = true;
+	}
+	
+	public boolean findSolution() {
+		if (!modelBuilt) buildModel();
+		solved = solver.findSolution();
+		return solved;
+	}
+	
+	public void testJson(String fileName) {
+		
+	}
+	
 	/**
 	 * @param args
 	 */
@@ -75,9 +139,4 @@ public class Schedule {
 		// TODO Auto-generated method stub
 
 	}
-	
-	public class Space {
-		int id, capacity;
-	}
-
 }

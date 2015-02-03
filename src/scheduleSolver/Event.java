@@ -1,7 +1,9 @@
 package scheduleSolver;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -22,11 +24,12 @@ public class Event {
 	int ID;							  /* event ID, e.g. cs4400 */
 	int daysCount;						  /* the number of days per week that the event should be scheduled */
 	int duration;						  /* the length, in minutes, of a single session of the event */
-	ArrayList<String> possibleStartTimes; /* for now these are Strings, maybe a pair such as <String:int> or <String:Time> */
+	ArrayList<Time> possibleStartTimes; /* for now these are Strings, maybe a pair such as <String:int> or <String:Time> */
 	char[] days;						  /* the actual days that the event gets scheduled */
 	//Time startTime;						  /* the time at which the event will start for each day in days */
 	Space space;						  /* the space where the event will be held, e.g in a room */
 	int maxParticipants;				  /* the maximum number of participants that can be included in the Event */
+	int[] spaceIds;
 	Person person;			  /* any administrative-type people associated with the event, e.g teachers, speakers, etc */
 	int personId;
 	
@@ -35,23 +38,37 @@ public class Event {
 	ArrayList<IntVar> blocks;
 	IntVar spaceId;
 	
-	public Event(Solver _solver, Map<Integer, Space> spaces,
-			Map<Integer, Person> persons, JSONObject jsonClass)
+	public Event(int id, int capacity, int daysCount, int duration, 
+			String[] possibleStartTimes, int personId) {
+		this.ID = id;
+		this.daysCount = daysCount;
+		this.duration = duration;
+		this.maxParticipants = capacity;
+		this.personId = personId;
+		this.possibleStartTimes = new ArrayList<Time>();
+		for (String t : possibleStartTimes) {
+			this.possibleStartTimes.add(new Time(t));
+		}
+	}
+	
+	public Event(/*Map<Integer, Person> persons,*/ JSONObject jsonClass)
 					throws JSONException {
-		this.solver = _solver;
 		
 		this.ID = jsonClass.getInt("id");
-		this.name = jsonClass.getString("name");
 		//this.persons = new ArrayList<Person>();
 		//this.persons.add(persons.get(jsonClass.getInt("professor_id")));
-		this.personId = jsonClass.getInt("professor_id");
-		this.person = persons.get(this.personId);
+		this.personId = jsonClass.getInt("persons");
+//		this.person = persons.get(this.personId);
 		
-		this.daysCount = jsonClass.getInt("days");
+		this.daysCount = jsonClass.getInt("days_count");
 		this.duration = jsonClass.getInt("duration");
 		this.possibleStartTimes = getPossibleStartTimes(jsonClass);
 		
 		this.maxParticipants = jsonClass.getInt("capacity");
+	}
+	
+	public void initialize(Solver solver, Map<Integer, Space> spaces) {
+		this.solver = solver;
 		int[] spaceIds = Ints.toArray(getSpaceIds(spaces));
 		this.spaceId = VariableFactory.enumerated("room id", spaceIds, this.solver);
 		
@@ -70,11 +87,24 @@ public class Event {
 			return LogicalConstraintFactory.or(_space, _time);
 	}
 	
-	private ArrayList<String> getPossibleStartTimes(JSONObject jsonClass) throws JSONException {
+	public static Map<Integer, Event> parseClasses(Solver _solver,
+			Map<Integer, Space> spaces, /*Map<Integer, Person> persons,*/
+			JSONArray jsonClasses) throws JSONException {
+		Map<Integer, Event> events = new HashMap<Integer, Event>();
+		for (int i = 0; i < jsonClasses.length(); i++) {
+			Event event = new Event(jsonClasses.getJSONObject(i));
+			event.initialize(_solver, spaces);
+			events.put(event.ID, event);
+		}
+		
+		return events;
+	}
+	
+	private ArrayList<Time> getPossibleStartTimes(JSONObject jsonClass) throws JSONException {
 		JSONArray jsonTimes = jsonClass.getJSONArray("possible_start_times");
-		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<Time> result = new ArrayList<Time>();
 		for (int i = 0; i < jsonTimes.length(); i++) {
-			result.add(jsonTimes.getString(i));
+			result.add(new Time(jsonTimes.getString(i)));
 		}
 		return result;
 	}
@@ -91,7 +121,7 @@ public class Event {
 	
 	private IntVar getStartTime() {
 		IntVar result = null;
-		
+		// ~~ IntVar.enumerate(str_to_int(possibleStartTime))
 		return result;
 	}
 	
