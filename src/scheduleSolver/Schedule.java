@@ -58,48 +58,48 @@ public class Schedule {
 		this.events = Event.parseClasses(this.solver, spaces, /*persons,*/ jsonClasses);
 	}
 	
-	public Constraint getConstraintsEventsSpaces() {
-		ArrayList<IntVar> timeBlocks = new ArrayList<IntVar>();
-		for (Event event : this.events.values()) {
-			// 1. Extract domain from event.possibleStartTimes
-			//		Things to consider:
-			//		- Convert from human-friendly strings to integers
-			//		- Space's capacity
-			//		- Space's availability (can just ignore for now...)
-			//    For now, we will assume that possibleStartTimes are in
-			//      correct format already (010910 instead of T:09:10 for instance)
-			// 2. time0 = IntVar.enumerated(domain)
-			// 3. populate array of time_offset (c1_s1_t0, c1_s1_t1, c1_s1_t2...)
-			// 4. Do the same for all the events
-			// 5. create alldifferent(array) constraint
-			
-			// 1.
-			ArrayList<Integer> domain = new ArrayList<Integer>();
-			for (Time t : event.possibleStartTimes) {
-				Integer tmp = t.getInt() * 100;
-				for (Space space : this.spaces.values()) {
-					if (space.capacity >= event.maxParticipants) {
-						domain.add(tmp + space.ID);
-					}
-				}
-			}
-			
-			// 2.
-			IntVar time0 = VariableFactory.enumerated("start time",
-					Ints.toArray(domain), this.solver);
-			
-			// 3.
-			for (int i = 0; i < event.duration; i += 5) {
-				IntVar timeVar = VariableFactory.offset(time0, i * 100);
-				timeBlocks.add(timeVar);
-			}
-			
-			// 4. -- Continue the loop
-		}
-		
-		// 5.
-		return IntConstraintFactory.alldifferent((IntVar[]) timeBlocks.toArray());
-	}
+//	public Constraint getConstraintsEventsSpaces() {
+//		ArrayList<IntVar> timeBlocks = new ArrayList<IntVar>();
+//		for (Event event : this.events.values()) {
+//			// 1. Extract domain from event.possibleStartTimes
+//			//		Things to consider:
+//			//		- Convert from human-friendly strings to integers
+//			//		- Space's capacity
+//			//		- Space's availability (can just ignore for now...)
+//			//    For now, we will assume that possibleStartTimes are in
+//			//      correct format already (010910 instead of T:09:10 for instance)
+//			// 2. time0 = IntVar.enumerated(domain)
+//			// 3. populate array of time_offset (c1_s1_t0, c1_s1_t1, c1_s1_t2...)
+//			// 4. Do the same for all the events
+//			// 5. create alldifferent(array) constraint
+//			
+//			// 1.
+//			ArrayList<Integer> domain = new ArrayList<Integer>();
+//			for (Time t : event.possibleStartTimes) {
+//				Integer tmp = t.getInt() * 100;
+//				for (Space space : this.spaces.values()) {
+//					if (space.capacity >= event.maxParticipants) {
+//						domain.add(tmp + space.ID);
+//					}
+//				}
+//			}
+//			
+//			// 2.
+//			IntVar time0 = VariableFactory.enumerated("start time",
+//					Ints.toArray(domain), this.solver);
+//			
+//			// 3.
+//			for (int i = 0; i < event.duration; i += 5) {
+//				IntVar timeVar = VariableFactory.offset(time0, i * 100);
+//				timeBlocks.add(timeVar);
+//			}
+//			
+//			// 4. -- Continue the loop
+//		}
+//		
+//		// 5.
+//		return IntConstraintFactory.alldifferent((IntVar[]) timeBlocks.toArray());
+//	}
 	
 	private void buildModel() {
 		Constraint constraint = IntConstraintFactory.TRUE(this.solver);
