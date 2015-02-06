@@ -83,6 +83,29 @@ public class Schedule {
 		this.events = Event.parseClasses(this.solver, spaces, /*persons,*/ jsonClasses);
 	}
 	
+	public ArrayList<EventPOJO> getSolution(){
+		ArrayList<EventPOJO> eps = new ArrayList<EventPOJO>();
+		
+		if(findSolution()){
+			for(Map.Entry<Integer, Event> event : events.entrySet()){
+				EventPOJO ep = new EventPOJO();
+				Event e = event.getValue();
+				ep.ID = e.getID();                           // getID needs to be created
+				ep.days = e.getDays();                       // getDays needs to be written
+				ep.roomID = e.getRoomID();                   // getRoomID needs to be written
+				ep.startTime = e.getDayTime().substring(1);  // getDayTime needs to be written
+				ep.wasFailure = false;
+				eps.add(ep);
+			}
+		}
+		else{
+			EventPOJO ep = new EventPOJO();
+			ep.wasFailure = true;
+			eps.add(ep);
+		}
+		return eps;
+	}
+	
 //	public Constraint getConstraintsEventsSpaces() {
 //		ArrayList<IntVar> timeBlocks = new ArrayList<IntVar>();
 //		for (Event event : this.events.values()) {
@@ -147,7 +170,7 @@ public class Schedule {
 		modelBuilt = true;
 	}
 	
-	public boolean findSolution() {
+	private boolean findSolution() {
 		if (!modelBuilt) buildModel();
 		solved = solver.findSolution();
 		return solved;
@@ -179,6 +202,14 @@ public class Schedule {
 	public static void main(String[] args) throws JSONException, IOException {
 		// TODO Auto-generated method stub
 		testing2("/home/dttvinh/snippet_spr15_schedule.json");
-
+		
+	}
+	
+	public class EventPOJO {
+		public int ID;
+		public char[] days;
+		public int roomID;
+		public String startTime;
+		public boolean wasFailure;
 	}
 }
