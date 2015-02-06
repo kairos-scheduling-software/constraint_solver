@@ -204,4 +204,12 @@ public class Schedule {
 		testing2("/home/dttvinh/snippet_spr15_schedule.json");
 		
 	}
+	
+	public class EventPOJO {
+		public int ID;
+		public char[] days;
+		public int roomID;
+		public String startTime;
+		public boolean wasFailure;
+	}
 }
