@@ -61,27 +61,27 @@ public class Schedule {
 //		this.solver = new Solver(this.name);
 //	}
 	
-	public Schedule(JSONObject jsonObj) throws JSONException {
-		JSONArray jsonClasses, jsonResources;
-		ArrayList<JSONObject> jsonRooms = new ArrayList<JSONObject>();
-		// ArrayList<JSONObject> jsonProfs;
-		
-		jsonClasses = jsonObj.getJSONArray("events");
-		jsonResources = jsonObj.getJSONArray("resources");
-		
-		//jsonProfs = new ArrayList<JSONObject>();
-		for (int i = 0; i < jsonResources.length(); i++) {
-			JSONObject obj = jsonResources.getJSONObject(i);
-			if (obj.getString("type").equals("room")) {
-				jsonRooms.add(obj);
-			}
-		}
-		
-		this.name = jsonObj.getString("name");
-		this.solver = new Solver(this.name);
-		this.spaces = Space.parseSpaces(jsonRooms);
-		this.events = Event.parseClasses(this.solver, spaces, /*persons,*/ jsonClasses);
-	}
+//	public Schedule(JSONObject jsonObj) throws JSONException {
+//		JSONArray jsonClasses, jsonResources;
+//		ArrayList<JSONObject> jsonRooms = new ArrayList<JSONObject>();
+//		// ArrayList<JSONObject> jsonProfs;
+//		
+//		jsonClasses = jsonObj.getJSONArray("events");
+//		jsonResources = jsonObj.getJSONArray("resources");
+//		
+//		//jsonProfs = new ArrayList<JSONObject>();
+//		for (int i = 0; i < jsonResources.length(); i++) {
+//			JSONObject obj = jsonResources.getJSONObject(i);
+//			if (obj.getString("type").equals("room")) {
+//				jsonRooms.add(obj);
+//			}
+//		}
+//		
+//		this.name = jsonObj.getString("name");
+//		this.solver = new Solver(this.name);
+//		this.spaces = Space.parseSpaces(jsonRooms);
+//		this.events = Event.parseClasses(this.solver, spaces, /*persons,*/ jsonClasses);
+//	}
 	
 	public ArrayList<EventPOJO> getSolution(){
 		ArrayList<EventPOJO> eps = new ArrayList<EventPOJO>();
@@ -176,23 +176,19 @@ public class Schedule {
 		return solved;
 	}
 	
-	public void testJson(String fileName) {
-		
-	}
-	
-	public static void testing2(String inputFile)
-			throws JSONException, IOException {
-		InputStream is = new FileInputStream(inputFile);
-		String rawData = readInput(is);
-		is.close();
-		JSONObject jsonInput = new JSONObject(rawData);
-		
-		Schedule scheduler = new Schedule(jsonInput);
-		
-		if (scheduler.findSolution())
-			//scheduler.printSolution();
-			System.out.println("Finished.");
-	}
+//	public static void testing2(String inputFile)
+//			throws JSONException, IOException {
+//		InputStream is = new FileInputStream(inputFile);
+//		String rawData = readInput(is);
+//		is.close();
+//		JSONObject jsonInput = new JSONObject(rawData);
+//		
+//		Schedule scheduler = new Schedule(jsonInput);
+//		
+//		if (scheduler.findSolution())
+//			//scheduler.printSolution();
+//			System.out.println("Finished.");
+//	}
 	
 	/**
 	 * @param args
@@ -201,7 +197,7 @@ public class Schedule {
 	 */
 	public static void main(String[] args) throws JSONException, IOException {
 		// TODO Auto-generated method stub
-		testing2("/home/dttvinh/snippet_spr15_schedule.json");
+//		testing2("/home/dttvinh/snippet_spr15_schedule.json");
 		
 	}
 	
