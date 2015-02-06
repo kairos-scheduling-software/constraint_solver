@@ -90,10 +90,10 @@ public class Schedule {
 			for(Map.Entry<Integer, Event> event : events.entrySet()){
 				EventPOJO ep = new EventPOJO();
 				Event e = event.getValue();
-				ep.ID = e.getID();                           // getID needs to be created
-				ep.days = e.getDays();                       // getDays needs to be written
-				ep.roomID = e.getSpaceID();                   // getRoomID needs to be written
-				ep.startTime = e.getStartTime();  // getDayTime needs to be written
+				ep.ID = e.getID();                        
+				ep.days = e.getDays();                  
+				ep.roomID = e.getSpaceID();                   
+				ep.startTime = e.getStartTime();
 				ep.wasFailure = false;
 				eps.add(ep);
 			}
