@@ -92,8 +92,8 @@ public class Schedule {
 				Event e = event.getValue();
 				ep.ID = e.getID();                           // getID needs to be created
 				ep.days = e.getDays();                       // getDays needs to be written
-				ep.roomID = e.getRoomID();                   // getRoomID needs to be written
-				ep.startTime = e.getDayTime().substring(1);  // getDayTime needs to be written
+				ep.roomID = e.getSpaceID();                   // getRoomID needs to be written
+				ep.startTime = e.getStartTime();  // getDayTime needs to be written
 				ep.wasFailure = false;
 				eps.add(ep);
 			}

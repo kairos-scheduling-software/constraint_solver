@@ -112,8 +112,8 @@ public class Event {
 			return LogicalConstraintFactory.or(_space, _time);
 	}
 	
-	public int getId() { return this.ID; }
-	public int getSpaceId() { return this.spaceId.getValue(); }
+	public int getID() { return this.ID; }
+	public int getSpaceID() { return this.spaceId.getValue(); }
 	public char[] getDays() {
 		char[] dayArr = {'M', 'T', 'W', 'H', 'F', 'S', 'U'};
 		char[] days = new char[this.daysCount];
