@@ -19,6 +19,8 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.constraints.LogicalConstraintFactory;
+import solver.explanations.RecorderExplanationEngine;
+import solver.explanations.strategies.ConflictBasedBackjumping;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
 
@@ -172,7 +174,17 @@ public class Schedule {
 	
 	private boolean findSolution() {
 		if (!modelBuilt) buildModel();
+		
+		solver.set(new RecorderExplanationEngine(solver));
+		ConflictBasedBackjumping cbj = new ConflictBasedBackjumping(solver.getExplainer());
+		// Then active end-user explanation
+		cbj.activeUserExplanation(true);
 		solved = solver.findSolution();
+		
+		if (!solved) {
+			System.out.println(cbj.getUserExplanation());
+		}
+		
 		return solved;
 	}
 	
