@@ -64,7 +64,7 @@ public class Event {
 		this.duration = jsonClass.getInt("duration");
 		this.possibleStartTimes = getPossibleStartTimes(jsonClass);
 		
-		this.maxParticipants = jsonClass.getInt("capacity");
+		this.maxParticipants = jsonClass.getInt("max_participants");
 	}
 	
 	public void initialize(Solver solver, Map<Integer, Space> spaces) {
@@ -101,7 +101,7 @@ public class Event {
 	}
 	
 	private ArrayList<Time> getPossibleStartTimes(JSONObject jsonClass) throws JSONException {
-		JSONArray jsonTimes = jsonClass.getJSONArray("possible_start_times");
+		JSONArray jsonTimes = jsonClass.getJSONArray("pStartTm");
 		ArrayList<Time> result = new ArrayList<Time>();
 		for (int i = 0; i < jsonTimes.length(); i++) {
 			result.add(new Time(jsonTimes.getString(i)));
