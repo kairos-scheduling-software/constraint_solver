@@ -1,6 +1,12 @@
 package scheduleSolver;
 
+import static scheduleSolver.Utils.readInput;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -27,14 +33,33 @@ public class Schedule {
 	private boolean modelBuilt = false;
 	private boolean solved = false;
 	
-	public Schedule(String name, Map<Integer, Event> events,
-			Map<Integer, Space> spaces /*, Map<Integer, Person> persons*/) {
+	public Schedule(String name, Event[] events,
+			Space[] spaces /*, Map<Integer, Person> persons*/) {
 		this.name = name;
-		this.events = events;
-		this.spaces = spaces;
-//		this.persons = persons;
 		this.solver = new Solver(this.name);
+		
+		this.spaces = new HashMap<>(spaces.length);
+		for (Space space : spaces) {
+			this.spaces.put(space.ID, space);
+		}
+		
+		this.events = new HashMap<>(events.length);
+		for (Event event : events) {
+			event.initialize(this.solver, this.spaces);
+			this.events.put(event.ID, event);
+		}
+		
+//		this.persons = persons;
 	}
+	
+//	public Schedule(String name, Map<Integer, Event> events,
+//			Map<Integer, Space> spaces /*, Map<Integer, Person> persons*/) {
+//		this.name = name;
+//		this.events = events;
+//		this.spaces = spaces;
+////		this.persons = persons;
+//		this.solver = new Solver(this.name);
+//	}
 	
 	public Schedule(JSONObject jsonObj) throws JSONException {
 		JSONArray jsonClasses, jsonResources;
@@ -132,11 +157,28 @@ public class Schedule {
 		
 	}
 	
+	public static void testing2(String inputFile)
+			throws JSONException, IOException {
+		InputStream is = new FileInputStream(inputFile);
+		String rawData = readInput(is);
+		is.close();
+		JSONObject jsonInput = new JSONObject(rawData);
+		
+		Schedule scheduler = new Schedule(jsonInput);
+		
+		if (scheduler.findSolution())
+			//scheduler.printSolution();
+			System.out.println("Finished.");
+	}
+	
 	/**
 	 * @param args
+	 * @throws IOException 
+	 * @throws JSONException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws JSONException, IOException {
 		// TODO Auto-generated method stub
+		testing2("/home/dttvinh/snippet_spr15_schedule.json");
 
 	}
 }
