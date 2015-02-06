@@ -2,7 +2,7 @@ package schedulingServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-
+import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.gson.Gson;
 
 import scheduleSolver.*;
 
@@ -29,7 +31,6 @@ public class ApiServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		String uri = request.getPathInfo();
-		boolean isCreate = false;
 		
 		if (uri == null) 
 		{
@@ -41,7 +42,6 @@ public class ApiServlet extends HttpServlet {
 		}
 		if (uri.equals("/new")) 
 		{
-			isCreate = true;
 			response.getWriter().print("Hello");
 		} 
 		else if (uri.equals("/check")) 
@@ -55,14 +55,17 @@ public class ApiServlet extends HttpServlet {
 			
 			String json = jb.toString();
 			
-			/*try 
+			try 
 			{
-				json = checkSchedule(json);
+				 ArrayList<scheduleSolver.Schedule.EventPOJO> solution = checkSchedule(json);
+				 Gson gson = new Gson();
+				 json = gson.toJson(solution);
+				 
 			} 
 			catch (JSONException e) 
 			{
 				json = "Error: error parsing JSON request string";
-			}*/
+			}
 			
 			response.getWriter().print(json);
 		} 
@@ -98,7 +101,7 @@ public class ApiServlet extends HttpServlet {
 		return null;
 	}*/
 
-	/*private JSONObject checkSchedule(String json) throws JSONException {
+	private ArrayList<scheduleSolver.Schedule.EventPOJO> checkSchedule(String json) throws JSONException {
 		JSONObject toCheck = new JSONObject(json);
 		
 		JSONArray jsonClasses = toCheck.getJSONArray("EVENT");
@@ -107,10 +110,10 @@ public class ApiServlet extends HttpServlet {
 		Event[] events = parseClasses(jsonClasses);
 		Space[] rooms = parseRooms(jsonResources);
 		
-		Schedule scheduler = new Schedule();
+		Schedule scheduler = new Schedule("My Schedule", events, rooms);
 		
-		scheduler.findSolution();
 		return scheduler.getSolution();
+		
 	}
 	
 	private static Event[] parseClasses(JSONArray jsonEvents) throws JSONException 
@@ -137,7 +140,7 @@ public class ApiServlet extends HttpServlet {
 			int max_participants = obj.getInt("max_participants");
 			int person = obj.getInt("persons");
 			
-			events[i] = new Event(id, days_count, duration, pStartTm, space, max_participants, person);
+			events[i] = new Event(id, max_participants,  days_count, duration, pStartTm, person, space);
 		}
 		
 		return events;
@@ -152,13 +155,13 @@ public class ApiServlet extends HttpServlet {
 			JSONObject room = jsonSpaces.getJSONObject(i);
 			int id = room.getInt("id");
 			int capacity = room.getInt("capacity");
-			String times = room.getString("times");
+			//String times = room.getString("times");
 			
-			rooms[i] = new Space(id, capacity, times);
+			rooms[i] = new Space(id, capacity);
 		}
 		
 		return rooms;
-	}*/
+	}
 	
 	
 

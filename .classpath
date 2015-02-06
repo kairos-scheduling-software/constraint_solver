@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="jetty-security-7.6.0.v20120127.jar"/>
 	<classpathentry kind="lib" path="jetty-util-7.6.0.v20120127.jar"/>
 	<classpathentry kind="lib" path="json-20090211.jar"/>
+	<classpathentry kind="lib" path="gson-2.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
