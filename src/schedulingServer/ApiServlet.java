@@ -31,10 +31,14 @@ public class ApiServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		String uri = request.getPathInfo();
+		response.setContentType("application/json");
+		Gson gson = new Gson();
 		
 		if (uri == null) 
 		{
-			response.getWriter().print("Error: Invalid path for post method");
+			ErrorPojo toReturn = new ErrorPojo();
+			toReturn.Error = "Invalid path for post method";
+			response.getWriter().print(gson.toJson(toReturn));
 		}
 		if (uri.endsWith("/")) 
 		{
@@ -58,16 +62,23 @@ public class ApiServlet extends HttpServlet {
 			try 
 			{
 				 ArrayList<scheduleSolver.Schedule.EventPOJO> solution = checkSchedule(json);
-				 Gson gson = new Gson();
-				 json = gson.toJson(solution);
+				 String toReturn = gson.toJson(solution);
+				 response.getWriter().print(toReturn);
 				 
 			} 
 			catch (JSONException e) 
 			{
-				json = "Error: error parsing JSON request string";
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "Error parsing JSON request string";
+				response.getWriter().print(gson.toJson(toReturn));
 			}
-			
-			response.getWriter().print(json);
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "An unexpected error occured";
+				response.getWriter().print(gson.toJson(toReturn));
+			}	
 		} 
 		else if(uri.equals("/requestKey"))
 		{
@@ -79,7 +90,9 @@ public class ApiServlet extends HttpServlet {
 		}
 		else 
 		{
-			response.getWriter().print("Error: The requested API path does not exist");
+			ErrorPojo toReturn = new ErrorPojo();
+			toReturn.Error = "The requested API path does not exist";
+			response.getWriter().print(gson.toJson(toReturn));
 		}
 	}
 	
@@ -173,6 +186,11 @@ public class ApiServlet extends HttpServlet {
 		
 		// Add code for testing the module
 
+	}
+	
+	public class ErrorPojo
+	{
+		public String Error;
 	}
 
 }
