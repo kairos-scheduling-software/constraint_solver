@@ -69,6 +69,94 @@ public class SchedulingSolverTest
 		return false;
 	}
 
+	//	public static void testing2(String inputFile)
+//			throws JSONException, IOException {
+//		InputStream is = new FileInputStream(inputFile);
+//		String rawData = readInput(is);
+//		is.close();
+//		JSONObject jsonInput = new JSONObject(rawData);
+//		
+//		Schedule scheduler = new Schedule(jsonInput);
+//		
+//		if (scheduler.findSolution())
+//			//scheduler.printSolution();
+//			System.out.println("Finished.");
+//	}
+	
+//	public static void aTest() {
+//
+//        Solver s = new Solver();
+//        s.set(new RecorderExplanationEngine(s));
+//        ConflictBasedBackjumping cbj = new ConflictBasedBackjumping(s.getExplainer());
+//        // Then active end-user explanation
+//        cbj.activeUserExplanation(true);
+//
+//        IntVar one = VF.fixed(1, s);
+//        IntVar three = VF.fixed(3, s);
+//        IntVar four = VF.fixed(4, s);
+//        IntVar six = VF.fixed(6, s);
+//        IntVar seven = VF.fixed(7, s);
+//
+//        IntVar x = VF.integer("x", 1, 10, s);
+//        IntVar y = VF.integer("y", 1, 10, s);
+//
+//        IntVar[] variables = new IntVar[]{x, y};
+//
+//        Constraint xGE3 = ICF.arithm(x, ">=", three);
+//        Constraint xLE4 = ICF.arithm(x, "<=", four);
+//
+//        Constraint yGE6 = ICF.arithm(y, ">=", six);
+//        Constraint yLE7 = ICF.arithm(y, "<=", seven);
+//
+//        s.post(xGE3);
+//        s.post(xLE4);
+//        s.post(yGE6);
+//        s.post(yLE7);
+//
+//        Constraint xE1 = ICF.arithm(x, "=", one);
+//        s.post(xE1);
+//
+//        Chatterbox.showDecisions(s);
+//        Boolean solve = s.findSolution();
+//        if (solve) {
+//            while (solve) {
+//                System.out.println("---");
+//
+//                for (Variable variable : variables) {
+//                    String name = variable.getName();
+//                    String value;
+//                    if (variable instanceof IntVar) {
+//                        IntVar intVar = (IntVar) variable;
+//                        int val = intVar.getValue();
+//                        value = new String(val + "");
+//
+//                    } else if (variable instanceof SetVar) {
+//                        SetVar intVar = (SetVar) variable;
+//                        int[] val = intVar.getValues();
+//                        value = Arrays.toString(val);
+//
+//                    } else if (variable instanceof BitsetIntVarImpl) {
+//                        BitsetIntVarImpl intVar = (BitsetIntVarImpl) variable;
+//                        int val = intVar.getValue();
+//                        value = new String(val + "");
+//                    } else
+//                        throw new RuntimeException();
+//                    System.out.println(String.format("%-20s%-20s%-20s", name,
+//                            value, variable.getClass().getSimpleName()));
+//                }
+//
+//                solve = s.nextSolution();
+//            }
+//        } else {
+//            // If the problem has no solution, the end-user explanation can be retrieved
+//            System.out.println(cbj.getUserExplanation());
+//            System.out.println("No solution found.");
+//            System.out.println(s.getEngine().getContradictionException());
+//        }
+//
+//        System.out.println("Done.");
+//    }
+
 	public static void main(String[] args) 
 	{
 		boolean failed = false;

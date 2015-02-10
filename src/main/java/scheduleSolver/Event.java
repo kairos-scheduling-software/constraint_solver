@@ -1,13 +1,7 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.google.common.primitives.Ints;
 
@@ -58,22 +52,6 @@ public class Event {
 			this.spaceIds = new int[]{spaceId};
 		}
 	}
-	
-//	public Event(/*Map<Integer, Person> persons,*/ JSONObject jsonClass)
-//					throws JSONException {
-//		
-//		this.ID = jsonClass.getInt("id");
-//		//this.persons = new ArrayList<Person>();
-//		//this.persons.add(persons.get(jsonClass.getInt("professor_id")));
-//		this.personId = jsonClass.getInt("persons");
-////		this.person = persons.get(this.personId);
-//		
-//		this.daysCount = jsonClass.getInt("days_count");
-//		this.duration = jsonClass.getInt("duration");
-//		this.possibleStartTimes = getPossibleStartTimes(jsonClass);
-//		
-//		this.maxParticipants = jsonClass.getInt("max_participants");
-//	}
 	
 	public void initialize(Solver solver, Map<Integer, Space> spaces) {
 		this.solver = solver;
@@ -133,28 +111,6 @@ public class Event {
 		Time startTime = new Time(this.startTime.getValue());
 		return startTime.getDayTime().substring(1);
 	}
-	
-//	public static Map<Integer, Event> parseClasses(Solver _solver,
-//			Map<Integer, Space> spaces, /*Map<Integer, Person> persons,*/
-//			JSONArray jsonClasses) throws JSONException {
-//		Map<Integer, Event> events = new HashMap<Integer, Event>();
-//		for (int i = 0; i < jsonClasses.length(); i++) {
-//			Event event = new Event(jsonClasses.getJSONObject(i));
-//			event.initialize(_solver, spaces);
-//			events.put(event.ID, event);
-//		}
-//		
-//		return events;
-//	}
-//	
-//	private ArrayList<Time> getPossibleStartTimes(JSONObject jsonClass) throws JSONException {
-//		JSONArray jsonTimes = jsonClass.getJSONArray("pStartTm");
-//		ArrayList<Time> result = new ArrayList<Time>();
-//		for (int i = 0; i < jsonTimes.length(); i++) {
-//			result.add(new Time(jsonTimes.getString(i)));
-//		}
-//		return result;
-//	}
 	
 //	private ArrayList<Integer> getSpaceIds(Map<Integer, Space> spaces) {
 //		ArrayList<Integer> ids = new ArrayList<Integer>();

@@ -1,36 +1,20 @@
 package scheduleSolver;
 
-import static scheduleSolver.Utils.readInput;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.common.primitives.Ints;
-
 import solver.Solver;
 import solver.constraints.Constraint;
-import solver.constraints.ICF;
 import solver.constraints.IntConstraintFactory;
 import solver.constraints.LogicalConstraintFactory;
 import solver.explanations.ExplanationFactory;
 import solver.explanations.RecorderExplanationEngine;
-import solver.explanations.strategies.ConflictBasedBackjumping;
-import solver.explanations.strategies.DynamicBacktracking;
 import solver.trace.Chatterbox;
 import solver.variables.IntVar;
 import solver.variables.SetVar;
-import solver.variables.VF;
 import solver.variables.Variable;
-import solver.variables.VariableFactory;
 import solver.variables.impl.BitsetIntVarImpl;
 
 public class Schedule {
@@ -41,19 +25,20 @@ public class Schedule {
 //	public final Map<Integer, Person> persons;
 	
 	private Solver solver;
-	private DynamicBacktracking exp;
+	//private ConflictBasedBackjumping exp;
 	private boolean modelBuilt = false;
 	private boolean solved = false;
+	
+	private static final boolean DEBUG = true;
 	
 	public Schedule(String name, Event[] events,
 			Space[] spaces /*, Map<Integer, Person> persons*/) {
 		this.name = name;
 		this.solver = new Solver(this.name);
 		
-		ExplanationFactory.DBT.plugin(solver, true);
+		ExplanationFactory.CBJ.plugin(solver, true);
 		solver.set(new RecorderExplanationEngine(solver));
-//		exp = new ConflictBasedBackjumping(solver.getExplainer());
-		//exp = new DynamicBacktracking(solver.getExplainer());
+		//exp = new ConflictBasedBackjumping(solver.getExplainer());
 		// Then active end-user explanation
 		//exp.activeUserExplanation(true);
 		
@@ -68,39 +53,8 @@ public class Schedule {
 			this.events.put(event.ID, event);
 		}
 		
-//		this.persons = persons;
+		//this.persons = persons;
 	}
-	
-//	public Schedule(String name, Map<Integer, Event> events,
-//			Map<Integer, Space> spaces /*, Map<Integer, Person> persons*/) {
-//		this.name = name;
-//		this.events = events;
-//		this.spaces = spaces;
-////		this.persons = persons;
-//		this.solver = new Solver(this.name);
-//	}
-	
-//	public Schedule(JSONObject jsonObj) throws JSONException {
-//		JSONArray jsonClasses, jsonResources;
-//		ArrayList<JSONObject> jsonRooms = new ArrayList<JSONObject>();
-//		// ArrayList<JSONObject> jsonProfs;
-//		
-//		jsonClasses = jsonObj.getJSONArray("events");
-//		jsonResources = jsonObj.getJSONArray("resources");
-//		
-//		//jsonProfs = new ArrayList<JSONObject>();
-//		for (int i = 0; i < jsonResources.length(); i++) {
-//			JSONObject obj = jsonResources.getJSONObject(i);
-//			if (obj.getString("type").equals("room")) {
-//				jsonRooms.add(obj);
-//			}
-//		}
-//		
-//		this.name = jsonObj.getString("name");
-//		this.solver = new Solver(this.name);
-//		this.spaces = Space.parseSpaces(jsonRooms);
-//		this.events = Event.parseClasses(this.solver, spaces, /*persons,*/ jsonClasses);
-//	}
 	
 	public ArrayList<EventPOJO> getSolution(){
 		ArrayList<EventPOJO> eps = new ArrayList<EventPOJO>();
@@ -192,141 +146,60 @@ public class Schedule {
 	private boolean findSolution() {
 		if (!modelBuilt) buildModel();
 		
-		Chatterbox.showDecisions(solver);
+		if (DEBUG) Chatterbox.showDecisions(solver);
+		
 		solved = solver.findSolution();
-		Chatterbox.printStatistics(solver);
-		if (!solved) {
-			
+		
+		if (!solved && DEBUG) {
 			//if (exp.getUserExplanation() == null)
 				//System.out.println("Error: No explanation.");
 			//else
 				//System.out.println("Explain: " + exp.getUserExplanation());
+			
 			System.out.println(solver.getEngine().getContradictionException());
 			//solver.getEngine().getContradictionException().printStackTrace();
-			for (Variable variable : solver.getVars()) {
-//				System.out.println(var);
-				String name = variable.getName();
-                String value;
-                if (variable instanceof IntVar) {
-                    IntVar intVar = (IntVar) variable;
-                    int val = intVar.getValue();
-                    value = new String(val + "");
-
-                } else if (variable instanceof SetVar) {
-                    SetVar intVar = (SetVar) variable;
-                    int[] val = intVar.getValues();
-                    value = Arrays.toString(val);
-
-                } else if (variable instanceof BitsetIntVarImpl) {
-                    BitsetIntVarImpl intVar = (BitsetIntVarImpl) variable;
-                    int val = intVar.getValue();
-                    value = new String(val + "");
-                } else
-                    throw new RuntimeException();
-                System.out.println(String.format("%-20s%-20s%-20s", name,
-                        value, variable.getClass().getSimpleName()));
-			}
-			for (Constraint c : solver.getCstrs()) {
-				System.out.println(c);
-			}
+			
+			// For debugging
+			printSolverData();
 		}
 		
 		return solved;
 	}
 	
-//	public static void testing2(String inputFile)
-//			throws JSONException, IOException {
-//		InputStream is = new FileInputStream(inputFile);
-//		String rawData = readInput(is);
-//		is.close();
-//		JSONObject jsonInput = new JSONObject(rawData);
-//		
-//		Schedule scheduler = new Schedule(jsonInput);
-//		
-//		if (scheduler.findSolution())
-//			//scheduler.printSolution();
-//			System.out.println("Finished.");
-//	}
-	
-//	public static void aTest() {
-//
-//        Solver s = new Solver();
-//        s.set(new RecorderExplanationEngine(s));
-//        ConflictBasedBackjumping cbj = new ConflictBasedBackjumping(s.getExplainer());
-//        // Then active end-user explanation
-//        cbj.activeUserExplanation(true);
-//
-//        IntVar one = VF.fixed(1, s);
-//        IntVar three = VF.fixed(3, s);
-//        IntVar four = VF.fixed(4, s);
-//        IntVar six = VF.fixed(6, s);
-//        IntVar seven = VF.fixed(7, s);
-//
-//        IntVar x = VF.integer("x", 1, 10, s);
-//        IntVar y = VF.integer("y", 1, 10, s);
-//
-//        IntVar[] variables = new IntVar[]{x, y};
-//
-//        Constraint xGE3 = ICF.arithm(x, ">=", three);
-//        Constraint xLE4 = ICF.arithm(x, "<=", four);
-//
-//        Constraint yGE6 = ICF.arithm(y, ">=", six);
-//        Constraint yLE7 = ICF.arithm(y, "<=", seven);
-//
-//        s.post(xGE3);
-//        s.post(xLE4);
-//        s.post(yGE6);
-//        s.post(yLE7);
-//
-//        Constraint xE1 = ICF.arithm(x, "=", one);
-//        s.post(xE1);
-//
-//        Chatterbox.showDecisions(s);
-//        Boolean solve = s.findSolution();
-//        if (solve) {
-//            while (solve) {
-//                System.out.println("---");
-//
-//                for (Variable variable : variables) {
-//                    String name = variable.getName();
-//                    String value;
-//                    if (variable instanceof IntVar) {
-//                        IntVar intVar = (IntVar) variable;
-//                        int val = intVar.getValue();
-//                        value = new String(val + "");
-//
-//                    } else if (variable instanceof SetVar) {
-//                        SetVar intVar = (SetVar) variable;
-//                        int[] val = intVar.getValues();
-//                        value = Arrays.toString(val);
-//
-//                    } else if (variable instanceof BitsetIntVarImpl) {
-//                        BitsetIntVarImpl intVar = (BitsetIntVarImpl) variable;
-//                        int val = intVar.getValue();
-//                        value = new String(val + "");
-//                    } else
-//                        throw new RuntimeException();
-//                    System.out.println(String.format("%-20s%-20s%-20s", name,
-//                            value, variable.getClass().getSimpleName()));
-//                }
-//
-//                solve = s.nextSolution();
-//            }
-//        } else {
-//            // If the problem has no solution, the end-user explanation can be retrieved
-//            System.out.println(cbj.getUserExplanation());
-//            System.out.println("No solution found.");
-//            System.out.println(s.getEngine().getContradictionException());
-//        }
-//
-//        System.out.println("Done.");
-//    }
+	private void printSolverData() {
+		Chatterbox.printStatistics(solver);
+		
+		for (Variable variable : solver.getVars()) {
+			String name = variable.getName();
+            String value;
+            if (variable instanceof IntVar) {
+                IntVar intVar = (IntVar) variable;
+                int val = intVar.getValue();
+                value = new String(val + "");
+
+            } else if (variable instanceof SetVar) {
+                SetVar intVar = (SetVar) variable;
+                int[] val = intVar.getValues();
+                value = Arrays.toString(val);
+
+            } else if (variable instanceof BitsetIntVarImpl) {
+                BitsetIntVarImpl intVar = (BitsetIntVarImpl) variable;
+                int val = intVar.getValue();
+                value = new String(val + "");
+            } else
+                throw new RuntimeException();
+            System.out.println(String.format("%-20s%-20s%-20s", name,
+                    value, variable.getClass().getSimpleName()));
+		}
+		for (Constraint c : solver.getCstrs()) {
+			System.out.println(c);
+		}
+	}
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//testing2("/home/dttvinh/snippet_spr15_schedule.json");
 		Event e0 = new Event(0 /*id*/, 50 /*maxParticipants*/,
 				2 /*daysCount*/, 50 /*duration*/,
 				new String[]{"M0930"} /*startTimes*/,
@@ -350,9 +223,6 @@ public class Schedule {
 		
 		boolean result = sc.findSolution();
 		System.out.println("has_solution = " + result);
-		
-//		System.out.println("\nSolver Test");
-//		aTest();
 	}
 	
 	public class EventPOJO {

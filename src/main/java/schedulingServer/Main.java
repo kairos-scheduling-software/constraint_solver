@@ -10,6 +10,11 @@ import java.net.URISyntaxException;
 import java.sql.*;
 
 public class Main extends HttpServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -67,14 +72,26 @@ public class Main extends HttpServlet {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Server server = new Server(Integer.valueOf(System.getenv("PORT")));
-		//Server server = new Server(8080);
+		// Default port if there's no environment variable
+		int port = 8080;
+		
+		// Getting env's port information
+		// TODO: Should we handle parseInt exception here?
+		String portStr = System.getenv("PORT");
+		if (portStr != null) port = Integer.valueOf(portStr);
+		
+		// Create server object
+		Server server = new Server(port);
+		
+		// Configure server settings
 		ServletContextHandler context = new ServletContextHandler(
 				ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		server.setHandler(context);
 		context.addServlet(new ServletHolder(new Main()), "/*");
 		context.addServlet(new ServletHolder(new ApiServlet()), "/api/*");
+		
+		// Start server and wait
 		server.start();
 		server.join();
 	}

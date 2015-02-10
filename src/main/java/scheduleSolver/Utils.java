@@ -4,15 +4,8 @@ import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 public class Utils {
 	
-	public static void parseEvents(JSONArray json) {
-		
-	}
-
 	public static String readInput(InputStream is) {
 		Scanner sc = new Scanner(is);
 		
