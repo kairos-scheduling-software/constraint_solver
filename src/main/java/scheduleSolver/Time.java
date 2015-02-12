@@ -1,12 +1,12 @@
 package scheduleSolver;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class Time {
 	/* members */
 	private int asInt;         /* in range 0 - 61439, the set of valid asInt values is {0,1,...,59,100,101,...,159,...,2359,10000,10001,...,12359,...62359} */
 	private String asDayTime;  /* will be on character from {M,T,W,H,F,S,U} followed by four numeric digits representing the time, based on a 24-hour clock */
-	private ArrayList<Tuple> daysTimes;
+	private Map<String[],String[]> daysTimes;
 	
 	/* constructors */
 	public Time(int i){
@@ -19,27 +19,12 @@ public class Time {
 		setInt();
 	}
 	
-	public Time(){
-		this.daysTimes = new ArrayList<Tuple>();
-	}
-	
-	protected class Tuple{
-		private int[] first;
-		private int[] second;
-		public Tuple(int[] d, int[] t){
-			this.first = d;
-			this.second = t;
-		}
-		public int[]getFirst(){return this.first;}
-		public int[]getSecond(){return this.second;}
-	}
-	
-	public void addAlternative(int[] days, int[] times){
-		this.daysTimes.add(new Tuple(days, times));
+	public Time(Map<String[],String[]> m){
+		this.daysTimes = m;
 	}
 	
 	/* getters */
-	public ArrayList<Tuple> getDaysTimes(){ return this.daysTimes; }
+	public Map<String[],String[]> getDaysTimes(){ return this.daysTimes; }
 	public int getInt(){ return asInt; }
 	public String getDayTime(){ return asDayTime; }
 	
