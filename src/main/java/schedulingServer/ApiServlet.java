@@ -3,6 +3,9 @@ package schedulingServer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -140,20 +143,28 @@ public class ApiServlet extends HttpServlet {
 			int days_count = obj.getInt("days_count");
 			int duration = obj.getInt("duration");
 			
-			//get the string array of possible start times
-			JSONArray pStartTmArray = obj.getJSONArray("pStartTm");
-			String[] pStartTm = new String[pStartTmArray.length()];
-			
-			for(int j = 0; j < pStartTm.length; j++)
-			{
-				pStartTm[j] = pStartTmArray.get(j).toString();
-			}
+			// searchResult refers to the current element in the array "search_result"
+		    JSONObject pStartTmArray = obj.getJSONObject("pStartTm");
+		    Iterator keys = pStartTmArray.keys();
+		    HashMap<String, String[]> pStartTm = new HashMap<String, String[]>();
+
+		    while(keys.hasNext()) {
+		        // loop to get the dynamic key
+		        String currentDynamicKey = (String)keys.next();
+
+		        // get the value of the dynamic key
+		        JSONArray currentDynamicValue = pStartTmArray.getJSONArray(currentDynamicKey);
+
+		       pStartTm.put(currentDynamicKey, convertJsonArrayToStringArray(currentDynamicValue));
+		        
+		        
+		    }
 			
 			int space = obj.getInt("space");
 			int max_participants = obj.getInt("max_participants");
 			int person = obj.getInt("persons");
 			
-			events[i] = new Event(id, max_participants,  days_count, duration, pStartTm, person, space);
+			//events[i] = new Event(id, max_participants,  days_count, duration, pStartTm, person, space);
 		}
 		
 		return events;
@@ -176,6 +187,25 @@ public class ApiServlet extends HttpServlet {
 		return rooms;
 	}
 	
+
+
+	public static String[] convertJsonArrayToStringArray(JSONArray jsonArray) throws JSONException
+	{
+		String[] stringArray = null;
+		if(jsonArray!=null)
+		{
+			int length = jsonArray.length();
+			stringArray = new String[length];
+			
+			for(int i=0; i < length ; i++)
+			{
+				stringArray[i]= jsonArray.getString(i);
+			}
+		}
+		return stringArray;
+	}
+
+
 	
 
 	/**
