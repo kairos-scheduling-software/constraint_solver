@@ -200,19 +200,23 @@ public class Schedule {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		HashMap<String, String[]> m = new HashMap<String, String[]>();
+		m.put("M", new String[]{"0930"});
+		
+		HashMap<String, String[]> m2 = new HashMap<String, String[]>();
+		m2.put("T", new String[]{"0930"});
+		
 		Event e0 = new Event(0 /*id*/, 50 /*maxParticipants*/,
-				2 /*daysCount*/, 50 /*duration*/,
-				new String[]{"M0930"} /*startTimes*/,
+				m /*startTimes*/, 50 /*duration*/,
 				0 /*personId*/, 1 /*spaceId*/);
 		
 		Event e1 = new Event(1 /*id*/, 70 /*maxParticipants*/,
-				2 /*daysCount*/, 70 /*duration*/,
-				new String[]{"M0930"} /*startTimes*/,
+				m /*startTimes*/, 70 /*duration*/,
 				1 /*personId*/, 1 /*spaceId*/);
 		
 		Event e2 = new Event(2 /*id*/, 50 /*maxParticipants*/,
-				2 /*daysCount*/, 50 /*duration*/,
-				new String[]{"T0930"} /*startTimes*/,
+				m2 /*startTimes*/, 50 /*duration*/,
 				1 /*personId*//*, 1 /*spaceId*/);
 		
 		Space s0 = new Space(0, 60);

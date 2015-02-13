@@ -3,6 +3,9 @@ package scheduleSolver;
 import java.util.HashMap;
 import java.util.Map;
 
+import solver.Solver;
+import solver.constraints.Constraint;
+
 public class Time {
 	/* members */
 	private int asInt;         /* in range 0 - 61439, the set of valid asInt values is {0,1,...,59,100,101,...,159,...,2359,10000,10001,...,12359,...62359} */
@@ -19,6 +22,17 @@ public class Time {
 		asDayTime = s;
 		setInt();
 	}
+	
+	// Skeleton methods/functions
+	public Time(Map<String, String[]> startTimes, int duration) {
+		// Main constructor method
+		//TODO: Fill this up
+	}
+	public void initialize(Solver solver) {}
+	public char[] getDays(){ return null; }
+	public String getStartTime(){ return null; }
+	public Constraint notOverlap(Time other) { return null; }
+	
 	
 	public Time(Map<String, String[]> m){
 		this.daysTimes = new HashMap<Integer, int[]>();
