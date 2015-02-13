@@ -1,12 +1,13 @@
 package scheduleSolver;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Time {
 	/* members */
 	private int asInt;         /* in range 0 - 61439, the set of valid asInt values is {0,1,...,59,100,101,...,159,...,2359,10000,10001,...,12359,...62359} */
 	private String asDayTime;  /* will be on character from {M,T,W,H,F,S,U} followed by four numeric digits representing the time, based on a 24-hour clock */
-	private Map<String[],String[]> daysTimes;
+	private Map<Integer,int[]> daysTimes;
 	
 	/* constructors */
 	public Time(int i){
@@ -19,12 +20,39 @@ public class Time {
 		setInt();
 	}
 	
-	public Time(Map<String[],String[]> m){
-		this.daysTimes = m;
+	public Time(Map<String, String[]> m){
+		this.daysTimes = new HashMap<Integer, int[]>();
+		for(String key : m.keySet()){
+			for(int i=0; i<key.length(); i++){
+				int newKey = 0;
+				switch(key.charAt(i)){
+				case 'M' : newKey += 64;
+				break;
+				case 'T' : newKey += 32;
+				break;
+				case 'W' : newKey += 16;
+				break;
+				case 'H' : newKey += 8;
+				break;
+				case 'F' : newKey += 4;
+				break;
+				case 'S' : newKey += 2;
+				break;
+				case 'U' : newKey += 1;
+				break;
+				default : newKey += 0; /* this shouldn't happen */
+				}
+				int[] newVal = new int[m.get(key).length];
+				for(int j=0; j<m.get(key).length; j++){
+					newVal[i] = Integer.parseInt(m.get(key)[j]);
+				}
+				this.daysTimes.put(newKey,newVal);
+			}
+		}
 	}
 	
 	/* getters */
-	public Map<String[],String[]> getDaysTimes(){ return this.daysTimes; }
+	//public Map<String[],String[]> getDaysTimes(){ return this.daysTimes; }
 	public int getInt(){ return asInt; }
 	public String getDayTime(){ return asDayTime; }
 	
