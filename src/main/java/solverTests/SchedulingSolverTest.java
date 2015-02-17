@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import scheduleSolver.*;
 import scheduleSolver.Schedule.EventPOJO;
+import static util.Json.*;
 
 
 /**
@@ -196,41 +197,10 @@ public class SchedulingSolverTest
 		JSONArray jsonClasses = toCheck.getJSONArray("EVENT");
 		JSONArray jsonResources = toCheck.getJSONArray("SPACE");
 		
-		data.events = parseClasses(jsonClasses);
+		data.events = parseEvents(jsonClasses);
 		data.rooms = parseRooms(jsonResources);
 		
 		return data;
-	}
-	
-	
-	private static Event[] parseClasses(JSONArray jsonEvents) throws JSONException 
-	{
-		Event[] events = new Event[jsonEvents.length()];
-		for (int i = 0; i < events.length; i++) 
-		{
-			JSONObject obj = jsonEvents.getJSONObject(i);
-			
-			int id = obj.getInt("id");
-			int days_count = obj.getInt("days_count");
-			int duration = obj.getInt("duration");
-			
-			//get the string array of possible start times
-			JSONArray pStartTmArray = obj.getJSONArray("pStartTm");
-			String[] pStartTm = new String[pStartTmArray.length()];
-			
-			for(int j = 0; j < pStartTm.length; j++)
-			{
-				pStartTm[j] = pStartTmArray.get(j).toString();
-			}
-			
-			int space = obj.getInt("space");
-			int max_participants = obj.getInt("max_participants");
-			int person = obj.getInt("persons");
-			
-			events[i] = new Event(id, max_participants,  days_count, duration, pStartTm, person, space);
-		}
-		
-		return events;
 	}
 	
 	private static Space[] parseRooms(JSONArray jsonSpaces) throws JSONException

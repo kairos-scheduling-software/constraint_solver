@@ -1,10 +1,10 @@
-package scheduleSolver;
+package util;
 
 import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class Utils {
+public class IO {
 	
 	public static String readInput(InputStream is) {
 		Scanner sc = new Scanner(is);
