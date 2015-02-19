@@ -36,8 +36,8 @@ public class Schedule {
 		this.name = name;
 		this.solver = new Solver(this.name);
 		
-		ExplanationFactory.CBJ.plugin(solver, true);
-		solver.set(new RecorderExplanationEngine(solver));
+//		ExplanationFactory.CBJ.plugin(solver, true);
+//		solver.set(new RecorderExplanationEngine(solver));
 		//exp = new ConflictBasedBackjumping(solver.getExplainer());
 		// Then active end-user explanation
 		//exp.activeUserExplanation(true);
@@ -123,13 +123,15 @@ public class Schedule {
 //	}
 	
 	private void buildModel() {
-		Constraint constraint = IntConstraintFactory.TRUE(this.solver);
 		Event[] events_arr = this.events.values().toArray(new Event[0]);
 		int n = events_arr.length;
+		
+		ArrayList<Constraint> constraintList = new ArrayList<Constraint>();
+		
 		for (int i = 0; i < n; i++) {
+			constraintList.add(events_arr[i].getConstraint());
 			for (int j = i + 1; j < n; j++) {
-				constraint = LogicalConstraintFactory.and(constraint,
-						events_arr[i].notOverlap(events_arr[j]));
+				constraintList.add(events_arr[i].notOverlap(events_arr[j]));
 			}
 //			for (Space space : this.spaces) {
 //				constraint = LogicalConstraintFactory.and(constraint,
@@ -138,7 +140,8 @@ public class Schedule {
 //			constraint = LogicalConstraintFactory.and(constraint, this.events[i].eventConstraint);
 		}
 		
-		this.solver.post(constraint);
+		this.solver.post(LogicalConstraintFactory.and(
+				constraintList.toArray(new Constraint[0])));
 		
 		modelBuilt = true;
 	}
@@ -146,7 +149,7 @@ public class Schedule {
 	private boolean findSolution() {
 		if (!modelBuilt) buildModel();
 		
-		if (DEBUG) Chatterbox.showDecisions(solver);
+//		if (DEBUG) Chatterbox.showDecisions(solver);
 		
 		solved = solver.findSolution();
 		
@@ -156,6 +159,7 @@ public class Schedule {
 			//else
 				//System.out.println("Explain: " + exp.getUserExplanation());
 			
+			// Print the most recent conflict (that causes the solver fail)
 			System.out.println(solver.getEngine().getContradictionException());
 			//solver.getEngine().getContradictionException().printStackTrace();
 			
