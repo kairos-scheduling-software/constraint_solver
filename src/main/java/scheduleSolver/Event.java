@@ -91,6 +91,8 @@ public class Event {
 //		Constraint _time = IntConstraintFactory.alldifferent(combinedTimes.toArray(new IntVar[0]));
 	}
 	
+	public Constraint getConstraint() { return time.getConstraint(); }
+	
 	public int getID() { return this.ID; }
 	public int getSpaceID() { return this.spaceId.getValue(); }
 	public char[] getDays() { return this.time.getDays(); }

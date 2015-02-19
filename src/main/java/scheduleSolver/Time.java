@@ -1,6 +1,7 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import com.google.common.primitives.Ints;
 
 import solver.Solver;
 import solver.constraints.Constraint;
+import solver.constraints.IntConstraintFactory;
 import solver.constraints.LogicalConstraintFactory;
 import solver.constraints.set.SetConstraintsFactory;
 import solver.variables.IntVar;
@@ -57,15 +59,7 @@ public class Time {
 				key += (1 << week.indexOf(days.charAt(i)));
 			
 			for(int i = 0; i < times.length; i++){
-				int hour, min;
-				try {
-					hour = Integer.parseInt(times[i].substring(1, 3));
-					min = Integer.parseInt(times[i].substring(3));
-				} catch (IndexOutOfBoundsException | NumberFormatException e) {
-					throw new IllegalArgumentException();
-				}
-				
-				value.add(hour * 60 + min);
+				value.add(stringToTime(times[i]));
 			}
 			this.daysTimes.put(key, value);
 		}
@@ -81,23 +75,67 @@ public class Time {
 		this.startTime = VariableFactory.enumerated("startTime",
 				Ints.toArray(totalTimes), solver);
 		
-		//TODO: setup days and times constraint
-		this.constraint = solver.TRUE;
+//		this.constraint = solver.TRUE;
+		
+		ArrayList<Constraint> conArr = new ArrayList<Constraint>();
 		for (Entry<Integer, List<Integer>> entry : daysTimes.entrySet()) {
-			//Constraint tmp = 
+			int[] daysArr = convertIntToArray(entry.getKey());
+			
+//			System.out.println("Days Array: " + Arrays.toString(daysArr));
+			
+			SetVar daySet = VariableFactory.fixed("days set",
+					daysArr, solver);
+			
+//			System.out.println("Time Array: " + Arrays.toString(Ints.toArray(entry.getValue())));
+			
+			Constraint tmp = IntConstraintFactory.member(
+					this.startTime, Ints.toArray(entry.getValue()));
+			
+			Constraint timeConstraint = LogicalConstraintFactory.and(
+					SetConstraintsFactory.offSet(this.days, daySet, 0), tmp);
 			//TODO: Finish Time's initialization method
-			constraint = LogicalConstraintFactory.or(constraint);
+//			constraint = LogicalConstraintFactory.or(constraint, timeConstraint);
+			
+			conArr.add(timeConstraint);
+		}
+		
+		if (conArr.size() > 1) {
+			constraint = LogicalConstraintFactory.or(conArr.toArray(new Constraint[0]));
+		} else if (conArr.size() == 1) {
+			constraint = conArr.get(0);
+		} else {
+			constraint = solver.FALSE;
 		}
 	}
 	
-	//TODO: Finish getter methods
-	public char[] getDays(){ return null; }
-	public String getStartTime(){ return null; }
+	public Constraint notOverlap(Time other) {
+		Constraint daysConstraint = SetConstraintsFactory.disjoint(this.days, other.days);
+		Constraint time1Constraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.duration);
+		Constraint time2Constraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.duration);
+		
+		return LogicalConstraintFactory.or(daysConstraint, time1Constraint, time2Constraint);
+	}
+
+	public Constraint getConstraint() { return this.constraint; }
 	
-	//TODO: Finish time's constraint
-	public Constraint notOverlap(Time other) { return null; }
+	public char[] getDays(){
+		int[] daysArr = this.days.getValues();
+		String week = "MTWHFSU";
+		char[] daysChar = new char[daysArr.length];
+		
+		for (int i = 0; i < daysArr.length; i++) {
+			daysChar[i] = week.charAt(daysArr[i]);
+		}
+		
+		return daysChar;
+	}
 	
-	
+	public String getStartTime(){
+		int tm = this.startTime.getValue();
+		
+		return timeToString(tm);
+	}
+		
 	public Time(Map<String, String[]> m){
 		this.daysTimes = new HashMap<Integer, List<Integer>>();
 		
@@ -129,6 +167,39 @@ public class Time {
 			}
 			this.daysTimes.put(newKey,newVal);
 		}
+	}
+	
+	private int[] convertIntToArray(int days) {
+		ArrayList<Integer> arrDays = new ArrayList<Integer>();
+		int index = 0;
+		while (days > 0) {
+//			arrDays.add(days % 2);
+			if (days % 2 != 0) arrDays.add(index);
+			index++;
+			days /= 2;
+		}
+		return Ints.toArray(arrDays);
+	}
+	
+	private int stringToTime(String tmString) {
+		int hour, min;
+		try {
+			hour = Integer.parseInt(tmString.substring(1, 3));
+			min = Integer.parseInt(tmString.substring(3));
+		} catch (IndexOutOfBoundsException | NumberFormatException e) {
+			throw new IllegalArgumentException();
+		}
+		
+		return hour * 60 + min;
+	}
+	
+	private String timeToString(int tm) {
+		int hour, min;
+		
+		min = tm % 60;
+		hour = tm / 60;
+		
+		return String.format("%02d%02d", hour, min);
 	}
 	
 	/* getters */
