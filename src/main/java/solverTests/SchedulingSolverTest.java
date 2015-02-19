@@ -1,5 +1,6 @@
 package solverTests;
 
+import java.io.PrintStream;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -26,7 +27,10 @@ public class SchedulingSolverTest
 	{
 		try 
 		{
-			String json = "{\"EVENT\":[{\"id\":313,\"days_count\":2,\"duration\":\"80\",\"pStartTm\":[\"T0730\",\"H0730\"],\"space\":80,\"max_participants\":97,\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80,\"capacity\":97,\"times\":\"\"}]}";
+			String json = "{\"EVENT\":[{\"id\":313,\"days_count\":2,\"duration\":\"80\"," +
+					"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":80,\"max_participants\":97," +
+					"\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80," +
+					"\"capacity\":97,\"times\":\"\"}]}";
 			ParsedData data = parseJson(json);
 		
 			Schedule schedule = new Schedule("", data.events, data.rooms);
@@ -35,11 +39,15 @@ public class SchedulingSolverTest
 		
 			if(solution.get(0).wasFailure)
 			{
+				System.out.println("solution.get(0) was failure");
 				return false;
 			}
 		}
 		catch(Exception e)
 		{
+			System.out.println("caught exception in test1");
+			System.out.println(e.getMessage());
+			e.printStackTrace(new PrintStream(System.out));
 			return false;
 		}
 		
@@ -50,7 +58,14 @@ public class SchedulingSolverTest
 	{
 		try 
 		{
-			String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":\"80\",\"pStartTm\":[\"T0730\",\"H0730\"],\"space\":82,\"max_participants\":103,\"persons\":15,\"constraint\":[]},{\"id\":317,\"days_count\":2,\"duration\":\"80\",\"pStartTm\":[\"T0730\",\"H0730\"],\"space\":82,\"max_participants\":103,\"persons\":16,\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103,\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
+			String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":\"80\"," +
+					"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":82," +
+					"\"max_participants\":103,\"persons\":15,\"constraint\":[]}," +
+					"{\"id\":317,\"days_count\":2,\"duration\":\"80\"," +
+					"\"pStartTm\":{\"TH\":[\"0730\"]}," +
+					"\"space\":82,\"max_participants\":103,\"persons\":16," +
+					"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
+					"\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
 			ParsedData data = parseJson(json);
 		
 			Schedule schedule = new Schedule("", data.events, data.rooms);
@@ -64,6 +79,8 @@ public class SchedulingSolverTest
 		}
 		catch(Exception e)
 		{
+			System.out.println("caught exception in test2");
+			e.printStackTrace(new PrintStream(System.out));
 			return false;
 		}
 		
@@ -159,33 +176,26 @@ public class SchedulingSolverTest
 //    }
 
 	public static void main(String[] args) 
-	{
-		boolean failed = false;
-		
-		//TEST 1
-		boolean testPassed = test1();
-		failed = failed && !testPassed;
+	{	
+		boolean passed = test1();
 			
-		if(!testPassed)
+		if(!passed)
 		{
 			System.out.println("test1 failed");
 		}
 		
 		//TEST 2
-		testPassed = test2();
-		failed = failed && !testPassed;
+		boolean testPassed = test2();
+		passed = passed && testPassed;
 			
 		if(!testPassed)
 		{
 			System.out.println("test2 failed");
 		}
 		
-		
 		//WRAP UP
-		if(!failed)
-		{
-			System.out.println("All tests Passed");
-		}
+		if(passed) System.out.println("All tests Passed");
+		else System.out.println("At least one test failed");
 	}
 
 	private static ParsedData parseJson(String json) throws JSONException
