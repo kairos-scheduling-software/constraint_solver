@@ -3,19 +3,19 @@ package scheduleSolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.primitives.Ints;
+
+import solver.ResolutionPolicy;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
-import solver.constraints.LogicalConstraintFactory;
-import solver.explanations.ExplanationFactory;
-import solver.explanations.RecorderExplanationEngine;
 import solver.trace.Chatterbox;
+import solver.variables.BoolVar;
 import solver.variables.IntVar;
-import solver.variables.SetVar;
-import solver.variables.Variable;
-import solver.variables.impl.BitsetIntVarImpl;
+import solver.variables.VariableFactory;
 
 public class Schedule {
 	public final String name;
@@ -25,9 +25,12 @@ public class Schedule {
 //	public final Map<Integer, Person> persons;
 	
 	private Solver solver;
-	//private ConflictBasedBackjumping exp;
+	private IntVar sum;
+	private int count;
 	private boolean modelBuilt = false;
 	private boolean solved = false;
+	
+	private ArrayList<EventConstraint> eventsConstraints;
 	
 	private static final boolean DEBUG = true;
 	
@@ -35,12 +38,6 @@ public class Schedule {
 			Space[] spaces /*, Map<Integer, Person> persons*/) {
 		this.name = name;
 		this.solver = new Solver(this.name);
-		
-//		ExplanationFactory.CBJ.plugin(solver, true);
-//		solver.set(new RecorderExplanationEngine(solver));
-		//exp = new ConflictBasedBackjumping(solver.getExplainer());
-		// Then active end-user explanation
-		//exp.activeUserExplanation(true);
 		
 		this.spaces = new HashMap<Integer, Space>(spaces.length);
 		for (Space space : spaces) {
@@ -79,59 +76,24 @@ public class Schedule {
 		return eps;
 	}
 	
-//	public Constraint getConstraintsEventsSpaces() {
-//		ArrayList<IntVar> timeBlocks = new ArrayList<IntVar>();
-//		for (Event event : this.events.values()) {
-//			// 1. Extract domain from event.possibleStartTimes
-//			//		Things to consider:
-//			//		- Convert from human-friendly strings to integers
-//			//		- Space's capacity
-//			//		- Space's availability (can just ignore for now...)
-//			//    For now, we will assume that possibleStartTimes are in
-//			//      correct format already (010910 instead of T:09:10 for instance)
-//			// 2. time0 = IntVar.enumerated(domain)
-//			// 3. populate array of time_offset (c1_s1_t0, c1_s1_t1, c1_s1_t2...)
-//			// 4. Do the same for all the events
-//			// 5. create alldifferent(array) constraint
-//			
-//			// 1.
-//			ArrayList<Integer> domain = new ArrayList<Integer>();
-//			for (Time t : event.possibleStartTimes) {
-//				Integer tmp = t.getInt() * 100;
-//				for (Space space : this.spaces.values()) {
-//					if (space.capacity >= event.maxParticipants) {
-//						domain.add(tmp + space.ID);
-//					}
-//				}
-//			}
-//			
-//			// 2.
-//			IntVar time0 = VariableFactory.enumerated("start time",
-//					Ints.toArray(domain), this.solver);
-//			
-//			// 3.
-//			for (int i = 0; i < event.duration; i += 5) {
-//				IntVar timeVar = VariableFactory.offset(time0, i * 100);
-//				timeBlocks.add(timeVar);
-//			}
-//			
-//			// 4. -- Continue the loop
-//		}
-//		
-//		// 5.
-//		return IntConstraintFactory.alldifferent((IntVar[]) timeBlocks.toArray());
-//	}
-	
 	private void buildModel() {
 		Event[] events_arr = this.events.values().toArray(new Event[0]);
 		int n = events_arr.length;
 		
-		ArrayList<Constraint> constraintList = new ArrayList<Constraint>();
+		/*
+		(1) Event's possible time block not satisfied: Ignore that event
+		(2) Conflict involves 2 events (a and b):
+			- event a (or b) falls to category (1) -- all is good
+			- else: return both, mark the conflict
+		*/
+		this.eventsConstraints = new ArrayList<EventConstraint>();
 		
 		for (int i = 0; i < n; i++) {
-			constraintList.add(events_arr[i].getConstraint());
+			eventsConstraints.add(new EventConstraint(i,
+					events_arr[i].getConstraint()));
 			for (int j = i + 1; j < n; j++) {
-				constraintList.add(events_arr[i].notOverlap(events_arr[j]));
+				eventsConstraints.add(new EventConstraint(i, j,
+						events_arr[i].notOverlap(events_arr[j])));
 			}
 //			for (Space space : this.spaces) {
 //				constraint = LogicalConstraintFactory.and(constraint,
@@ -140,8 +102,16 @@ public class Schedule {
 //			constraint = LogicalConstraintFactory.and(constraint, this.events[i].eventConstraint);
 		}
 		
-		this.solver.post(LogicalConstraintFactory.and(
-				constraintList.toArray(new Constraint[0])));
+		this.count = eventsConstraints.size();
+		this.sum = VariableFactory.bounded("total constraints", 0, count, solver);
+		
+		if (this.count > 0) {
+			this.solver.post(IntConstraintFactory.sum(
+					getEventsStatus(eventsConstraints)
+					.toArray(new BoolVar[0]), sum));
+		} else {
+			this.solver.post(solver.TRUE);
+		}
 		
 		modelBuilt = true;
 	}
@@ -151,19 +121,13 @@ public class Schedule {
 		
 //		if (DEBUG) Chatterbox.showDecisions(solver);
 		
-		solved = solver.findSolution();
+//		solved = solver.findSolution();
+		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, sum);
+		
+		solved = (sum.getValue() == count);
 		
 		if (!solved && DEBUG) {
-			//if (exp.getUserExplanation() == null)
-				//System.out.println("Error: No explanation.");
-			//else
-				//System.out.println("Explain: " + exp.getUserExplanation());
-			
-			// Print the most recent conflict (that causes the solver fail)
-			System.out.println(solver.getEngine().getContradictionException());
-			//solver.getEngine().getContradictionException().printStackTrace();
-			
-			// For debugging
+//			System.out.println(solver.getEngine().getContradictionException());
 			printSolverData();
 		}
 		
@@ -173,30 +137,14 @@ public class Schedule {
 	private void printSolverData() {
 		Chatterbox.printStatistics(solver);
 		
-		for (Variable variable : solver.getVars()) {
-			String name = variable.getName();
-            String value;
-            if (variable instanceof IntVar) {
-                IntVar intVar = (IntVar) variable;
-                int val = intVar.getValue();
-                value = new String(val + "");
-
-            } else if (variable instanceof SetVar) {
-                SetVar intVar = (SetVar) variable;
-                int[] val = intVar.getValues();
-                value = Arrays.toString(val);
-
-            } else if (variable instanceof BitsetIntVarImpl) {
-                BitsetIntVarImpl intVar = (BitsetIntVarImpl) variable;
-                int val = intVar.getValue();
-                value = new String(val + "");
-            } else
-                throw new RuntimeException();
-            System.out.println(String.format("%-20s%-20s%-20s", name,
-                    value, variable.getClass().getSimpleName()));
+		for (EventConstraint e : eventsConstraints) {
+//			System.out.println(b.getValue());
+			boolean b = (e.satisfied.getValue() != 0);
+			System.out.printf("%10s: %s\n", e.ids.toString(), b?"True":"False");
 		}
-		for (Constraint c : solver.getCstrs()) {
-			System.out.println(c);
+		
+		for (Event e : this.events.values()) {
+			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getID(), e.getSpaceID(), Arrays.toString(e.getDays()), e.getStartTime());
 		}
 	}
 	
@@ -239,5 +187,37 @@ public class Schedule {
 		public int roomID;
 		public String startTime;
 		public boolean wasFailure;
+	}
+	
+	public class EventConstraint {
+		public ArrayList<Integer> ids;
+		public BoolVar satisfied;
+		
+		public EventConstraint(int id, Constraint constraint) {
+			ids = new ArrayList<Integer>(1);
+			ids.add(id);
+			satisfied = constraint.reif();
+		}
+		
+		public EventConstraint(int id1, int id2, Constraint constraint) {
+			ids = new ArrayList<Integer>(2);
+			ids.add(id1);
+			ids.add(id2);
+			satisfied = constraint.reif();
+		}
+		
+		public EventConstraint(int[] ids, Constraint constraint) {
+			this.ids = new ArrayList<Integer>();
+			this.ids.addAll(Ints.asList(ids));
+			satisfied = constraint.reif();
+		}
+	}
+	
+	private static List<BoolVar> getEventsStatus(List<EventConstraint> ec) {
+		ArrayList<BoolVar> arr = new ArrayList<BoolVar>();
+		for (EventConstraint c : ec) {
+			arr.add(c.satisfied);
+		}
+		return arr;
 	}
 }

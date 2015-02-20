@@ -1,7 +1,6 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,27 +74,19 @@ public class Time {
 		this.startTime = VariableFactory.enumerated("startTime",
 				Ints.toArray(totalTimes), solver);
 		
-//		this.constraint = solver.TRUE;
-		
 		ArrayList<Constraint> conArr = new ArrayList<Constraint>();
 		for (Entry<Integer, List<Integer>> entry : daysTimes.entrySet()) {
 			int[] daysArr = convertIntToArray(entry.getKey());
 			
-//			System.out.println("Days Array: " + Arrays.toString(daysArr));
-			
 			SetVar daySet = VariableFactory.fixed("days set",
 					daysArr, solver);
-			
-//			System.out.println("Time Array: " + Arrays.toString(Ints.toArray(entry.getValue())));
 			
 			Constraint tmp = IntConstraintFactory.member(
 					this.startTime, Ints.toArray(entry.getValue()));
 			
 			Constraint timeConstraint = LogicalConstraintFactory.and(
 					SetConstraintsFactory.offSet(this.days, daySet, 0), tmp);
-			//TODO: Finish Time's initialization method
-//			constraint = LogicalConstraintFactory.or(constraint, timeConstraint);
-			
+
 			conArr.add(timeConstraint);
 		}
 		
@@ -184,8 +175,8 @@ public class Time {
 	private int stringToTime(String tmString) {
 		int hour, min;
 		try {
-			hour = Integer.parseInt(tmString.substring(1, 3));
-			min = Integer.parseInt(tmString.substring(3));
+			hour = Integer.parseInt(tmString.substring(0, 2));
+			min = Integer.parseInt(tmString.substring(2));
 		} catch (IndexOutOfBoundsException | NumberFormatException e) {
 			throw new IllegalArgumentException();
 		}
@@ -201,68 +192,6 @@ public class Time {
 		
 		return String.format("%02d%02d", hour, min);
 	}
-	
-	/* getters */
-	//public Map<String[],String[]> getDaysTimes(){ return this.daysTimes; }
-//	public int getInt(){ return asInt; }
-//	public String getDayTime(){ return asDayTime; }
-	
-	/* setters */
-//	public void setInt(){
-//		char day = asDayTime.charAt(0);
-//		int base;
-//		
-//		switch(day){
-//		case 'M': base = 0;
-//		break;
-//		case 'T': base = 1;
-//		break;
-//		case 'W': base = 2;
-//		break;
-//		case 'H': base = 3;
-//		break;
-//		case 'F': base = 4;
-//		break;
-//		case 'S': base = 5;
-//		break;
-//		case 'U': base = 6;
-//		break;
-//		default: base = -1;  /* if this happens, something is wrong */
-//		break;
-//		}
-//		
-//		this.asInt = (base * 10000) + Integer.parseInt(this.asDayTime.substring(1));
-//	}
-//	
-//	public void setDayTime(){
-//		int dayAsInt = this.asInt / 10000;
-//		char day;
-//		
-//		switch(dayAsInt){
-//		case 0: day = 'M';
-//		break;
-//		case 1: day = 'T';
-//		break;
-//		case 2: day = 'W';
-//		break;
-//		case 3: day = 'H';
-//		break;
-//		case 4: day = 'F';
-//		break;
-//		case 5: day = 'S';
-//		break;
-//		case 6: day = 'U';
-//		break;
-//		default: day = 'X'; /* if this happens, something is wrong */
-//		break;
-//		}
-//		
-//		String timeAsString = Integer.toString(this.asInt % 10000);
-//		while(timeAsString.length() < 4)
-//			timeAsString = '0' + timeAsString;
-//		
-//		this.asDayTime = (day + timeAsString);
-//	}
 	
 //	@Override public String toString(){
 //		return this.getDayTime() + ":\t" + Integer.toString(this.getInt());

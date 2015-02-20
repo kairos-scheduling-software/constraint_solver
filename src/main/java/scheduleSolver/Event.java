@@ -41,10 +41,6 @@ public class Event {
 		
 		this.time = new Time(startTimes, duration);
 		
-//		this.possibleStartTimes = new ArrayList<Time>();
-//		for (String t : possibleStartTimes) {
-//			this.possibleStartTimes.add(new Time(t));
-//		}
 		if (spaceId >= 0) {
 			this.spaceIds = new int[]{spaceId};
 		}
@@ -73,8 +69,6 @@ public class Event {
 		
 		// Initialize Start Time
 		this.time.initialize(this.solver);
-//		initializeStartTime();
-//		initializeBlocks();
 	}
 	
 	public Constraint notOverlap(Event other) {
@@ -85,10 +79,6 @@ public class Event {
 			return _time;
 		else
 			return LogicalConstraintFactory.or(_space, _time);
-		
-//		ArrayList<IntVar> combinedTimes = new ArrayList<IntVar>(this.blocks);
-//		combinedTimes.addAll(other.blocks);
-//		Constraint _time = IntConstraintFactory.alldifferent(combinedTimes.toArray(new IntVar[0]));
 	}
 	
 	public Constraint getConstraint() { return time.getConstraint(); }
@@ -98,23 +88,4 @@ public class Event {
 	public char[] getDays() { return this.time.getDays(); }
 	public String getStartTime() { return this.time.getStartTime(); }
 	
-//	private void initializeStartTime() {
-//		int[] tmp = new int[this.startTime.size()];
-//		for (int i = 0; i < tmp.length; i++) {
-//			tmp[i] = this.startTime.get(i).getInt();
-//		}
-//		this.startTime = VariableFactory.enumerated("possible start times", tmp, this.solver);
-//	}
-//	
-//	private void initializeBlocks() {
-//		int n = this.duration;
-//		ArrayList<IntVar> _blocks = new ArrayList<IntVar>();
-//		for (int i = 0; i < this.daysCount; i++) {
-//			for (int j = 0; j < n; j+=5) {
-//				_blocks.add(VariableFactory.offset(this.startTime, i * 20000 + j));
-//			}
-//		}
-//		
-//		this.blocks = _blocks;
-//	}
 }
