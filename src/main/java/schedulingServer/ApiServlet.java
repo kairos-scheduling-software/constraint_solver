@@ -2,7 +2,15 @@ package schedulingServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URI;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +29,12 @@ import static util.Json.*;
 public class ApiServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	public ApiServlet()
+	{
+		super();
+		SetUpAPIDatabase();
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
@@ -45,12 +59,8 @@ public class ApiServlet extends HttpServlet {
 		if (uri.endsWith("/")) 
 		{
 			uri = uri.substring(0, uri.length() - 1);
-		}
-		if (uri.equals("/new")) 
-		{
-			response.getWriter().print("Hello");
 		} 
-		else if (uri.equals("/check")) 
+		else if (uri.equals("/check") || uri.equals("/new")) 
 		{
 			BufferedReader reader = request.getReader();
 			StringBuffer jb = new StringBuffer();
@@ -60,14 +70,71 @@ public class ApiServlet extends HttpServlet {
 				jb.append(line);
 			
 			String json = jb.toString();
-			
+
 			try 
 			{
-				 ArrayList<scheduleSolver.Schedule.EventPOJO> solution = checkSchedule(json);
-				 String toReturn = gson.toJson(solution);
-				 response.getWriter().print(toReturn);
-				 
+				if (!verifyKey(json))
+				{
+					ErrorPojo toReturn = new ErrorPojo();
+					toReturn.Error = "Error invalid API key";
+					response.getWriter().print(gson.toJson(toReturn));
+				} 
+				else 
+				{
+					ArrayList<scheduleSolver.Schedule.EventPOJO> solution = checkSchedule(json);
+					String toReturn = gson.toJson(solution);
+					response.getWriter().print(toReturn);
+				}
 			} 
+			catch (JSONException e) 
+			{
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "Error parsing JSON request string";
+				response.getWriter().print(gson.toJson(toReturn));
+			} 
+			catch (Exception e) 
+			{
+				e.printStackTrace();
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "An unexpected error occured";
+				response.getWriter().print(gson.toJson(toReturn));
+			}
+		}
+		else if(uri.equals("/requestKey"))
+		{
+			try
+			{
+				BufferedReader reader = request.getReader();
+				StringBuffer jb = new StringBuffer();
+				String line;
+			
+				while ((line = reader.readLine()) != null)
+					jb.append(line);
+			
+				String json = jb.toString();
+				//parse the response
+				
+				//this will be the api key assigned to our api site
+				ApiKeyRequest apikeyrequest = gson.fromJson(json, ApiKeyRequest.class);
+				
+				if(apikeyrequest.key.equals("e5506213-3196-4e6a-9613-237fd987446d"))
+				{
+					//generate and register key
+					String generatedKey = requestKey(apikeyrequest.email);
+					ApiKeyRequest keyResponse = new ApiKeyRequest();
+					keyResponse.key = generatedKey;
+					keyResponse.email = apikeyrequest.email;
+					
+					response.getWriter().print(gson.toJson(keyResponse));
+				}
+				else
+				{
+					ErrorPojo toReturn = new ErrorPojo();
+					toReturn.Error = "Error APIKey mismatch";
+					response.getWriter().print(gson.toJson(toReturn));
+				}
+			
+			}
 			catch (JSONException e) 
 			{
 				ErrorPojo toReturn = new ErrorPojo();
@@ -80,15 +147,7 @@ public class ApiServlet extends HttpServlet {
 				ErrorPojo toReturn = new ErrorPojo();
 				toReturn.Error = "An unexpected error occured";
 				response.getWriter().print(gson.toJson(toReturn));
-			}	
-		} 
-		else if(uri.equals("/requestKey"))
-		{
-			//parse the response
-			
-			//generate key
-			
-			//register username to key
+			}
 		}
 		else 
 		{
@@ -131,6 +190,113 @@ public class ApiServlet extends HttpServlet {
 		
 	}
 	
+	private String requestKey(String email) throws Exception
+	{
+		UUID apiKey = UUID.randomUUID();
+		Connection connect = getConnection();
+		PreparedStatement stmt = connect.prepareStatement("insert into apikey (key, email, blacklist) values (?, ?, ?)");
+		
+		stmt.setString(1, apiKey.toString());
+		stmt.setString(2, email);
+		stmt.setBoolean(3, false);
+		stmt.executeUpdate();
+		stmt.close();
+		
+		return apiKey.toString();
+	}
+	
+	private Boolean verifyKey(String json) throws JSONException, Exception
+	{
+		JSONObject toCheck = new JSONObject(json);
+		String key = toCheck.getString("APIKey");
+		Connection connect = getConnection();
+		
+		PreparedStatement stmt = connect.prepareStatement("select * from apikey where key = ?");
+		stmt.setString(1, key);
+		
+		ResultSet rs = stmt.executeQuery();
+		
+		if(rs.next())
+		{
+			if(rs.getBoolean("blacklist"))
+			{
+				rs.close();
+				return false;
+			}
+			
+			stmt.close();
+			stmt = connect.prepareStatement("insert into log (id, key, timestamp) values (default, ?, ?)");
+			stmt.setString(1, key);
+			stmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
+			stmt.executeUpdate();
+			
+			stmt.close();
+			connect.close();
+			
+			rs.close();
+			return true;
+		}
+		
+		rs.close();
+		return false;
+	}
+
+	private Connection getConnection() throws Exception
+	{
+		URI dbUri = new URI(System.getenv("DATABASE_URL"));
+
+		String username = dbUri.getUserInfo().split(":")[0];
+		String password = dbUri.getUserInfo().split(":")[1];
+		String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
+
+		return DriverManager.getConnection(dbUrl, username, password);
+	}
+	
+	private void SetUpAPIDatabase()
+	{
+		try 
+		{
+			Connection connection = getConnection();
+
+			Statement stmt = connection.createStatement();
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS ApiKey (key TEXT unique, email TEXT, blacklist BOOLEAN)");
+			stmt.close();
+			
+			stmt = connection.createStatement();
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS log (id SERIAL, key TEXT, timestamp TIMESTAMP)");
+			stmt.close();
+			
+			try 
+			{
+				PreparedStatement prepstmt = (PreparedStatement) connection.prepareStatement("insert into ApiKey (key, email, blacklist) values (?,?,?)");
+				prepstmt.setString(1, "1bb0ea87-d786-4300-903d-e3aa4e3ac670");
+				prepstmt.setString(2, "foo@bar.com");
+				prepstmt.setBoolean(3, false);
+
+				prepstmt.executeUpdate();
+				prepstmt.close();
+
+				prepstmt = (PreparedStatement) connection.prepareStatement("insert into ApiKey (key, email, blacklist) values (?,?,?)");
+				prepstmt.setString(1, "e5506213-3196-4e6a-9613-237fd987446d");
+				prepstmt.setString(2, "foo@bar.com");
+				prepstmt.setBoolean(3, false);
+
+				prepstmt.executeUpdate();
+				prepstmt.close();
+			} 
+			catch (Exception e) 
+			{
+				System.out.println("The keys were already in the database");
+			}
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.out.println("Database could not be initialized");
+		}
+	}
+	
 	
 	/**
 	 * @param args
@@ -145,6 +311,12 @@ public class ApiServlet extends HttpServlet {
 	public class ErrorPojo
 	{
 		public String Error;
+	}
+	
+	public class ApiKeyRequest
+	{
+		public String key;
+		public String email;
 	}
 
 }
