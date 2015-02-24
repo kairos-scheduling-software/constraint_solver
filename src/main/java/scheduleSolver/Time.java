@@ -109,7 +109,7 @@ public class Time {
 		try {
 			hour = Integer.parseInt(tmString.substring(0, 2));
 			min = Integer.parseInt(tmString.substring(2));
-		} catch (IndexOutOfBoundsException | NumberFormatException e) {
+		} catch (Exception e) {
 			throw new IllegalArgumentException();
 		}
 		
