@@ -1,8 +1,10 @@
 package solverTests;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -25,113 +27,42 @@ import static util.IO.*;
  */
 public class SchedulingSolverTest 
 {
-	public static boolean test0()
+	public static boolean test0() throws FileNotFoundException
 	{
-		try 
-		{
-			String inputFile = "test0.json";
-			InputStream is = new FileInputStream(inputFile);
-			String json = readInput(is);
-			ParsedData data = parseJson(json);
+		String inputFile = "test0.json";
+		InputStream is = new FileInputStream(inputFile);
+		String json = readInput(is);
 		
-			Schedule schedule = new Schedule("", data.events, data.rooms);
-		
-			List<EventPOJO> solution =  schedule.getSolution();
-		
-			if(! solution.get(0).wasFailure)
-			{
-				return true;
-			}
-		}
-		catch(Exception e)
-		{
-			System.out.println("caught exception in test0");
-			e.printStackTrace(new PrintStream(System.out));
-			return false;
-		}
-		
-		return false;
+		return checkSchedule("test0", json, false);
 	}
 	
 	public static boolean test1()
 	{
-		try 
-		{
-			String json = "{\"EVENT\":[{\"id\":313,\"days_count\":2,\"duration\":\"80\"," +
-					"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":80,\"max_participants\":97," +
-					"\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80," +
-					"\"capacity\":97,\"times\":\"\"}]}";
-			ParsedData data = parseJson(json);
+		String json = "{\"EVENT\":[{\"id\":313,\"days_count\":2,\"duration\":\"80\"," +
+			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":80,\"max_participants\":97," +
+			"\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80," +
+			"\"capacity\":97,\"times\":\"\"}]}";
 		
-			Schedule schedule = new Schedule("", data.events, data.rooms);
-		
-			List<EventPOJO> solution =  schedule.getSolution();
-		
-			if(solution.get(0).wasFailure)
-			{
-				System.out.println("solution.get(0) was failure");
-				return false;
-			}
-		}
-		catch(Exception e)
-		{
-			System.out.println("caught exception in test1");
-			System.out.println(e.getMessage());
-			e.printStackTrace(new PrintStream(System.out));
-			return false;
-		}
-		
-		return true;
+		return checkSchedule("test1", json, false);
 	}
 	
 	public static boolean test2()
 	{
-		try 
-		{
-			String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":80," +
-					"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":82," +
-					"\"max_participants\":103,\"persons\":15,\"constraint\":[]}," +
-					"{\"id\":317,\"days_count\":2,\"duration\":80," +
-					"\"pStartTm\":{\"TH\":[\"0730\"]}," +
-					"\"space\":82,\"max_participants\":103,\"persons\":16," +
-					"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
-					"\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
-			ParsedData data = parseJson(json);
+		String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":80," +
+			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":82," +
+			"\"max_participants\":103,\"persons\":15,\"constraint\":[]}," +
+			"{\"id\":317,\"days_count\":2,\"duration\":80," +
+			"\"pStartTm\":{\"TH\":[\"0730\"]}," +
+			"\"space\":82,\"max_participants\":103,\"persons\":16," +
+			"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
+			"\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
 		
-			Schedule schedule = new Schedule("", data.events, data.rooms);
-		
-			List<EventPOJO> solution =  schedule.getSolution();
-		
-			if(solution.get(0).wasFailure)
-			{
-				return true;
-			}
-		}
-		catch(Exception e)
-		{
-			System.out.println("caught exception in test2");
-			e.printStackTrace(new PrintStream(System.out));
-			return false;
-		}
-		
-		return false;
+		return checkSchedule("test2", json, true);
 	}
 
-	public static boolean test3(){
-		try{
-			String json = "{\"EVENT\":[],\"SPACE\":[]}";
-			ParsedData data = parseJson(json);
-			Schedule schedule = new Schedule("", data.events, data.rooms);
-			List<EventPOJO> solution = schedule.getSolution();
-			if(solution.get(0).wasFailure)
-				return false;
-		}
-		catch(Exception e){
-			System.out.println("caught exception in test3");
-			e.printStackTrace(new PrintStream(System.out));
-			return false;
-		}
-		return true;
+	public static boolean test3() {
+		String json = "{\"EVENT\":[],\"SPACE\":[]}";
+		return checkSchedule("test3", json, true);
 	}
 	
 	public static boolean testBadSchedules(String[] paths){
@@ -152,41 +83,45 @@ public class SchedulingSolverTest
 		// schedule should pass
 	}
 
-	public static void main(String[] args) 
+	public static void main(String[] args) throws FileNotFoundException 
 	{	
-		boolean passed = test0();
-			
-		if(!passed)
-		{
-			System.out.println("test0 failed");
-		}
 		
-		//TEST 1
-		boolean testPassed = test1();
-		passed = passed && testPassed;
-			
-		if(!testPassed)
-		{
-			System.out.println("test1 failed");
-		}
-				
-		//TEST 2
-		testPassed = test2();
-		passed = passed && testPassed;
-			
-		if(!testPassed)
-		{
-			System.out.println("test2 failed");
-		}
+		boolean[] passed = new boolean[] {test0(), test1(), test2()};
 		
 		String[] paths = {"../../../../jsonTestFiles/one_event_one_space"};
 		testGoodSchedules(paths);
 		
 		//WRAP UP
-		if(passed) System.out.println("All tests Passed");
-		else System.out.println("At least one test failed");
+		boolean allPassed = true;
+		for (boolean b : passed) {
+			if(!b) {
+				allPassed = false;
+				break;
+			}
+		}
+		if (!allPassed) System.out.println("At least one test failed");
+		else System.out.println("All tests Passed");
 	}
 
+	private static boolean checkSchedule(String testName, String json, boolean expectedResult) {
+		try 
+		{
+			ParsedData data = parseJson(json);
+		
+			Schedule schedule = new Schedule("", data.events, data.rooms);
+			
+			JSONObject solution =  new JSONObject(schedule.getSolution2());
+			
+			return (expectedResult != solution.getBoolean("wasFailure"));
+		}
+		catch(Exception e)
+		{
+			System.out.println("Caught exception in " + testName);
+			e.printStackTrace(new PrintStream(System.out));
+			return false;
+		}
+	}
+	
 	private static ParsedData parseJson(String json) throws JSONException
 	{
 		ParsedData data = new ParsedData();
