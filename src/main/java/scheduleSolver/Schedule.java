@@ -80,7 +80,7 @@ public class Schedule {
 			this.solver.post(events_arr[i].getConstraint());
 			
 			for (int j = i + 1; j < n; j++) {
-				constraintList.add(new EventConstraint(i, j,
+				constraintList.add(new EventConstraint(events_arr[i].ID, events_arr[j].ID,
 						events_arr[i].notOverlap(events_arr[j])));
 			}
 			
