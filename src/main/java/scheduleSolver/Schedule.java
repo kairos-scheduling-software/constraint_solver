@@ -1,12 +1,9 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.primitives.Ints;
 
 import solver.ResolutionPolicy;
 import solver.Solver;
@@ -25,12 +22,11 @@ public class Schedule {
 //	public final Map<Integer, Person> persons;
 	
 	private Solver solver;
-	private IntVar sum;
-	private int count;
+	private IntVar satisfiedCount;
 	private boolean modelBuilt = false;
 	private boolean solved = false;
 	
-	private ArrayList<EventConstraint> eventsConstraints;
+	private ArrayList<EventConstraint> constraintList;
 	
 	private static final boolean DEBUG = true;
 	
@@ -49,11 +45,9 @@ public class Schedule {
 			event.initialize(this.solver, this.spaces);
 			this.events.put(event.ID, event);
 		}
-		
-		//this.persons = persons;
 	}
 	
-	public ArrayList<EventPOJO> getSolution(){
+	public ArrayList<EventPOJO> getSolution() {
 		ArrayList<EventPOJO> eps = new ArrayList<EventPOJO>();
 		
 		if(findSolution()){
@@ -80,21 +74,16 @@ public class Schedule {
 		Event[] events_arr = this.events.values().toArray(new Event[0]);
 		int n = events_arr.length;
 		
-		/*
-		(1) Event's possible time block not satisfied: Ignore that event
-		(2) Conflict involves 2 events (a and b):
-			- event a (or b) falls to category (1) -- all is good
-			- else: return both, mark the conflict
-		*/
-		this.eventsConstraints = new ArrayList<EventConstraint>();
+		this.constraintList = new ArrayList<EventConstraint>();
 		
 		for (int i = 0; i < n; i++) {
-			eventsConstraints.add(new EventConstraint(i,
-					events_arr[i].getConstraint()));
+			this.solver.post(events_arr[i].getConstraint());
+			
 			for (int j = i + 1; j < n; j++) {
-				eventsConstraints.add(new EventConstraint(i, j,
+				constraintList.add(new EventConstraint(i, j,
 						events_arr[i].notOverlap(events_arr[j])));
 			}
+			
 //			for (Space space : this.spaces) {
 //				constraint = LogicalConstraintFactory.and(constraint,
 //						this.events[i].roomConstraint(space));
@@ -102,15 +91,12 @@ public class Schedule {
 //			constraint = LogicalConstraintFactory.and(constraint, this.events[i].eventConstraint);
 		}
 		
-		this.count = eventsConstraints.size();
-		this.sum = VariableFactory.bounded("total constraints", 0, count, solver);
+		this.satisfiedCount = VariableFactory.bounded("total constraints", 0, constraintList.size(), solver);
 		
-		if (this.count > 0) {
+		if (constraintList.size() > 0) {
 			this.solver.post(IntConstraintFactory.sum(
-					getEventsStatus(eventsConstraints)
-					.toArray(new BoolVar[0]), sum));
-		} else {
-			this.solver.post(solver.TRUE);
+					getConstraintsStatus(constraintList)
+					.toArray(new BoolVar[0]), satisfiedCount));
 		}
 		
 		modelBuilt = true;
@@ -121,10 +107,8 @@ public class Schedule {
 		
 //		if (DEBUG) Chatterbox.showDecisions(solver);
 		
-//		solved = solver.findSolution();
-		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, sum);
-		
-		solved = (sum.getValue() == count);
+		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, satisfiedCount);
+		solved = (satisfiedCount.getValue() == constraintList.size());
 		
 		if (!solved && DEBUG) {
 //			System.out.println(solver.getEngine().getContradictionException());
@@ -137,16 +121,16 @@ public class Schedule {
 	private void printSolverData() {
 		Chatterbox.printStatistics(solver);
 		
-		for (EventConstraint e : eventsConstraints) {
-//			System.out.println(b.getValue());
+		for (EventConstraint e : constraintList) {
 			boolean b = (e.satisfied.getValue() != 0);
-			System.out.printf("%10s: %s\n", e.ids.toString(), b?"True":"False");
+			System.out.printf("[%2d-%2d]: %s\n", e.id1, e.id2, b?"True":"False");
 		}
 		
 		for (Event e : this.events.values()) {
-			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getID(), e.getSpaceID(), Arrays.toString(e.getDays()), e.getStartTime());
+			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getID(), e.getSpaceID(), e.getDays(), e.getStartTime());
 		}
 	}
+	
 	
 	/**
 	 * @param args
@@ -183,37 +167,25 @@ public class Schedule {
 	
 	public class EventPOJO {
 		public int ID;
-		public char[] days;
+		public String days;
 		public int roomID;
 		public String startTime;
 		public boolean wasFailure;
 	}
 	
 	public class EventConstraint {
-		public ArrayList<Integer> ids;
+		public int id1;
+		public int id2;
 		public BoolVar satisfied;
 		
-		public EventConstraint(int id, Constraint constraint) {
-			ids = new ArrayList<Integer>(1);
-			ids.add(id);
-			satisfied = constraint.reif();
-		}
-		
 		public EventConstraint(int id1, int id2, Constraint constraint) {
-			ids = new ArrayList<Integer>(2);
-			ids.add(id1);
-			ids.add(id2);
-			satisfied = constraint.reif();
-		}
-		
-		public EventConstraint(int[] ids, Constraint constraint) {
-			this.ids = new ArrayList<Integer>();
-			this.ids.addAll(Ints.asList(ids));
+			this.id1 = id1;
+			this.id2 = id2;
 			satisfied = constraint.reif();
 		}
 	}
 	
-	private static List<BoolVar> getEventsStatus(List<EventConstraint> ec) {
+	private static List<BoolVar> getConstraintsStatus(List<EventConstraint> ec) {
 		ArrayList<BoolVar> arr = new ArrayList<BoolVar>();
 		for (EventConstraint c : ec) {
 			arr.add(c.satisfied);

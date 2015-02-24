@@ -85,7 +85,7 @@ public class Event {
 	
 	public int getID() { return this.ID; }
 	public int getSpaceID() { return this.spaceId.getValue(); }
-	public char[] getDays() { return this.time.getDays(); }
+	public String getDays() { return this.time.getDays(); }
 	public String getStartTime() { return this.time.getStartTime(); }
 	
 }

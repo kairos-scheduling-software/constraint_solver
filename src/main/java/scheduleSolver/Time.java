@@ -1,6 +1,7 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,52 +21,33 @@ import solver.variables.VariableFactory;
 
 public class Time {
 	/* members */
-//	private int asInt;         /* in range 0 - 61439, the set of valid asInt values is {0,1,...,59,100,101,...,159,...,2359,10000,10001,...,12359,...62359} */
-//	private String asDayTime;  /* will be on character from {M,T,W,H,F,S,U} followed by four numeric digits representing the time, based on a 24-hour clock */
 	
-	private Map<Integer, List<Integer>> daysTimes;
+	private Map<Days, List<Integer>> daysTimes;
 	private int duration;  // event's duration in minutes
 	
-	private SetVar days;
+	private SetVar daySet;
 	private IntVar startTime;
 	private Constraint constraint;
 	
-//	/* constructors */
-//	public Time(int i){
-//		asInt = i;
-//		setDayTime();
-//	}
-//	
-//	public Time(String s){
-//		asDayTime = s;
-//		setInt();
-//	}
-	
 	public Time(Map<String, String[]> startTimes, int duration) {
-		this.daysTimes = new HashMap<Integer, List<Integer>>();
+		this.daysTimes = new HashMap<Days, List<Integer>>();
 		this.duration = duration;
 		
-		String week = "MTWHFSU";
-		
 		for (Entry<String, String[]> entry : startTimes.entrySet()) {
-			int key = 0;
-			ArrayList<Integer> value = new ArrayList<Integer>();
+			Days days = new Days(entry.getKey());
 			
-			String days = entry.getKey().toUpperCase();
 			String[] times = entry.getValue();
-			
-			for (int i = 0; i < days.length(); i++)
-				key += (1 << week.indexOf(days.charAt(i)));
+			ArrayList<Integer> value = new ArrayList<Integer>();
 			
 			for(int i = 0; i < times.length; i++){
 				value.add(stringToTime(times[i]));
 			}
-			this.daysTimes.put(key, value);
+			this.daysTimes.put(days, value);
 		}
 	}
 	
 	public void initialize(Solver solver) {
-		this.days = VariableFactory.set("TimeBlock", 0, 6, solver);
+		this.daySet = VariableFactory.set("TimeBlock", 0, 6, solver);
 		
 		HashSet<Integer> totalTimes = new HashSet<Integer>();
 		for (List<Integer> times : this.daysTimes.values()) {
@@ -75,8 +57,8 @@ public class Time {
 				Ints.toArray(totalTimes), solver);
 		
 		ArrayList<Constraint> conArr = new ArrayList<Constraint>();
-		for (Entry<Integer, List<Integer>> entry : daysTimes.entrySet()) {
-			int[] daysArr = convertIntToArray(entry.getKey());
+		for (Entry<Days, List<Integer>> entry : daysTimes.entrySet()) {
+			int[] daysArr = entry.getKey().getArr();
 			
 			SetVar daySet = VariableFactory.fixed("days set",
 					daysArr, solver);
@@ -85,7 +67,7 @@ public class Time {
 					this.startTime, Ints.toArray(entry.getValue()));
 			
 			Constraint timeConstraint = LogicalConstraintFactory.and(
-					SetConstraintsFactory.offSet(this.days, daySet, 0), tmp);
+					SetConstraintsFactory.offSet(this.daySet, daySet, 0), tmp);
 
 			conArr.add(timeConstraint);
 		}
@@ -100,7 +82,7 @@ public class Time {
 	}
 	
 	public Constraint notOverlap(Time other) {
-		Constraint daysConstraint = SetConstraintsFactory.disjoint(this.days, other.days);
+		Constraint daysConstraint = SetConstraintsFactory.disjoint(this.daySet, other.daySet);
 		Constraint time1Constraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.duration);
 		Constraint time2Constraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.duration);
 		
@@ -109,16 +91,11 @@ public class Time {
 
 	public Constraint getConstraint() { return this.constraint; }
 	
-	public char[] getDays(){
-		int[] daysArr = this.days.getValues();
-		String week = "MTWHFSU";
-		char[] daysChar = new char[daysArr.length];
+	public String getDays() {
+		int[] daysArr = this.daySet.getValues();
+		Days days = new Days(daysArr);
 		
-		for (int i = 0; i < daysArr.length; i++) {
-			daysChar[i] = week.charAt(daysArr[i]);
-		}
-		
-		return daysChar;
+		return days.getDays();
 	}
 	
 	public String getStartTime(){
@@ -127,51 +104,6 @@ public class Time {
 		return timeToString(tm);
 	}
 		
-	public Time(Map<String, String[]> m){
-		this.daysTimes = new HashMap<Integer, List<Integer>>();
-		
-		for(String key : m.keySet()){
-			int newKey = 0;
-			for(int i=0; i<key.length(); i++){
-				switch(key.charAt(i)){
-				case 'M' : newKey += 64;
-				break;
-				case 'T' : newKey += 32;
-				break;
-				case 'W' : newKey += 16;
-				break;
-				case 'H' : newKey += 8;
-				break;
-				case 'F' : newKey += 4;
-				break;
-				case 'S' : newKey += 2;
-				break;
-				case 'U' : newKey += 1;
-				break;
-				default : newKey += 0; /* this shouldn't happen */
-				}
-			}
-			
-			ArrayList<Integer> newVal = new ArrayList<Integer>();
-			for(int i=0; i<m.get(key).length; i++){
-				newVal.add(Integer.parseInt(m.get(key)[i]));
-			}
-			this.daysTimes.put(newKey,newVal);
-		}
-	}
-	
-	private int[] convertIntToArray(int days) {
-		ArrayList<Integer> arrDays = new ArrayList<Integer>();
-		int index = 0;
-		while (days > 0) {
-//			arrDays.add(days % 2);
-			if (days % 2 != 0) arrDays.add(index);
-			index++;
-			days /= 2;
-		}
-		return Ints.toArray(arrDays);
-	}
-	
 	private int stringToTime(String tmString) {
 		int hour, min;
 		try {
@@ -193,7 +125,66 @@ public class Time {
 		return String.format("%02d%02d", hour, min);
 	}
 	
-//	@Override public String toString(){
-//		return this.getDayTime() + ":\t" + Integer.toString(this.getInt());
-//	}
+	private static class Days {
+		private String days;
+		private HashSet<Integer> daySet;
+		private int val;
+		
+		private static String week = "MTWHFSU";
+		
+		public Days(String dayStr) {
+			val = 0;
+			days = "";
+			daySet = new HashSet<Integer>();
+			for (char c : dayStr.toUpperCase().toCharArray()) {
+				int index = week.indexOf(c);
+				if (index >= 0) {
+					val |= (1 << index);
+					daySet.add(index);
+				}
+			}
+			
+			int[] arr = Ints.toArray(daySet);
+			Arrays.sort(arr);
+			for (int d : arr) {
+				days += week.charAt(d);
+			}
+		}
+		
+		public Days(int[] dayArr) {
+			val = 0;
+			days = "";
+			daySet = new HashSet<Integer>();
+			for (int index : dayArr) {
+				if (index >= 0 && index < 7) {
+					val |= (1 << index);
+					daySet.add(index);
+				}
+			}
+			
+			int[] arr = Ints.toArray(daySet);
+			Arrays.sort(arr);
+			for (int index : arr) {
+				days += week.charAt(index);
+			}
+		}
+		
+		public String getDays() { return days; }
+		
+		public int[] getArr() {
+			int[] arr = Ints.toArray(daySet);
+			Arrays.sort(arr);
+			for (int d : arr) {
+				days += week.charAt(d);
+			}
+			return arr;
+		}
+		
+		public int hashCode() { return ((Integer) val).hashCode(); }
+		public boolean equals(Object other) {
+			if (other instanceof Days) {
+				return (this.val == ((Days) other).val);
+			} else return false;
+		}
+	}
 }
