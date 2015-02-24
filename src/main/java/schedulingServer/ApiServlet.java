@@ -51,15 +51,14 @@ public class ApiServlet extends HttpServlet {
 		response.setContentType("application/json");
 		Gson gson = new Gson();
 		
-		try {
 		if (uri == null) 
 		{
-//			ErrorPojo toReturn = new ErrorPojo();
-//			toReturn.Error = "Invalid path for post method";
-//			response.getWriter().print(gson.toJson(toReturn));
-			JSONObject jsonObj = new JSONObject();
-			jsonObj.put("Error", "Invalid path for post method");
-			response.getWriter().print(jsonObj.toString());
+			ErrorPojo toReturn = new ErrorPojo();
+			toReturn.Error = "Invalid path for post method";
+			response.getWriter().print(gson.toJson(toReturn));
+//			JSONObject jsonObj = new JSONObject();
+//			jsonObj.put("Error", "Invalid path for post method");
+//			response.getWriter().print(jsonObj.toString());
 		}
 		if (uri.endsWith("/")) 
 		{
@@ -80,12 +79,12 @@ public class ApiServlet extends HttpServlet {
 			{
 				if (!verifyKey(json))
 				{
-//					ErrorPojo toReturn = new ErrorPojo();
-//					toReturn.Error = "Error invalid API key";
-//					response.getWriter().print(gson.toJson(toReturn));
-					JSONObject jsonObj = new JSONObject();
-					jsonObj.put("Error", "Error invalid API key");
-					response.getWriter().print(jsonObj.toString());
+					ErrorPojo toReturn = new ErrorPojo();
+					toReturn.Error = "Error invalid API key";
+					response.getWriter().print(gson.toJson(toReturn));
+//					JSONObject jsonObj = new JSONObject();
+//					jsonObj.put("Error", "Error invalid API key");
+//					response.getWriter().print(jsonObj.toString());
 				} 
 				else 
 				{
@@ -98,22 +97,22 @@ public class ApiServlet extends HttpServlet {
 			} 
 			catch (JSONException e) 
 			{
-//				ErrorPojo toReturn = new ErrorPojo();
-//				toReturn.Error = "Error parsing JSON request string";
-//				response.getWriter().print(gson.toJson(toReturn));
-				JSONObject jsonObj = new JSONObject();
-				jsonObj.put("Error", "Error parsing JSON request string");
-				response.getWriter().print(jsonObj.toString());
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "Error parsing JSON request string";
+				response.getWriter().print(gson.toJson(toReturn));
+//				JSONObject jsonObj = new JSONObject();
+//				jsonObj.put("Error", "Error parsing JSON request string");
+//				response.getWriter().print(jsonObj.toString());
 			} 
 			catch (Exception e) 
 			{
 				e.printStackTrace();
-//				ErrorPojo toReturn = new ErrorPojo();
-//				toReturn.Error = "An unexpected error occured";
-//				response.getWriter().print(gson.toJson(toReturn));
-				JSONObject jsonObj = new JSONObject();
-				jsonObj.put("Error", "An unexpected error occured");
-				response.getWriter().print(jsonObj.toString());
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "An unexpected error occured";
+				response.getWriter().print(gson.toJson(toReturn));
+//				JSONObject jsonObj = new JSONObject();
+//				jsonObj.put("Error", "An unexpected error occured");
+//				response.getWriter().print(jsonObj.toString());
 			}
 		}
 		else if(uri.equals("/requestKey"))
@@ -171,7 +170,6 @@ public class ApiServlet extends HttpServlet {
 			toReturn.Error = "The requested API path does not exist";
 			response.getWriter().print(gson.toJson(toReturn));
 		}
-		} catch (JSONException e) {e.printStackTrace();}
 	}
 	
 	/*private JSONObject generateSchedule(JSONObject data) throws JSONException {
