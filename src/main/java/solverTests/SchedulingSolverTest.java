@@ -133,6 +133,24 @@ public class SchedulingSolverTest
 		}
 		return true;
 	}
+	
+	public static boolean testBadSchedules(String[] paths){
+		// for path in paths
+		// open file	
+		// parse file as json
+		// create schedule
+		// schedule should pass
+		return true;
+	}
+	
+	public static void testGoodSchedules(String[] paths){
+		
+		// for path in paths
+		// open file
+		// parse file as json
+		// create schedule
+		// schedule should pass
+	}
 
 	public static void main(String[] args) 
 	{	
@@ -160,6 +178,9 @@ public class SchedulingSolverTest
 		{
 			System.out.println("test2 failed");
 		}
+		
+		String[] paths = {"../../../../jsonTestFiles/one_event_one_space"};
+		testGoodSchedules(paths);
 		
 		//WRAP UP
 		if(passed) System.out.println("All tests Passed");
