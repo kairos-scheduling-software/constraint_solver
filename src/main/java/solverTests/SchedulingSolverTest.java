@@ -58,10 +58,10 @@ public class SchedulingSolverTest
 	{
 		try 
 		{
-			String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":\"80\"," +
+			String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":80," +
 					"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":82," +
 					"\"max_participants\":103,\"persons\":15,\"constraint\":[]}," +
-					"{\"id\":317,\"days_count\":2,\"duration\":\"80\"," +
+					"{\"id\":317,\"days_count\":2,\"duration\":80," +
 					"\"pStartTm\":{\"TH\":[\"0730\"]}," +
 					"\"space\":82,\"max_participants\":103,\"persons\":16," +
 					"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
@@ -87,6 +87,22 @@ public class SchedulingSolverTest
 		return false;
 	}
 
+	public static boolean test3(){
+		try{
+			String json = "{\"EVENT\":[],\"SPACE\":[]}";
+			ParsedData data = parseJson(json);
+			Schedule schedule = new Schedule("", data.events, data.rooms);
+			List<EventPOJO> solution = schedule.getSolution();
+			if(solution.get(0).wasFailure)
+				return false;
+		}
+		catch(Exception e){
+			System.out.println("caught exception in test3");
+			e.printStackTrace(new PrintStream(System.out));
+			return false;
+		}
+		return true;
+	}
 	//	public static void testing2(String inputFile)
 //			throws JSONException, IOException {
 //		InputStream is = new FileInputStream(inputFile);
