@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
+
+import com.google.gson.Gson;
+
 import solver.ResolutionPolicy;
 import solver.Solver;
 import solver.constraints.Constraint;
@@ -28,7 +32,7 @@ public class Schedule {
 	
 	private ArrayList<EventConstraint> constraintList;
 	
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	public Schedule(String name, Event[] events,
 			Space[] spaces /*, Map<Integer, Person> persons*/) {
@@ -68,6 +72,37 @@ public class Schedule {
 			eps.add(ep);
 		}
 		return eps;
+	}
+	
+	public HashMap<String, Object> getSolution2() {
+		boolean failure = !findSolution();
+		
+		ArrayList<Object> eventsList = new ArrayList<Object>();
+		for(Map.Entry<Integer, Event> entry : events.entrySet()) {
+			Event e = entry.getValue();
+			
+			ArrayList<Integer> conflicts = new ArrayList<Integer>();
+			for (EventConstraint c : constraintList) {
+				if (c.satisfied.getValue() == 0) {
+					if (c.id1 == e.getID()) conflicts.add(c.id2);
+					else if (c.id2 == e.getID()) conflicts.add(c.id1);
+				}
+			}
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("ID", e.getID());
+			map.put("days", e.getDays());
+			map.put("roomID", e.getSpaceID());
+			map.put("startTime", e.getStartTime());
+			map.put("conflictsWith", conflicts);
+			
+			eventsList.add(map);
+		}
+		
+		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
+		jsonMap.put("wasFailure", failure);
+		jsonMap.put("EVENT", eventsList);
+		
+		return jsonMap;
 	}
 	
 	private void buildModel() {
@@ -171,6 +206,7 @@ public class Schedule {
 		public int roomID;
 		public String startTime;
 		public boolean wasFailure;
+		public int[] conflictsWith;
 	}
 	
 	public class EventConstraint {
