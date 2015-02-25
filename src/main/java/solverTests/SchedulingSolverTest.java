@@ -1,10 +1,15 @@
 package solverTests;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.lang.reflect.Array;
+import java.nio.CharBuffer;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -43,7 +48,7 @@ public class SchedulingSolverTest
 			"\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80," +
 			"\"capacity\":97,\"times\":\"\"}]}";
 		
-		return checkSchedule("test1", json, false);
+		return checkSchedule("test1", json, true);
 	}
 	
 	public static boolean test2()
@@ -57,7 +62,7 @@ public class SchedulingSolverTest
 			"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
 			"\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
 		
-		return checkSchedule("test2", json, true);
+		return checkSchedule("test2", json, false);
 	}
 
 	public static boolean test3() {
@@ -75,7 +80,20 @@ public class SchedulingSolverTest
 	}
 	
 	public static void testGoodSchedules(String[] paths){
-		
+		String json = "";
+		for(int i=0; i<paths.length; i++){
+			try{
+				BufferedReader br = new BufferedReader(new FileReader(paths[i]));
+				String line;
+				while((line = br.readLine()) != null)
+					json += line;
+				checkSchedule(new String("goodTest_"+Integer.toString(i)), json, true);
+			}
+			catch(IOException ioe){
+				System.out.println("caught IOException while attempting to read file " +
+						paths[i]);
+			}
+		}
 		// for path in paths
 		// open file
 		// parse file as json
@@ -88,7 +106,7 @@ public class SchedulingSolverTest
 		
 		boolean[] passed = new boolean[] {test0(), test1(), test2()};
 		
-		String[] paths = {"../../../../jsonTestFiles/one_event_one_space"};
+		String[] paths = {"jsonTestFiles/one_class_one_room"};
 		testGoodSchedules(paths);
 		
 		//WRAP UP
@@ -112,7 +130,10 @@ public class SchedulingSolverTest
 			
 			JSONObject solution =  new JSONObject(schedule.getSolution2());
 			
-			return (expectedResult != solution.getBoolean("wasFailure"));
+			boolean result = (expectedResult != solution.getBoolean("wasFailure"));
+			
+			if (!result) System.out.println(testName + " failed");
+			return result;
 		}
 		catch(Exception e)
 		{
