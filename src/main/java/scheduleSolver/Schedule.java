@@ -196,8 +196,13 @@ public class Schedule {
 		Schedule sc = new Schedule("test schedule", new Event[]{e0, e1, e2},
 				new Space[] {s0, s1});
 		
-		boolean result = sc.findSolution();
-		System.out.println("has_solution = " + result);
+//		boolean result = sc.findSolution();
+//		System.out.println("has_solution = " + result);
+		
+		Map<String, Object> jsonMap = sc.getSolution2();
+		
+		Gson gson = new Gson();
+		System.out.println(gson.toJson(jsonMap));
 	}
 	
 	public class EventPOJO {

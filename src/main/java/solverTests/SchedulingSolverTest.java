@@ -7,17 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.Reader;
-import java.lang.reflect.Array;
-import java.nio.CharBuffer;
-import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import scheduleSolver.*;
-import scheduleSolver.Schedule.EventPOJO;
+import scheduleSolver.Schedule;
 import static util.Json.*;
 import static util.IO.*;
 
@@ -38,7 +31,7 @@ public class SchedulingSolverTest
 		InputStream is = new FileInputStream(inputFile);
 		String json = readInput(is);
 		
-		return checkSchedule("test0", json, false);
+		return runTest("test0", json, false);
 	}
 	
 	public static boolean test1()
@@ -48,7 +41,7 @@ public class SchedulingSolverTest
 			"\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80," +
 			"\"capacity\":97,\"times\":\"\"}]}";
 		
-		return checkSchedule("test1", json, true);
+		return runTest("test1", json, true);
 	}
 	
 	public static boolean test2()
@@ -62,12 +55,12 @@ public class SchedulingSolverTest
 			"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
 			"\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
 		
-		return checkSchedule("test2", json, false);
+		return runTest("test2", json, false);
 	}
 
 	public static boolean test3() {
 		String json = "{\"EVENT\":[],\"SPACE\":[]}";
-		return checkSchedule("test3", json, true);
+		return runTest("test3", json, true);
 	}
 	
 	public static boolean testBadSchedules(String[] paths){
@@ -80,14 +73,16 @@ public class SchedulingSolverTest
 	}
 	
 	public static void testGoodSchedules(String[] paths){
-		String json = "";
+		String json;
 		for(int i=0; i<paths.length; i++){
+			json = "";
 			try{
 				BufferedReader br = new BufferedReader(new FileReader(paths[i]));
 				String line;
 				while((line = br.readLine()) != null)
 					json += line;
-				checkSchedule(new String("goodTest_"+Integer.toString(i)), json, true);
+				br.close();
+				runTest(new String("goodTest_"+Integer.toString(i)), json, true);
 			}
 			catch(IOException ioe){
 				System.out.println("caught IOException while attempting to read file " +
@@ -121,13 +116,11 @@ public class SchedulingSolverTest
 		else System.out.println("All tests Passed");
 	}
 
-	private static boolean checkSchedule(String testName, String json, boolean expectedResult) {
+	private static boolean runTest(String testName, String json, boolean expectedResult) {
 		try 
 		{
-			ParsedData data = parseJson(json);
-		
-			Schedule schedule = new Schedule("", data.events, data.rooms);
-			
+			ScheduleData data = parseJson(json);
+			Schedule schedule = new Schedule("", data.events, data.spaces);
 			JSONObject solution =  new JSONObject(schedule.getSolution2());
 			
 			boolean result = (expectedResult != solution.getBoolean("wasFailure"));
@@ -141,26 +134,5 @@ public class SchedulingSolverTest
 			e.printStackTrace(new PrintStream(System.out));
 			return false;
 		}
-	}
-	
-	private static ParsedData parseJson(String json) throws JSONException
-	{
-		ParsedData data = new ParsedData();
-		
-		JSONObject toCheck = new JSONObject(json);
-		
-		JSONArray jsonClasses = toCheck.getJSONArray("EVENT");
-		JSONArray jsonResources = toCheck.getJSONArray("SPACE");
-		
-		data.events = parseEvents(jsonClasses);
-		data.rooms = parseSpaces(jsonResources);
-		
-		return data;
-	}
-	
-	private static class ParsedData
-	{
-		public Event[] events;
-		public Space[] rooms;
 	}
 }

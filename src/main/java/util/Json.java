@@ -13,6 +13,19 @@ import scheduleSolver.Space;
 
 public class Json {
 	
+	public static ScheduleData parseJson(String jsonStr) throws JSONException {
+		JSONObject jsonObj = new JSONObject(jsonStr);
+		
+		JSONArray jsonClasses = jsonObj.getJSONArray("EVENT");
+		JSONArray jsonResources = jsonObj.getJSONArray("SPACE");
+		
+		ScheduleData data = new ScheduleData();
+		data.events = parseEvents(jsonClasses);
+		data.spaces = parseSpaces(jsonResources);
+		
+		return data;
+	}
+	
 	public static Event[] parseEvents(JSONArray jsonEvents) throws JSONException 
 	{
 		Event[] events = new Event[jsonEvents.length()];
@@ -77,6 +90,11 @@ public class Json {
 		return mapping;
 	}
 	
+	public static class ScheduleData {
+		public Event[] events;
+		public Space[] spaces;
+	}
+	
 	/**
 	 * @param args
 	 */
@@ -84,5 +102,4 @@ public class Json {
 		// TODO Auto-generated method stub
 
 	}
-
 }

@@ -3,13 +3,14 @@ package schedulingServer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,11 +19,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import scheduleSolver.*;
 import static util.Json.*;
@@ -56,9 +57,6 @@ public class ApiServlet extends HttpServlet {
 			ErrorPojo toReturn = new ErrorPojo();
 			toReturn.Error = "Invalid path for post method";
 			response.getWriter().print(gson.toJson(toReturn));
-//			JSONObject jsonObj = new JSONObject();
-//			jsonObj.put("Error", "Invalid path for post method");
-//			response.getWriter().print(jsonObj.toString());
 		}
 		if (uri.endsWith("/")) 
 		{
@@ -82,37 +80,31 @@ public class ApiServlet extends HttpServlet {
 					ErrorPojo toReturn = new ErrorPojo();
 					toReturn.Error = "Error invalid API key";
 					response.getWriter().print(gson.toJson(toReturn));
-//					JSONObject jsonObj = new JSONObject();
-//					jsonObj.put("Error", "Error invalid API key");
-//					response.getWriter().print(jsonObj.toString());
 				} 
 				else 
 				{
-//					ArrayList<scheduleSolver.Schedule.EventPOJO> solution = checkSchedule(json);
-//					String toReturn = gson.toJson(solution);
-//					response.getWriter().print(toReturn);
-					JSONObject jsonObj = new JSONObject(checkSchedule2(json));
-					response.getWriter().print(jsonObj.toString());
+					Map<String, Object> solution = checkSchedule(json);
+					String toReturn = gson.toJson(solution);
+					response.getWriter().print(toReturn);
 				}
 			} 
-			catch (JSONException e) 
+			catch (IllegalArgumentException e) 
 			{
 				ErrorPojo toReturn = new ErrorPojo();
 				toReturn.Error = "Error parsing JSON request string";
 				response.getWriter().print(gson.toJson(toReturn));
-//				JSONObject jsonObj = new JSONObject();
-//				jsonObj.put("Error", "Error parsing JSON request string");
-//				response.getWriter().print(jsonObj.toString());
-			} 
+			}
+			catch (JSONException e) {
+				ErrorPojo toReturn = new ErrorPojo();
+				toReturn.Error = "Solver error";
+				response.getWriter().print(gson.toJson(toReturn));
+			}
 			catch (Exception e) 
 			{
 				e.printStackTrace();
 				ErrorPojo toReturn = new ErrorPojo();
 				toReturn.Error = "An unexpected error occured";
 				response.getWriter().print(gson.toJson(toReturn));
-//				JSONObject jsonObj = new JSONObject();
-//				jsonObj.put("Error", "An unexpected error occured");
-//				response.getWriter().print(jsonObj.toString());
 			}
 		}
 		else if(uri.equals("/requestKey"))
@@ -150,12 +142,6 @@ public class ApiServlet extends HttpServlet {
 				}
 			
 			}
-			catch (JSONException e) 
-			{
-				ErrorPojo toReturn = new ErrorPojo();
-				toReturn.Error = "Error parsing JSON request string";
-				response.getWriter().print(gson.toJson(toReturn));
-			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
@@ -190,37 +176,16 @@ public class ApiServlet extends HttpServlet {
 		return null;
 	}*/
 
-	private ArrayList<scheduleSolver.Schedule.EventPOJO> checkSchedule(String json) throws JSONException {
-		JSONObject toCheck = new JSONObject(json);
+	private Map<String, Object> checkSchedule(String json) throws JSONException {
+		ScheduleData data = parseJson(json);
 		
-		JSONArray jsonClasses = toCheck.getJSONArray("EVENT");
-		JSONArray jsonResources = toCheck.getJSONArray("SPACE");
-		
-		Event[] events = parseEvents(jsonClasses);
-		Space[] rooms = parseSpaces(jsonResources);
-		
-		Schedule scheduler = new Schedule("My Schedule", events, rooms);
-		
-		return scheduler.getSolution();
-		
-	}
-	
-	private Map<String, Object> checkSchedule2(String json) throws JSONException {
-		JSONObject toCheck = new JSONObject(json);
-		
-		JSONArray jsonClasses = toCheck.getJSONArray("EVENT");
-		JSONArray jsonResources = toCheck.getJSONArray("SPACE");
-		
-		Event[] events = parseEvents(jsonClasses);
-		Space[] rooms = parseSpaces(jsonResources);
-		
-		Schedule scheduler = new Schedule("My Schedule", events, rooms);
+		Schedule scheduler = new Schedule("My Schedule", data.events, data.spaces);
 		
 		return scheduler.getSolution2();
 		
 	}
 	
-	private String requestKey(String email) throws Exception
+	private String requestKey(String email) throws URISyntaxException, SQLException
 	{
 		UUID apiKey = UUID.randomUUID();
 		Connection connect = getConnection();
@@ -235,10 +200,20 @@ public class ApiServlet extends HttpServlet {
 		return apiKey.toString();
 	}
 	
-	private Boolean verifyKey(String json) throws JSONException, Exception
+	private Boolean verifyKey(String json) throws URISyntaxException, SQLException
 	{
-		JSONObject toCheck = new JSONObject(json);
-		String key = toCheck.getString("APIKey");
+//		JSONObject toCheck = new JSONObject(json);
+//		String key = toCheck.getString("APIKey");
+		
+		String key = null;
+		try {
+			JsonParser parser = new JsonParser();
+			JsonObject toCheck = parser.parse(json).getAsJsonObject();
+			key = toCheck.get("APIKey").getAsString();
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Json parser exception");
+		}
+		
 		Connection connect = getConnection();
 		
 		PreparedStatement stmt = connect.prepareStatement("select * from apikey where key = ?");
@@ -271,7 +246,7 @@ public class ApiServlet extends HttpServlet {
 		return false;
 	}
 
-	private Connection getConnection() throws Exception
+	private Connection getConnection() throws URISyntaxException, SQLException
 	{
 		URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
