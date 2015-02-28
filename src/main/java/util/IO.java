@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class IO {
 	
-	public static String readInput(InputStream is) {
+	public static String readInput(InputStream is, boolean readAll) {
 		Scanner sc = new Scanner(is);
 		
 		String line = "";
@@ -14,7 +14,8 @@ public class IO {
 		try {
 			do {
 				sb.append(line);
-			} while ((line = sc.nextLine()).length() > 0);
+				line = sc.nextLine();
+			} while (readAll || line.length() > 0);
 		} catch (NoSuchElementException e) {}
 		sc.close();
 		

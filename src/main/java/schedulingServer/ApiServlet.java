@@ -26,7 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import scheduleSolver.*;
-import static util.Json.*;
+import util.ScheduleData;
 
 public class ApiServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -177,7 +177,7 @@ public class ApiServlet extends HttpServlet {
 	}*/
 
 	private Map<String, Object> checkSchedule(String json) throws JSONException {
-		ScheduleData data = parseJson(json);
+		ScheduleData data = ScheduleData.parseJson(json);
 		
 		Schedule scheduler = new Schedule("My Schedule", data.events, data.spaces);
 		

@@ -11,7 +11,9 @@ import org.json.JSONObject;
 import scheduleSolver.Event;
 import scheduleSolver.Space;
 
-public class Json {
+public class ScheduleData {
+	public Event[] events;
+	public Space[] spaces;
 	
 	public static ScheduleData parseJson(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
@@ -26,7 +28,7 @@ public class Json {
 		return data;
 	}
 	
-	public static Event[] parseEvents(JSONArray jsonEvents) throws JSONException 
+	private static Event[] parseEvents(JSONArray jsonEvents) throws JSONException 
 	{
 		Event[] events = new Event[jsonEvents.length()];
 		for (int i = 0; i < events.length; i++) 
@@ -41,7 +43,8 @@ public class Json {
 		    JSONObject pStartTmArray = obj.getJSONObject("pStartTm");
 		    Map<String, String[]> pStartTm = parseStartTimes(pStartTmArray);
 			
-			int space = obj.getInt("space");
+		    int space = -1;
+		    if (obj.has("space")) space = obj.getInt("space");
 			int max_participants = obj.getInt("max_participants");
 			int person = obj.getInt("persons");
 			
@@ -52,7 +55,7 @@ public class Json {
 		return events;
 	}
 	
-	public static Space[] parseSpaces(JSONArray jsonSpaces) throws JSONException
+	private static Space[] parseSpaces(JSONArray jsonSpaces) throws JSONException
 	{
 		Space[] rooms = new Space[jsonSpaces.length()];
 		
@@ -90,10 +93,6 @@ public class Json {
 		return mapping;
 	}
 	
-	public static class ScheduleData {
-		public Event[] events;
-		public Space[] spaces;
-	}
 	
 	/**
 	 * @param args

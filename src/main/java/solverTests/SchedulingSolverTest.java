@@ -11,7 +11,7 @@ import java.io.PrintStream;
 import org.json.JSONObject;
 
 import scheduleSolver.Schedule;
-import static util.Json.*;
+import util.ScheduleData;
 import static util.IO.*;
 
 /**
@@ -25,13 +25,9 @@ import static util.IO.*;
  */
 public class SchedulingSolverTest 
 {
-	public static boolean test0() throws FileNotFoundException
+	public static boolean test0()
 	{
-		String inputFile = "test0.json";
-		InputStream is = new FileInputStream(inputFile);
-		String json = readInput(is);
-		
-		return runTest("test0", json, false);
+		return runFileTest("test0", "test0.json", false);
 	}
 	
 	public static boolean test1()
@@ -61,6 +57,11 @@ public class SchedulingSolverTest
 	public static boolean test3() {
 		String json = "{\"EVENT\":[],\"SPACE\":[]}";
 		return runTest("test3", json, true);
+	}
+	
+	public static boolean test4() {
+		String fileName = "snippet_spr15_schedule.json";
+		return runFileTest("test_spr_15", fileName, true);
 	}
 	
 	public static boolean testBadSchedules(String[] paths){
@@ -114,12 +115,15 @@ public class SchedulingSolverTest
 		}
 		if (!allPassed) System.out.println("At least one test failed");
 		else System.out.println("All tests Passed");
+		
+		//System.out.println("Test for spr15 cs schedule snippet");
+		//test4();
 	}
 
 	private static boolean runTest(String testName, String json, boolean expectedResult) {
 		try 
 		{
-			ScheduleData data = parseJson(json);
+			ScheduleData data = ScheduleData.parseJson(json);
 			Schedule schedule = new Schedule("", data.events, data.spaces);
 			JSONObject solution =  new JSONObject(schedule.getSolution2());
 			
@@ -132,6 +136,18 @@ public class SchedulingSolverTest
 		{
 			System.out.println("Caught exception in " + testName);
 			e.printStackTrace(new PrintStream(System.out));
+			return false;
+		}
+	}
+	
+	private static boolean runFileTest(String testName, String fileName, boolean expectedResult) {
+		try {
+			InputStream is = new FileInputStream(fileName);
+			String json = readInput(is, true);
+			is.close();
+			return runTest(testName, json, false);
+		} catch (IOException e) {
+			System.out.println(testName + " IOException");
 			return false;
 		}
 	}
