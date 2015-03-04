@@ -81,6 +81,14 @@ public class Event {
 			return LogicalConstraintFactory.or(_space, _time);
 	}
 	
+	public Constraint before(Event other) {
+		return this.time.before(other.time);
+	}
+	
+	public Constraint after(Event other) {
+		return this.time.after(other.time);
+	}
+	
 	public Constraint getConstraint() { return time.getConstraint(); }
 	
 	public int getID() { return this.ID; }

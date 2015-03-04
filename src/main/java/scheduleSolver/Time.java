@@ -14,10 +14,12 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.constraints.LogicalConstraintFactory;
+import solver.constraints.extension.Tuples;
 import solver.constraints.set.SetConstraintsFactory;
 import solver.variables.IntVar;
 import solver.variables.SetVar;
 import solver.variables.VariableFactory;
+import util.objects.graphs.MultivaluedDecisionDiagram;
 
 public class Time {
 	/* members */
@@ -26,8 +28,10 @@ public class Time {
 	private int duration;  // event's duration in minutes
 	
 	private SetVar daySet;
+	private IntVar[] vars;
 	private IntVar startTime;
 	private Constraint constraint;
+	private Solver solver;
 	
 	public Time(Map<String, String[]> startTimes, int duration) {
 		this.daysTimes = new HashMap<Days, List<Integer>>();
@@ -47,6 +51,7 @@ public class Time {
 	}
 	
 	public void initialize(Solver solver) {
+		this.solver = solver;
 		this.daySet = VariableFactory.set("TimeBlock", 0, 6, solver);
 		
 		HashSet<Integer> totalTimes = new HashSet<Integer>();
@@ -89,6 +94,29 @@ public class Time {
 		return LogicalConstraintFactory.or(daysConstraint, time1Constraint, time2Constraint);
 	}
 
+	public Constraint before(Time other) {
+		Constraint daysConstraint = SetConstraintsFactory.disjoint(this.daySet, other.daySet);
+		Constraint timeConstraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.duration);
+		
+		return LogicalConstraintFactory.or(daysConstraint, timeConstraint);
+	}
+	
+	public Constraint after(Time other) {
+		Constraint daysConstraint = SetConstraintsFactory.disjoint(this.daySet, other.daySet);
+		Constraint timeConstraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.duration);
+		
+		return LogicalConstraintFactory.or(daysConstraint, timeConstraint);
+	}
+	
+	public Constraint sameTimes(Time other) {
+		if (this.duration != other.duration) return this.solver.FALSE;
+		
+		Constraint daysConstraint = SetConstraintsFactory.offSet(this.daySet, other.daySet, 0);
+		Constraint timeConstraint = IntConstraintFactory.arithm(this.startTime, "=", other.startTime);
+		
+		return LogicalConstraintFactory.and(daysConstraint, timeConstraint);
+	}
+	
 	public Constraint getConstraint() { return this.constraint; }
 	
 	public String getDays() {
@@ -103,6 +131,48 @@ public class Time {
 		
 		return timeToString(tm);
 	}
+	
+	
+	// EXPERIMENTAL AREA //
+	public void initialize2(Solver solver) {
+		this.solver = solver;
+		
+		vars = new IntVar[8];
+		for (int i = 0; i < 7; i++) {
+			vars[i] = VariableFactory.bounded("days", 0, 1, solver);
+		}
+		HashSet<Integer> totalTimes = new HashSet<Integer>();
+		for (List<Integer> times : this.daysTimes.values()) {
+			totalTimes.addAll(times);
+		}
+		this.startTime = VariableFactory.enumerated("startTime",
+				Ints.toArray(totalTimes), solver);
+		vars[7] = this.startTime;
+		
+		Tuples tuples = new Tuples();
+		for (Entry<Days, List<Integer>> entry : daysTimes.entrySet()) {
+			int[] daysArr = entry.getKey().getWeekArr();
+			int[] vals = Arrays.copyOf(daysArr, 8);
+			for (int t : entry.getValue()) {
+				vals[7] = t;
+				tuples.add(vals);
+			}
+		}
+		
+		constraint = IntConstraintFactory.mddc(
+				vars, new MultivaluedDecisionDiagram(vars, tuples));
+	}
+	
+	public Constraint notOverlap2(Time other) {
+		Constraint daysConstraint = SetConstraintsFactory.disjoint(this.daySet, other.daySet);
+		Constraint time1Constraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.duration);
+		Constraint time2Constraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.duration);
+		
+		return LogicalConstraintFactory.or(daysConstraint, time1Constraint, time2Constraint);
+	}
+	
+	// END EXPERIMENTAL AREA //
+	
 		
 	private int stringToTime(String tmString) {
 		int hour, min;
@@ -176,6 +246,15 @@ public class Time {
 			Arrays.sort(arr);
 			for (int d : arr) {
 				days += week.charAt(d);
+			}
+			return arr;
+		}
+		
+		public int[] getWeekArr() {
+			int[] arr = new int[7];
+			Arrays.fill(arr, 0);
+			for (int i = 0; i < 7; i++) {
+				if (daySet.contains(i)) arr[i] = 1;
 			}
 			return arr;
 		}
