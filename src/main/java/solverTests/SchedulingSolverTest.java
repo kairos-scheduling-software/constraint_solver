@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONObject;
 
@@ -25,6 +27,8 @@ import static util.IO.*;
  */
 public class SchedulingSolverTest 
 {
+	private static Map<String, String> output = new HashMap<String, String>();
+	
 	public static boolean test0()
 	{
 		return runFileTest("test0", "test0.json", false);
@@ -61,7 +65,18 @@ public class SchedulingSolverTest
 	
 	public static boolean test4() {
 		String fileName = "snippet_spr15_schedule.json";
-		return runFileTest("test_spr_15", fileName, true);
+		boolean result = runFileTest("test_snippet_spr_15", fileName, true);
+		
+		return result;
+	}
+	
+	public static boolean test5() {
+		String fileName = "new_spr15_schedule.json";
+		boolean result = runFileTest("test_spr_15", fileName, true);
+		
+		System.out.println(output.get("test_spr_15"));
+		
+		return result;
 	}
 	
 	public static boolean testBadSchedules(String[] paths){
@@ -116,20 +131,26 @@ public class SchedulingSolverTest
 		if (!allPassed) System.out.println("At least one test failed");
 		else System.out.println("All tests Passed");
 		
-		//System.out.println("Test for spr15 cs schedule snippet");
-		//test4();
+		System.out.println("Test for spr15 cs schedule snippet");
+		test4();
+		
+		test5();
 	}
 
 	private static boolean runTest(String testName, String json, boolean expectedResult) {
+		System.out.println("Running test " + testName);
 		try 
 		{
 			ScheduleData data = ScheduleData.parseJson(json);
 			Schedule schedule = new Schedule("", data.events, data.spaces);
 			JSONObject solution =  new JSONObject(schedule.getSolution2());
 			
+			output.put(testName, solution.toString());
+			
 			boolean result = (expectedResult != solution.getBoolean("wasFailure"));
 			
 			if (!result) System.out.println(testName + " failed");
+			else System.out.println(testName + " passed");
 			return result;
 		}
 		catch(Exception e)
@@ -145,7 +166,7 @@ public class SchedulingSolverTest
 			InputStream is = new FileInputStream(fileName);
 			String json = readInput(is, true);
 			is.close();
-			return runTest(testName, json, false);
+			return runTest(testName, json, expectedResult);
 		} catch (IOException e) {
 			System.out.println(testName + " IOException");
 			return false;

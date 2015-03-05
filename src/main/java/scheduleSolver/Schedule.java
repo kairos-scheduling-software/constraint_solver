@@ -1,6 +1,7 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,9 @@ import solver.ResolutionPolicy;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
+import solver.search.limits.FailCounter;
+import solver.search.loop.lns.LNSFactory;
+import solver.search.strategy.IntStrategyFactory;
 import solver.trace.Chatterbox;
 import solver.variables.BoolVar;
 import solver.variables.IntVar;
@@ -141,6 +145,16 @@ public class Schedule {
 		if (!modelBuilt) buildModel();
 		
 //		if (DEBUG) Chatterbox.showDecisions(solver);
+		
+		List<IntVar> vars = new ArrayList<IntVar>();
+		
+		for (Event e : events.values()) {
+			vars.addAll(Arrays.asList(e.getVars()));
+		}
+		
+		//LNSFactory.rlns(solver, vars.toArray(new IntVar[0]), 30, 20140909L, new FailCounter(100));
+		
+		solver.set(IntStrategyFactory.random_value(vars.toArray(new IntVar[0])));
 		
 		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, satisfiedCount);
 		solved = (satisfiedCount.getValue() == constraintList.size());
