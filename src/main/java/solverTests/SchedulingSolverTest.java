@@ -64,16 +64,7 @@ public class SchedulingSolverTest
 		return runFileTest("test_spr_15", fileName, true);
 	}
 	
-	public static boolean testBadSchedules(String[] paths){
-		// for path in paths
-		// open file	
-		// parse file as json
-		// create schedule
-		// schedule should pass
-		return true;
-	}
-	
-	public static void testGoodSchedules(String[] paths){
+	public static void testSchedules(String[] paths, boolean expected){
 		String json;
 		for(int i=0; i<paths.length; i++){
 			json = "";
@@ -83,27 +74,27 @@ public class SchedulingSolverTest
 				while((line = br.readLine()) != null)
 					json += line;
 				br.close();
-				runTest(new String("goodTest_"+Integer.toString(i)), json, true);
+				runTest(new String("goodTest_"+Integer.toString(i)), json, expected);
 			}
 			catch(IOException ioe){
 				System.out.println("caught IOException while attempting to read file " +
 						paths[i]);
 			}
 		}
-		// for path in paths
-		// open file
-		// parse file as json
-		// create schedule
-		// schedule should pass
 	}
 
 	public static void main(String[] args) throws FileNotFoundException 
 	{	
 		
-		boolean[] passed = new boolean[] {test0(), test1(), test2()};
+		boolean[] passed = new boolean[] {test0(), test1(), test2(), test3()};
 		
-		String[] paths = {"jsonTestFiles/one_class_one_room"};
-		testGoodSchedules(paths);
+		// test satisfiable schedules
+		String[] noConflictScheds = {"jsonTestFiles/one_class_one_room"};
+		testSchedules(noConflictScheds, true);
+		
+		// test unsatisfiable schedules
+		String[] conflictedScheds = {};
+		testSchedules(conflictedScheds, false);
 		
 		//WRAP UP
 		boolean allPassed = true;
@@ -113,11 +104,9 @@ public class SchedulingSolverTest
 				break;
 			}
 		}
+		
 		if (!allPassed) System.out.println("At least one test failed");
 		else System.out.println("All tests Passed");
-		
-		//System.out.println("Test for spr15 cs schedule snippet");
-		//test4();
 	}
 
 	private static boolean runTest(String testName, String json, boolean expectedResult) {
