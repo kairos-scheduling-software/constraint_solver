@@ -208,7 +208,7 @@ public class Schedule {
 		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, satisfiedCount);
 		solved = (satisfiedCount.getValue() == constraintList.size());
 		
-		if (!solved && DEBUG) {
+		if (DEBUG) {
 //			System.out.println(solver.getEngine().getContradictionException());
 			printSolverData();
 		}
@@ -219,10 +219,13 @@ public class Schedule {
 	private void printSolverData() {
 		Chatterbox.printStatistics(solver);
 		
+		int conflictCount = 0;
 		for (EventConstraint e : constraintList) {
 			boolean b = (e.satisfied.getValue() != 0);
-			System.out.printf("[%2d-%2d]: %s\n", e.id1, e.id2, b?"True":"False");
+//			System.out.printf("[%2d-%2d]: %s\n", e.id1, e.id2, b?"True":"False");
+			if (!b) conflictCount += 1;
 		}
+		System.out.println("Conflicts count: " + conflictCount);
 		
 		for (Event e : this.events.values()) {
 			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getID(), e.getSpaceID(), e.getDays(), e.getStartTime());

@@ -15,9 +15,7 @@ import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.constraints.LogicalConstraintFactory;
 import solver.constraints.extension.Tuples;
-import solver.constraints.set.SetConstraintsFactory;
 import solver.variables.IntVar;
-import solver.variables.SetVar;
 import solver.variables.VariableFactory;
 import util.objects.graphs.MultivaluedDecisionDiagram;
 
@@ -83,7 +81,7 @@ public class Time {
 		vars[7] = this.startTime;
 		
 		Tuples tuples = new Tuples();
-		List<Constraint> constraintList = new ArrayList<Constraint>();
+//		List<Constraint> constraintList = new ArrayList<Constraint>();
 		for (Entry<Days, List<Integer>> entry : daysTimes.entrySet()) {
 			int[] daysArr = entry.getKey().getWeekArr();
 			
@@ -94,17 +92,17 @@ public class Time {
 				int[] vals = Arrays.copyOf(daysArr, 8);
 				vals[7] = t;
 				tuples.add(vals);
-				Constraint[] c = new Constraint[8];
-				for (int i = 0; i < 7; i++) {
-					c[i] = IntConstraintFactory.arithm(dayVars[i], "=", daysArr[i]);
-				}
-				c[7] = IntConstraintFactory.arithm(startTime, "=", t);
-				constraintList.add(LogicalConstraintFactory.and(c));
+//				Constraint[] c = new Constraint[8];
+//				for (int i = 0; i < 7; i++) {
+//					c[i] = IntConstraintFactory.arithm(dayVars[i], "=", daysArr[i]);
+//				}
+//				c[7] = IntConstraintFactory.arithm(startTime, "=", t);
+//				constraintList.add(LogicalConstraintFactory.and(c));
 			}
 		}
-//		constraint = IntConstraintFactory.mddc(
-//				vars, new MultivaluedDecisionDiagram(vars, tuples));
-		constraint = LogicalConstraintFactory.or(constraintList.toArray(new Constraint[0]));
+		constraint = IntConstraintFactory.mddc(
+				vars, new MultivaluedDecisionDiagram(vars, tuples));
+//		constraint = LogicalConstraintFactory.or(constraintList.toArray(new Constraint[0]));
 	}
 	
 	public IntVar[] getVars() { return vars; }
