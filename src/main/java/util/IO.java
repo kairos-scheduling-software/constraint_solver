@@ -1,6 +1,5 @@
 package util;
 
-import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 

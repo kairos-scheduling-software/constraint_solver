@@ -1,8 +1,6 @@
 package scheduleSolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.primitives.Ints;
@@ -92,11 +90,14 @@ public class Event {
 	}
 	
 	public IntVar[] getVars() {
-		List<IntVar> vars = new ArrayList<IntVar>();
-		vars.addAll(Arrays.asList(time.getVars()));
-		vars.add(spaceId);
-		return vars.toArray(new IntVar[0]);
+//		List<IntVar> vars = new ArrayList<IntVar>();
+//		vars.add(time.getVar());
+//		vars.add(spaceId);
+//		return vars.toArray(new IntVar[0]);
+		
+		return new IntVar[]{time.getVar(), spaceId};
 	}
+	
 	public Constraint getConstraint() { return time.getConstraint(); }
 	
 	public int getID() { return this.ID; }

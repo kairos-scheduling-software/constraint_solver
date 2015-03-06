@@ -165,7 +165,6 @@ public class SchedulingSolverTest
 	}
 	
 	private static boolean runFileTest(String testName, String fileName, boolean expectedResult) {
-//		InputStream is = new FileInputStream(fileName);
 		Scanner sc;
 		try {
 			sc = new Scanner(new File(fileName));

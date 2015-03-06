@@ -23,20 +23,18 @@ public class Time {
 	/* members */
 	
 	private Map<Days, List<Integer>> daysTimes;
-	private int _duration;  // event's duration in minutes
+	private int duration;  // event's duration in minutes
 	
-	private IntVar[] WEEK;
+	private IntVar indexVar;
 	
-	private IntVar[] vars;
 	private IntVar[] dayVars;
 	private IntVar startTime;
 	
 	private Constraint constraint;
-	private Solver solver;
 	
 	public Time(Map<String, String[]> startTimes, int duration) {
 		this.daysTimes = new HashMap<Days, List<Integer>>();
-		this._duration = duration;
+		this.duration = duration;
 		
 		for (Entry<String, String[]> entry : startTimes.entrySet()) {
 			Days days = new Days(entry.getKey());
@@ -52,13 +50,6 @@ public class Time {
 	}
 	
 	public void initialize(Solver solver) {
-		this.solver = solver;
-		
-		// Initialize fixed variables (week vars, duration)
-		WEEK = new IntVar[7];
-		for (int i = 0; i < 7; i++)
-			WEEK[i] = VariableFactory.fixed(i, solver);
-		
 		// Initialize day vars
 		dayVars = new IntVar[7];
 		for (int i = 0; i < 7; i++) {
@@ -74,14 +65,8 @@ public class Time {
 		this.startTime = VariableFactory.enumerated("startTime",
 				Ints.toArray(totalTimes), solver);
 		
-		
-		// Setup constraint for possible days-time
-		vars = new IntVar[8];
-		for (int i = 0; i < 7; i++) vars[i] = dayVars[i];
-		vars[7] = this.startTime;
-		
 		Tuples tuples = new Tuples();
-//		List<Constraint> constraintList = new ArrayList<Constraint>();
+		int index = 0;
 		for (Entry<Days, List<Integer>> entry : daysTimes.entrySet()) {
 			int[] daysArr = entry.getKey().getWeekArr();
 			
@@ -89,66 +74,48 @@ public class Time {
 				daysArr[i] *= (i+1);
 			}
 			for (int t : entry.getValue()) {
-				int[] vals = Arrays.copyOf(daysArr, 8);
+				int[] vals = Arrays.copyOf(daysArr, 9);
 				vals[7] = t;
+				vals[8] = index;
+				index++;
 				tuples.add(vals);
-//				Constraint[] c = new Constraint[8];
-//				for (int i = 0; i < 7; i++) {
-//					c[i] = IntConstraintFactory.arithm(dayVars[i], "=", daysArr[i]);
-//				}
-//				c[7] = IntConstraintFactory.arithm(startTime, "=", t);
-//				constraintList.add(LogicalConstraintFactory.and(c));
 			}
 		}
+		
+		// Setup var and days-time constraint
+		indexVar = VariableFactory.bounded("daytime var", 0, index - 1, solver);
+		
+		IntVar[] vars = new IntVar[9];
+		for (int i = 0; i < 7; i++) vars[i] = dayVars[i];
+		vars[7] = this.startTime;
+		vars[8] = indexVar;
 		constraint = IntConstraintFactory.mddc(
 				vars, new MultivaluedDecisionDiagram(vars, tuples));
-//		constraint = LogicalConstraintFactory.or(constraintList.toArray(new Constraint[0]));
 	}
 	
-	public IntVar[] getVars() { return vars; }
+	public IntVar getVar() { return indexVar; }
 	
 	public Constraint notOverlap(Time other) {
 		IntVar[] dayArr = new IntVar[14];
 		for (int i = 0; i < 7; i++) {
-			dayArr[i] = this.vars[i];
-			dayArr[i+7] = other.vars[i];
+			dayArr[i] = this.dayVars[i];
+			dayArr[i+7] = other.dayVars[i];
 		}
 		Constraint daysConstraint = IntConstraintFactory.alldifferent_except_0(dayArr);
-		Constraint time1Constraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other._duration);
-		Constraint time2Constraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this._duration);
+		Constraint time1Constraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.duration);
+		Constraint time2Constraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.duration);
 		
 		return LogicalConstraintFactory.or(daysConstraint, time1Constraint, time2Constraint);
-		
-//		int n = 7 * 2;
-//		IntVar[] X = new IntVar[n];
-//		IntVar[] Y = new IntVar[n];
-//		IntVar[] W = new IntVar[n];
-//		IntVar[] H = new IntVar[n];
-//		for (int i = 0; i < 7; i++) {
-//			X[i] = this.WEEK[i];
-//			X[i + 7] = other.WEEK[i];
-//			
-//			Y[i] = VariableFactory.eq(this.startTime);
-//			Y[i + 7] = VariableFactory.eq(other.startTime);
-//			
-//			W[i] = this.dayVars[i];
-//			W[i + 7] = other.dayVars[i];
-//			
-//			H[i] = VariableFactory.eq(this.duration);
-//			H[i + 7] = VariableFactory.eq(other.duration);
-//		}
-//		
-//		return LogicalConstraintFactory.and(IntConstraintFactory.diffn(X, Y, W, H, true));
 	}
 
 	public Constraint before(Time other) {
-		Constraint timeConstraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this._duration);
+		Constraint timeConstraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.duration);
 		
 		return timeConstraint;
 	}
 	
 	public Constraint after(Time other) {
-		Constraint timeConstraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other._duration);
+		Constraint timeConstraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.duration);
 		
 		return timeConstraint;
 	}
@@ -171,7 +138,7 @@ public class Time {
 		return timeToString(tm);
 	}
 	
-	public int getDuration() { return _duration; }
+	public int getDuration() { return duration; }
 	
 	private int stringToTime(String tmString) {
 		int hour, min;
@@ -211,14 +178,6 @@ public class Time {
 			initialize();
 		}
 		
-		public Days(int[] dayArr) {
-			val = 0;
-			for (int index : dayArr)
-				if (index >= 0 && index < 7) val |= (1 << index);
-			
-			initialize();
-		}
-		
 		public Days(int val) {
 			this.val = val & ((1 << 7) - 1);
 			
@@ -226,15 +185,6 @@ public class Time {
 		}
 		
 		public String getDays() { return days; }
-		
-		public int[] getArr() {
-			int[] arr = Ints.toArray(daySet);
-			Arrays.sort(arr);
-			for (int d : arr) {
-				days += week.charAt(d);
-			}
-			return arr;
-		}
 		
 		public int[] getWeekArr() {
 			int[] arr = new int[7];
