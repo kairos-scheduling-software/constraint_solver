@@ -2,11 +2,9 @@ package solverTests;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -196,10 +194,8 @@ public class SchedulingSolverTest
 			}
 			boolean expected = (reply == 'Y');
 			
-			if (runTest("Interactive test", json, expected))
-				System.out.println("Test passed");
-			else {
-				System.out.println("Test failed. Output:");
+			if (!runTest("Interactive test", json, expected)) {
+				System.out.println("Output JSON:");
 				System.out.println(output.get("Interactive test"));
 			}
 		}
