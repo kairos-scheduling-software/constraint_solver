@@ -29,8 +29,6 @@ public class Time {
 	
 	private IntVar[] WEEK;
 	
-	private IntVar duration;
-
 	private IntVar[] vars;
 	private IntVar[] dayVars;
 	private IntVar startTime;
@@ -63,13 +61,11 @@ public class Time {
 		for (int i = 0; i < 7; i++)
 			WEEK[i] = VariableFactory.fixed(i, solver);
 		
-		duration = VariableFactory.fixed(_duration, solver);
-		
 		// Initialize day vars
 		dayVars = new IntVar[7];
 		for (int i = 0; i < 7; i++) {
-			dayVars[i] = VariableFactory.bounded("days", 0, 1, solver);
-			dayVars[i] = VariableFactory.enumerated("days", new int[]{0, i}, solver);
+//			dayVars[i] = VariableFactory.bounded("days", 0, 1, solver);
+			dayVars[i] = VariableFactory.enumerated("days", new int[]{0, i+1}, solver);
 		}
 		
 		// Initialize startTime var
@@ -87,18 +83,28 @@ public class Time {
 		vars[7] = this.startTime;
 		
 		Tuples tuples = new Tuples();
+		List<Constraint> constraintList = new ArrayList<Constraint>();
 		for (Entry<Days, List<Integer>> entry : daysTimes.entrySet()) {
 			int[] daysArr = entry.getKey().getWeekArr();
-			for (int i = 0; i < 7; i++)
-				daysArr[i] *= i;
+			
+			for (int i = 0; i < 7; i++) {
+				daysArr[i] *= (i+1);
+			}
 			for (int t : entry.getValue()) {
 				int[] vals = Arrays.copyOf(daysArr, 8);
 				vals[7] = t;
 				tuples.add(vals);
+				Constraint[] c = new Constraint[8];
+				for (int i = 0; i < 7; i++) {
+					c[i] = IntConstraintFactory.arithm(dayVars[i], "=", daysArr[i]);
+				}
+				c[7] = IntConstraintFactory.arithm(startTime, "=", t);
+				constraintList.add(LogicalConstraintFactory.and(c));
 			}
 		}
-		constraint = IntConstraintFactory.mddc(
-				vars, new MultivaluedDecisionDiagram(vars, tuples));
+//		constraint = IntConstraintFactory.mddc(
+//				vars, new MultivaluedDecisionDiagram(vars, tuples));
+		constraint = LogicalConstraintFactory.or(constraintList.toArray(new Constraint[0]));
 	}
 	
 	public IntVar[] getVars() { return vars; }
@@ -106,8 +112,8 @@ public class Time {
 	public Constraint notOverlap(Time other) {
 		IntVar[] dayArr = new IntVar[14];
 		for (int i = 0; i < 7; i++) {
-			dayArr[i] = this.dayVars[i];
-			dayArr[i+7] = other.dayVars[i];
+			dayArr[i] = this.vars[i];
+			dayArr[i+7] = other.vars[i];
 		}
 		Constraint daysConstraint = IntConstraintFactory.alldifferent_except_0(dayArr);
 		Constraint time1Constraint = IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other._duration);
@@ -166,6 +172,8 @@ public class Time {
 		
 		return timeToString(tm);
 	}
+	
+	public int getDuration() { return _duration; }
 	
 	private int stringToTime(String tmString) {
 		int hour, min;

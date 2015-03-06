@@ -71,8 +71,6 @@ public class Event {
 		this.time.initialize(this.solver);
 	}
 	
-	public IntVar[] getVars() { return time.getVars(); }
-	
 	public Constraint notOverlap(Event other) {
 		Constraint _space = IntConstraintFactory.arithm(this.spaceId, "!=", other.spaceId);
 		Constraint _time = this.time.notOverlap(other.time);
@@ -91,11 +89,14 @@ public class Event {
 		return this.time.after(other.time);
 	}
 	
+	public IntVar[] getVars() { return time.getVars(); }
 	public Constraint getConstraint() { return time.getConstraint(); }
 	
 	public int getID() { return this.ID; }
 	public int getSpaceID() { return this.spaceId.getValue(); }
 	public String getDays() { return this.time.getDays(); }
 	public String getStartTime() { return this.time.getStartTime(); }
-	
+	public int getDuration() { return time.getDuration(); }
+	public int getMaxParticipants() { return maxParticipants; }
+	public int getPerson() { return personId; }
 }
