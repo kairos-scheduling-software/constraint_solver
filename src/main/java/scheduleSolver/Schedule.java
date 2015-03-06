@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.gson.Gson;
 
@@ -199,7 +200,8 @@ public class Schedule {
 			vars.addAll(Arrays.asList(e.getVars()));
 		}
 		
-		LNSFactory.rlns(solver, vars.toArray(new IntVar[0]), 30, 20140909L, new FailCounter(100));
+		LNSFactory.rlns(solver, vars.toArray(new IntVar[0]),
+				30, (new Random()).nextLong(), new FailCounter(100));
 		
 		solver.set(IntStrategyFactory.random_value(vars.toArray(new IntVar[0])));
 		
@@ -207,7 +209,6 @@ public class Schedule {
 		solved = (satisfiedCount.getValue() == constraintList.size());
 		
 		if (DEBUG) {
-//			System.out.println(solver.getEngine().getContradictionException());
 			printSolverData();
 		}
 		
@@ -259,9 +260,6 @@ public class Schedule {
 		
 		Schedule sc = new Schedule("test schedule", new Event[]{e0, e1, e2},
 				new Space[] {s0, s1});
-		
-//		boolean result = sc.findSolution();
-//		System.out.println("has_solution = " + result);
 		
 		Map<String, Object> jsonMap = sc.getSolution2();
 		
