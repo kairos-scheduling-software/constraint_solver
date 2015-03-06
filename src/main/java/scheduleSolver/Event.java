@@ -81,11 +81,30 @@ public class Event {
 			return LogicalConstraintFactory.or(_space, _time);
 	}
 	
+	public Constraint before(Event other) {
+		return this.time.before(other.time);
+	}
+	
+	public Constraint after(Event other) {
+		return this.time.after(other.time);
+	}
+	
+	public IntVar[] getVars() {
+//		List<IntVar> vars = new ArrayList<IntVar>();
+//		vars.add(time.getVar());
+//		vars.add(spaceId);
+//		return vars.toArray(new IntVar[0]);
+		
+		return new IntVar[]{time.getVar(), spaceId};
+	}
+	
 	public Constraint getConstraint() { return time.getConstraint(); }
 	
 	public int getID() { return this.ID; }
 	public int getSpaceID() { return this.spaceId.getValue(); }
 	public String getDays() { return this.time.getDays(); }
 	public String getStartTime() { return this.time.getStartTime(); }
-	
+	public int getDuration() { return time.getDuration(); }
+	public int getMaxParticipants() { return maxParticipants; }
+	public int getPerson() { return personId; }
 }

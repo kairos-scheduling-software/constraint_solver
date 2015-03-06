@@ -1,12 +1,13 @@
 package solverTests;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 import org.json.JSONObject;
 
@@ -25,6 +26,8 @@ import static util.IO.*;
  */
 public class SchedulingSolverTest 
 {
+	private static Map<String, String> output = new HashMap<String, String>();
+	
 	public static boolean test0()
 	{
 		return runFileTest("test0", "test0.json", false);
@@ -61,7 +64,20 @@ public class SchedulingSolverTest
 	
 	public static boolean test4() {
 		String fileName = "snippet_spr15_schedule.json";
-		return runFileTest("test_spr_15", fileName, true);
+		boolean result = runFileTest("test_snippet_spr_15", fileName, true);
+		
+		System.out.println(output.get("test_snippet_spr_15"));
+		
+		return result;
+	}
+	
+	public static boolean test5() {
+		String fileName = "new_spr15_schedule.json";
+		boolean result = runFileTest("test_spr_15", fileName, true);
+		
+		System.out.println(output.get("test_spr_15"));
+		
+		return result;
 	}
 	
 	public static void testSchedules(String[] paths, boolean expected){
@@ -74,7 +90,7 @@ public class SchedulingSolverTest
 				while((line = br.readLine()) != null)
 					json += line;
 				br.close();
-				runTest(new String("goodTest_"+Integer.toString(i)), json, expected);
+				runTest(new String("Test_"+Integer.toString(i)), json, expected);
 			}
 			catch(IOException ioe){
 				System.out.println("caught IOException while attempting to read file " +
@@ -84,7 +100,7 @@ public class SchedulingSolverTest
 	}
 
 	public static void main(String[] args) throws FileNotFoundException 
-	{	
+	{
 		
 		boolean[] passed = new boolean[] {test0(), test1(), test2(), test3()};
 		
@@ -104,40 +120,73 @@ public class SchedulingSolverTest
 				break;
 			}
 		}
-		
 		if (!allPassed) System.out.println("At least one test failed");
 		else System.out.println("All tests Passed");
+		
+		System.out.println("Test for spr15 cs schedule snippet");
+		test4();
+		
+		test5();
+		
+		runInteractiveTest();
 	}
 
 	private static boolean runTest(String testName, String json, boolean expectedResult) {
+		System.out.println("Running test " + testName);
 		try 
 		{
 			ScheduleData data = ScheduleData.parseJson(json);
 			Schedule schedule = new Schedule("", data.events, data.spaces);
 			JSONObject solution =  new JSONObject(schedule.getSolution2());
 			
+			output.put(testName, solution.toString());
+			
 			boolean result = (expectedResult != solution.getBoolean("wasFailure"));
 			
 			if (!result) System.out.println(testName + " failed");
+			else System.out.println(testName + " passed");
 			return result;
 		}
 		catch(Exception e)
 		{
 			System.out.println("Caught exception in " + testName);
-			e.printStackTrace(new PrintStream(System.out));
+			e.printStackTrace();
 			return false;
 		}
 	}
 	
 	private static boolean runFileTest(String testName, String fileName, boolean expectedResult) {
+		Scanner sc;
 		try {
-			InputStream is = new FileInputStream(fileName);
-			String json = readInput(is, true);
-			is.close();
-			return runTest(testName, json, false);
-		} catch (IOException e) {
-			System.out.println(testName + " IOException");
+			sc = new Scanner(new File(fileName));
+			String json = readInput(sc, true);
+			sc.close();
+			return runTest(testName, json, expectedResult);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	private static void runInteractiveTest() {
+		Scanner sc = new Scanner(System.in);
+		while(true) {
+			System.out.println("JSON string:");
+			String json = readInput(sc, false);
+			if (json.length() == 0) break;
+			char reply = ' ';
+			while (reply != 'Y' && reply != 'N') {
+				System.out.print("Valid schedule? (Y/N) ");
+				String line = sc.nextLine();
+				if (line.length() == 1) reply = line.toUpperCase().charAt(0);
+			}
+			boolean expected = (reply == 'Y');
+			
+			if (!runTest("Interactive test", json, expected)) {
+				System.out.println("Output JSON:");
+				System.out.println(output.get("Interactive test"));
+			}
 		}
 	}
 }
