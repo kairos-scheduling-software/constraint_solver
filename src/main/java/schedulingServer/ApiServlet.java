@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -27,6 +28,7 @@ import com.google.gson.JsonParser;
 
 import scheduleSolver.*;
 import util.ScheduleData;
+import static util.IO.*;
 
 public class ApiServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -64,14 +66,17 @@ public class ApiServlet extends HttpServlet {
 		} 
 		else if (uri.equals("/check") || uri.equals("/new")) 
 		{
-			BufferedReader reader = request.getReader();
-			StringBuffer jb = new StringBuffer();
-			String line;
-			
-			while ((line = reader.readLine()) != null)
-				jb.append(line);
-			
-			String json = jb.toString();
+//			BufferedReader reader = request.getReader();
+//			StringBuffer jb = new StringBuffer();
+//			String line;
+//			
+//			while ((line = reader.readLine()) != null)
+//				jb.append(line);
+//			
+//			String json = jb.toString();
+			Scanner sc = new Scanner(request.getReader());
+			String json = readInput(sc, true);
+			sc.close();
 
 			try 
 			{
@@ -181,7 +186,7 @@ public class ApiServlet extends HttpServlet {
 		
 		Schedule scheduler = new Schedule("My Schedule", data.events, data.spaces);
 		
-		return scheduler.getSolution2();
+		return scheduler.getSolution(false);
 		
 	}
 	

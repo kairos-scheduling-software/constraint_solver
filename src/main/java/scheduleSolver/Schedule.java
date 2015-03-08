@@ -54,26 +54,13 @@ public class Schedule {
 		}
 	}
 	
-	public HashMap<String, Object> getSolution() {
+	public HashMap<String, Object> getSolution(boolean full) {
 		boolean failure = !findSolution();
 		
 		ArrayList<Object> eventsList = new ArrayList<Object>();
 		for(Map.Entry<Integer, Event> entry : events.entrySet()) {
 			Event e = entry.getValue();
-			
-			ArrayList<Integer> conflicts = new ArrayList<Integer>();
-			for (EventConstraint c : constraintList) {
-				if (c.satisfied.getValue() == 0) {
-					if (c.id1 == e.getID()) conflicts.add(c.id2);
-					else if (c.id2 == e.getID()) conflicts.add(c.id1);
-				}
-			}
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("ID", e.getID());
-			map.put("days", e.getDays());
-			map.put("roomID", e.getSpaceID());
-			map.put("startTime", e.getStartTime());
-			map.put("conflictsWith", conflicts);
+			Map<String, Object> map = getEvent(e, full);
 			
 			eventsList.add(map);
 		}
@@ -82,77 +69,18 @@ public class Schedule {
 		jsonMap.put("wasFailure", failure);
 		jsonMap.put("EVENT", eventsList);
 		
-		return jsonMap;
-	}
-	
-	public HashMap<String, Object> getSolution2() {
-		boolean failure = !findSolution();
-		
-		ArrayList<Object> eventsList = new ArrayList<Object>();
-		for(Map.Entry<Integer, Event> entry : events.entrySet()) {
-			Event e = entry.getValue();
-			
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("id", e.getID());
-			map.put("space", e.getSpaceID());
-			
-			Map<String, Object> tmMap = new HashMap<String, Object>();
-			tmMap.put(e.getDays(), new String[]{e.getStartTime()});
-			map.put("pStartTm", tmMap);
-			
-			map.put("duration", e.getDuration());
-			map.put("max_participants", e.getMaxParticipants());
-			map.put("persons", e.getPerson());
-			
-			ArrayList<Integer> conflicts = new ArrayList<Integer>();
-			for (EventConstraint c : constraintList) {
-				if (c.satisfied.getValue() == 0) {
-					if (c.id1 == e.getID()) conflicts.add(c.id2);
-					else if (c.id2 == e.getID()) conflicts.add(c.id1);
-				}
+		if (full) {
+			ArrayList<Object> spacesList = new ArrayList<Object>();
+			for(Map.Entry<Integer, Space> entry : spaces.entrySet()) {
+				Space s = entry.getValue();
+				
+				HashMap<String, Object> map = new HashMap<String, Object>();
+				map.put("id", s.getID());
+				map.put("capacity", s.getCapacity());
+				spacesList.add(map);
 			}
-			map.put("conflictsWith", conflicts);
-			
-			eventsList.add(map);
+			jsonMap.put("SPACE", spacesList);
 		}
-		
-		ArrayList<Object> spacesList = new ArrayList<Object>();
-		for(Map.Entry<Integer, Space> entry : spaces.entrySet()) {
-			Space s = entry.getValue();
-			
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("id", s.getID());
-			map.put("capacity", s.getCapacity());
-			spacesList.add(map);
-		}
-		
-		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
-		jsonMap.put("wasFailure", failure);
-		jsonMap.put("EVENT", eventsList);
-		jsonMap.put("SPACE", spacesList);
-		
-//		for (EventConstraint c : constraintList) {
-//			if ((c.id1 == 4 && c.id2 == 81) ||
-//				(c.id1 == 81 && c.id2 == 4)) {
-//				if (!c.satisfied.isInstantiated()) {
-//					System.out.println("Var not instantiated!");
-//				}
-//				System.out.println("constraint satisfied = " + c.satisfied.getValue());
-//			}
-//		}
-//		
-//		System.out.println("events count: " + events.size());
-//		IntVar[] vars = events.get(4).getVars();
-//		for (int i = 0; i < 7; i++) {
-//			System.out.print(vars[i].getValue() + ":");
-//		}
-//		System.out.println(vars[7].getValue());
-//		
-//		vars = events.get(81).getVars();
-//		for (int i = 0; i < 7; i++) {
-//			System.out.print(vars[i].getValue() + ":");
-//		}
-//		System.out.println(vars[7].getValue());
 		
 		return jsonMap;
 	}
@@ -231,6 +159,42 @@ public class Schedule {
 		}
 	}
 	
+	private List<Integer> getConflicts(Event e) {
+		ArrayList<Integer> conflicts = new ArrayList<Integer>();
+		for (EventConstraint c : constraintList) {
+			if (c.satisfied.getValue() == 0) {
+				if (c.id1 == e.getID()) conflicts.add(c.id2);
+				else if (c.id2 == e.getID()) conflicts.add(c.id1);
+			}
+		}
+		
+		return conflicts;
+	}
+	
+	private Map<String, Object> getEvent(Event e, boolean full) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (full) {
+			map.put("id", e.getID());
+			map.put("space", e.getSpaceID());
+			
+			Map<String, Object> tmMap = new HashMap<String, Object>();
+			tmMap.put(e.getDays(), new String[]{e.getStartTime()});
+			map.put("pStartTm", tmMap);
+			
+			map.put("duration", e.getDuration());
+			map.put("max_participants", e.getMaxParticipants());
+			map.put("persons", e.getPerson());
+			
+			map.put("conflictsWith", getConflicts(e));
+		} else {
+			map.put("ID", e.getID());
+			map.put("days", e.getDays());
+			map.put("roomID", e.getSpaceID());
+			map.put("startTime", e.getStartTime());
+			map.put("conflictsWith", getConflicts(e));
+		}
+		return map;
+	}
 	
 	/**
 	 * @param args
@@ -261,19 +225,10 @@ public class Schedule {
 		Schedule sc = new Schedule("test schedule", new Event[]{e0, e1, e2},
 				new Space[] {s0, s1});
 		
-		Map<String, Object> jsonMap = sc.getSolution2();
+		Map<String, Object> jsonMap = sc.getSolution(true);
 		
 		Gson gson = new Gson();
 		System.out.println(gson.toJson(jsonMap));
-	}
-	
-	public class EventPOJO {
-		public int ID;
-		public String days;
-		public int roomID;
-		public String startTime;
-		public boolean wasFailure;
-		public int[] conflictsWith;
 	}
 	
 	public class EventConstraint {
