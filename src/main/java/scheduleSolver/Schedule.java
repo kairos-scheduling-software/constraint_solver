@@ -112,6 +112,10 @@ public class Schedule {
 		Event[] events_arr = this.events.values().toArray(new Event[0]);
 		int n = events_arr.length;
 		
+		for (EventConstraint c : constraints) {
+			c.initialize(this);
+		}
+		
 		for (int i = 0; i < n; i++) {
 			this.solver.post(events_arr[i].getConstraint());
 			
