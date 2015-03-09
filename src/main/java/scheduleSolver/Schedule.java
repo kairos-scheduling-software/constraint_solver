@@ -52,7 +52,7 @@ public class Schedule {
 			this.events.put(event.ID, event);
 		}
 		
-		this.constraints = null;
+		this.constraints = new ArrayList<EventConstraint>();
 	}
 	
 	public Schedule(String name, Event[] events,
