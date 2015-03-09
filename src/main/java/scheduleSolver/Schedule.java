@@ -256,7 +256,7 @@ public class Schedule {
 		System.out.println(gson.toJson(jsonMap));
 	}
 	
-	public class EventConstraint {
+	public static class EventConstraint {
 		public Event e1;
 		public Event e2;
 		public BoolVar satisfied;
@@ -293,10 +293,12 @@ public class Schedule {
 					constraint = e1.after(e2);
 					break;
 				case "!":
-					e1.notOverlap(e2);
+					constraint = e1.notOverlap(e2);
 					break;
 				default:
+					constraint = schedule.solver.TRUE;
 			}
+			this.satisfied = constraint.reif();
 		}
 	}
 	
