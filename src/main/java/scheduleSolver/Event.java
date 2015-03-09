@@ -71,7 +71,7 @@ public class Event {
 		this.time.initialize(this.solver);
 	}
 	
-	public Constraint notOverlap(Event other) {
+	public Constraint defaultConstraint(Event other) {
 		Constraint _space = IntConstraintFactory.arithm(this.spaceId, "!=", other.spaceId);
 		Constraint _time = this.time.notOverlap(other.time);
 		
@@ -87,6 +87,10 @@ public class Event {
 	
 	public Constraint after(Event other) {
 		return this.time.after(other.time);
+	}
+	
+	public Constraint notOverlap(Event other) {
+		return this.time.notOverlap(other.time);
 	}
 	
 	public IntVar[] getVars() {

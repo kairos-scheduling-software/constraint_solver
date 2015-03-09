@@ -34,8 +34,6 @@ public class Schedule {
 	private boolean modelBuilt = false;
 	private boolean solved = false;
 	
-	private ArrayList<EventConstraint> constraintList;
-	
 	private static final boolean DEBUG = false;
 	
 	public Schedule(String name, Event[] events,
@@ -114,14 +112,12 @@ public class Schedule {
 		Event[] events_arr = this.events.values().toArray(new Event[0]);
 		int n = events_arr.length;
 		
-		this.constraintList = new ArrayList<EventConstraint>();
-		
 		for (int i = 0; i < n; i++) {
 			this.solver.post(events_arr[i].getConstraint());
 			
 			for (int j = i + 1; j < n; j++) {
-				constraintList.add(new EventConstraint(events_arr[i], events_arr[j],
-						events_arr[i].notOverlap(events_arr[j])));
+				constraints.add(new EventConstraint(events_arr[i], events_arr[j],
+						events_arr[i].defaultConstraint(events_arr[j])));
 			}
 			
 //			for (Space space : this.spaces) {
@@ -131,11 +127,11 @@ public class Schedule {
 //			constraint = LogicalConstraintFactory.and(constraint, this.events[i].eventConstraint);
 		}
 		
-		this.satisfiedCount = VariableFactory.bounded("total constraints", 0, constraintList.size(), solver);
+		this.satisfiedCount = VariableFactory.bounded("total constraints", 0, constraints.size(), solver);
 		
-		if (constraintList.size() > 0) {
+		if (constraints.size() > 0) {
 			this.solver.post(IntConstraintFactory.sum(
-					getConstraintsStatus(constraintList)
+					getConstraintsStatus(constraints)
 					.toArray(new BoolVar[0]), satisfiedCount));
 		}
 		
@@ -159,7 +155,7 @@ public class Schedule {
 		solver.set(IntStrategyFactory.random_value(vars.toArray(new IntVar[0])));
 		
 		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, satisfiedCount);
-		solved = (satisfiedCount.getValue() == constraintList.size());
+		solved = (satisfiedCount.getValue() == constraints.size());
 		
 		if (DEBUG) {
 			printSolverData();
@@ -172,7 +168,7 @@ public class Schedule {
 		Chatterbox.printStatistics(solver);
 		
 		int conflictCount = 0;
-		for (EventConstraint e : constraintList) {
+		for (EventConstraint e : constraints) {
 			boolean b = (e.satisfied.getValue() != 0);
 //			System.out.printf("[%2d-%2d]: %s\n", e.id1, e.id2, b?"True":"False");
 			if (!b) conflictCount += 1;
@@ -186,7 +182,7 @@ public class Schedule {
 	
 	private List<Integer> getConflicts(Event e) {
 		ArrayList<Integer> conflicts = new ArrayList<Integer>();
-		for (EventConstraint c : constraintList) {
+		for (EventConstraint c : constraints) {
 			if (c.satisfied.getValue() == 0) {
 				if (c.id1 == e.getID()) conflicts.add(c.id2);
 				else if (c.id2 == e.getID()) conflicts.add(c.id1);
@@ -285,6 +281,8 @@ public class Schedule {
 		public void initialize(Schedule schedule) {
 			if (constraintBuilt) return;
 			Map<Integer, Event> e = schedule.events;
+			e1 = e.get(id1);
+			e2 = e.get(id2);
 			switch (relation) {
 				case "<":
 					constraint = e1.before(e2);
