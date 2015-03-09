@@ -1,5 +1,6 @@
 package util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -9,18 +10,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import scheduleSolver.Event;
+import scheduleSolver.Schedule.EventConstraint;
 import scheduleSolver.Space;
+
 
 public class ScheduleData {
 	public String name;
 	public Event[] events;
 	public Space[] spaces;
+	public EventConstraint[] constraints;
 	
 	public static ScheduleData parseJson(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
 		
 		JSONArray jsonClasses = jsonObj.getJSONArray("EVENT");
 		JSONArray jsonResources = jsonObj.getJSONArray("SPACE");
+		JSONObject jsonConstraint = jsonObj.getJSONObject("CONSTRAINT");
 		
 		ScheduleData data = new ScheduleData();
 		if (jsonObj.has("name"))
@@ -28,6 +33,7 @@ public class ScheduleData {
 		else data.name = "Default schedule name";
 		data.events = parseEvents(jsonClasses);
 		data.spaces = parseSpaces(jsonResources);
+		data.constraints = parseConstraints(jsonConstraint);
 		
 		return data;
 	}
@@ -95,6 +101,27 @@ public class ScheduleData {
 		}
 		
 		return mapping;
+	}
+	
+	private static EventConstraint[] parseConstraints(JSONObject jsonObj) throws JSONException
+	{
+		ArrayList<EventConstraint> list = new ArrayList<EventConstraint>();
+		@SuppressWarnings("unchecked")
+		Iterator<String> keys = (Iterator<String>) jsonObj.keys();
+		
+		while(keys.hasNext())
+		{
+			String key = keys.next();
+			
+			JSONArray jsonArr = jsonObj.getJSONArray(key);
+			for(int i = 0; i < jsonArr.length(); i++)
+			{
+				JSONArray classPair = jsonArr.getJSONArray(i);
+				list.add(new EventConstraint(classPair.getInt(0), classPair.getInt(1), key));
+			}
+		}
+		
+		return list.toArray(new EventConstraint[0]);
 	}
 	
 	

@@ -90,7 +90,7 @@ public class ApiServlet extends HttpServlet {
 				outputMap = getError("Error invalid API key");
 			else {
 				ScheduleData data = ScheduleData.parseJson(input);
-				Schedule scheduler = new Schedule(data.name, data.events, data.spaces);
+				Schedule scheduler = new Schedule(data.name, data.events, data.spaces, data.constraints);
 				outputMap = scheduler.getSolution(false);
 			}
 		} catch (JsonSyntaxException | JSONException e) {
