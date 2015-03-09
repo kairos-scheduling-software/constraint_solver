@@ -12,6 +12,7 @@ import scheduleSolver.Event;
 import scheduleSolver.Space;
 
 public class ScheduleData {
+	public String name;
 	public Event[] events;
 	public Space[] spaces;
 	
@@ -22,6 +23,9 @@ public class ScheduleData {
 		JSONArray jsonResources = jsonObj.getJSONArray("SPACE");
 		
 		ScheduleData data = new ScheduleData();
+		if (jsonObj.has("name"))
+			data.name = jsonObj.getString("name");
+		else data.name = "Default schedule name";
 		data.events = parseEvents(jsonClasses);
 		data.spaces = parseSpaces(jsonResources);
 		
