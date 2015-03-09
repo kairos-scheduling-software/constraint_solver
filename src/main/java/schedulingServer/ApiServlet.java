@@ -1,6 +1,5 @@
 package schedulingServer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
@@ -23,8 +23,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import scheduleSolver.*;
 import util.ScheduleData;
@@ -52,142 +54,102 @@ public class ApiServlet extends HttpServlet {
 		
 		String uri = request.getPathInfo();
 		response.setContentType("application/json");
-		Gson gson = new Gson();
 		
-		if (uri == null) 
-		{
-			ErrorPojo toReturn = new ErrorPojo();
-			toReturn.Error = "Invalid path for post method";
-			response.getWriter().print(gson.toJson(toReturn));
-		}
-		if (uri.endsWith("/")) 
-		{
-			uri = uri.substring(0, uri.length() - 1);
-		} 
-		else if (uri.equals("/check") || uri.equals("/new")) 
-		{
-//			BufferedReader reader = request.getReader();
-//			StringBuffer jb = new StringBuffer();
-//			String line;
-//			
-//			while ((line = reader.readLine()) != null)
-//				jb.append(line);
-//			
-//			String json = jb.toString();
+		Map<String, Object> outputMap;
+		if (uri == null) {
+			outputMap = getError("Invalid path for post method");
+		} else {
 			Scanner sc = new Scanner(request.getReader());
-			String json = readInput(sc, true);
+			String input = readInput(sc, true);
 			sc.close();
-
-			try 
-			{
-				if (!verifyKey(json))
-				{
-					ErrorPojo toReturn = new ErrorPojo();
-					toReturn.Error = "Error invalid API key";
-					response.getWriter().print(gson.toJson(toReturn));
-				} 
-				else 
-				{
-					Map<String, Object> solution = checkSchedule(json);
-					String toReturn = gson.toJson(solution);
-					response.getWriter().print(toReturn);
-				}
-			} 
-			catch (IllegalArgumentException e) 
-			{
-				ErrorPojo toReturn = new ErrorPojo();
-				toReturn.Error = "Error parsing JSON request string";
-				response.getWriter().print(gson.toJson(toReturn));
-			}
-			catch (JSONException e) {
-				ErrorPojo toReturn = new ErrorPojo();
-				toReturn.Error = "Solver error";
-				response.getWriter().print(gson.toJson(toReturn));
-			}
-			catch (Exception e) 
-			{
-				e.printStackTrace();
-				ErrorPojo toReturn = new ErrorPojo();
-				toReturn.Error = "An unexpected error occured";
-				response.getWriter().print(gson.toJson(toReturn));
+			
+			if (uri.endsWith("/"))
+				uri = uri.substring(0, uri.length() - 1).toLowerCase();
+			switch (uri) {
+				case "/check":
+				case "/new":
+					outputMap = getSchedule(input);
+					break;
+				case "/requestKey":
+					outputMap = getRequestKey(input);
+					break;
+				default:
+					outputMap = getError("The requested API path does not exist");
 			}
 		}
-		else if(uri.equals("/requestKey"))
-		{
-			try
-			{
-				BufferedReader reader = request.getReader();
-				StringBuffer jb = new StringBuffer();
-				String line;
-			
-				while ((line = reader.readLine()) != null)
-					jb.append(line);
-			
-				String json = jb.toString();
-				//parse the response
-				
-				//this will be the api key assigned to our api site
-				ApiKeyRequest apikeyrequest = gson.fromJson(json, ApiKeyRequest.class);
-				
-				if(apikeyrequest.key.equals("e5506213-3196-4e6a-9613-237fd987446d"))
-				{
-					//generate and register key
-					String generatedKey = requestKey(apikeyrequest.email);
-					ApiKeyRequest keyResponse = new ApiKeyRequest();
-					keyResponse.key = generatedKey;
-					keyResponse.email = apikeyrequest.email;
-					
-					response.getWriter().print(gson.toJson(keyResponse));
-				}
-				else
-				{
-					ErrorPojo toReturn = new ErrorPojo();
-					toReturn.Error = "Error APIKey mismatch";
-					response.getWriter().print(gson.toJson(toReturn));
-				}
-			
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-				ErrorPojo toReturn = new ErrorPojo();
-				toReturn.Error = "An unexpected error occured";
-				response.getWriter().print(gson.toJson(toReturn));
-			}
-		}
-		else 
-		{
-			ErrorPojo toReturn = new ErrorPojo();
-			toReturn.Error = "The requested API path does not exist";
-			response.getWriter().print(gson.toJson(toReturn));
-		}
+		Gson gson = new Gson();
+		String toReturn = gson.toJson(outputMap);
+		response.getWriter().print(toReturn);
 	}
 	
-	/*private JSONObject generateSchedule(JSONObject data) throws JSONException {
-		// Work with the data using methods like...
-		// int someInt = jsonObject.getInt("intParamName");
-		// String someString = jsonObject.getString("stringParamName");
-		// JSONObject nestedObj = jsonObject.getJSONObject("nestedObjName");
-		// JSONArray arr = jsonObject.getJSONArray("arrayParamName");
-		// etc...
+	private Map<String, Object> getSchedule(String input) {
+		Map<String, Object> outputMap;
+		try {
+			if (!verifyKey(input))
+				outputMap = getError("Error invalid API key");
+			else {
+				ScheduleData data = ScheduleData.parseJson(input);
+				Schedule scheduler = new Schedule(data.name, data.events, data.spaces);
+				outputMap = scheduler.getSolution(false);
+			}
+		} catch (JsonSyntaxException e) {
+			outputMap = getError("Error parsing JSON request string");
+		} catch (JSONException e) {
+			outputMap = getError("Error parsing JSON request string");
+		} catch (Exception e) {
+			e.printStackTrace();
+			outputMap = getError("An unexpected error occured");
+		}
 		
-		System.out.println("Get request for creating new schedule: " + data.toString());
+		return outputMap;
+	}
+	
+	private Map<String, Object> getRequestKey(String input) {
+		Map<String, Object> outputMap = new HashMap<String, Object>();
 		
-		Schedule scheduler = new Schedule();
+		//this will be the api key assigned to our api site
+		String secretKey = "e5506213-3196-4e6a-9613-237fd987446d";
+		try {
+			//parse the response
+			
+			JsonParser parser = new JsonParser();
+			JsonObject toCheck = parser.parse(input).getAsJsonObject();
+			String key = getValue(toCheck, "key");
+			String email = getValue(toCheck, "email");
+			
+			if (secretKey.equals(key)) {
+				//generate and register key
+				String generatedKey = requestKey(email);
+				outputMap.put("key", generatedKey);
+				outputMap.put("email", email);
+			}
+			else outputMap = getError("Error APIKey mismatch");
 		
-		if (scheduler.findSolution())
-			return scheduler.getSolution();
+		} catch(JsonSyntaxException e) {
+			outputMap = getError("JSON parsing error");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			outputMap = getError("An unexpected error occured");
+		}
 		
-		return null;
-	}*/
-
-	private Map<String, Object> checkSchedule(String json) throws JSONException {
-		ScheduleData data = ScheduleData.parseJson(json);
+		return outputMap;
+	}
+	
+	private Map<String, Object> getError(String str) {
+		Map<String, Object> error = new HashMap<String, Object>();
+		error.put("Error", str);
+		return error;
+	}
+	
+	private String getValue(JsonObject jsonObj, String key) {
+		String value;
 		
-		Schedule scheduler = new Schedule("My Schedule", data.events, data.spaces);
+		JsonElement jsonEl = jsonObj.get(key);
+		if (jsonEl == null) value = null;
+		else value = jsonEl.getAsString();
 		
-		return scheduler.getSolution(false);
-		
+		return value;
 	}
 	
 	private String requestKey(String email) throws URISyntaxException, SQLException
@@ -205,20 +167,15 @@ public class ApiServlet extends HttpServlet {
 		return apiKey.toString();
 	}
 	
-	private Boolean verifyKey(String json) throws URISyntaxException, SQLException
+	private boolean verifyKey(String json)
+			throws URISyntaxException, SQLException, JsonSyntaxException
 	{
-//		JSONObject toCheck = new JSONObject(json);
-//		String key = toCheck.getString("APIKey");
-		
 		String key = null;
-		try {
-			JsonParser parser = new JsonParser();
-			JsonObject toCheck = parser.parse(json).getAsJsonObject();
-			key = toCheck.get("APIKey").getAsString();
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Json parser exception");
-		}
+		JsonParser parser = new JsonParser();
+		JsonObject toCheck = parser.parse(json).getAsJsonObject();
+		key = getValue(toCheck, "APIKey");
 		
+		if (key == null) return false;
 		Connection connect = getConnection();
 		
 		PreparedStatement stmt = connect.prepareStatement("select * from apikey where key = ?");
@@ -315,18 +272,11 @@ public class ApiServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		
 		// Add code for testing the module
-
+		String input = "{\"email\": \"dtt.vinh@gmail.com\"; \"APIKey\": 13}";
+		JsonParser parser = new JsonParser();
+		JsonObject toCheck = parser.parse(input).getAsJsonObject();
+		String key = toCheck.get("APIKey").getAsString();
+		
+		System.out.println(key);
 	}
-	
-	public class ErrorPojo
-	{
-		public String Error;
-	}
-	
-	public class ApiKeyRequest
-	{
-		public String key;
-		public String email;
-	}
-
 }
