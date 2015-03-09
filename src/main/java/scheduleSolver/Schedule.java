@@ -26,6 +26,7 @@ public class Schedule {
 	
 	public final Map<Integer, Event> events;
 	public final Map<Integer, Space> spaces;
+	public final List<EventConstraint> constraints;
 //	public final Map<Integer, Person> persons;
 	
 	private Solver solver;
@@ -51,6 +52,30 @@ public class Schedule {
 		for (Event event : events) {
 			event.initialize(this.solver, this.spaces);
 			this.events.put(event.ID, event);
+		}
+		
+		this.constraints = null;
+	}
+	
+	public Schedule(String name, Event[] events,
+			Space[] spaces, EventConstraint[] constraints) {
+		this.name = name;
+		this.solver = new Solver(this.name);
+		
+		this.spaces = new HashMap<Integer, Space>(spaces.length);
+		for (Space space : spaces) {
+			this.spaces.put(space.ID, space);
+		}
+		
+		this.events = new HashMap<Integer, Event>(events.length);
+		for (Event event : events) {
+			event.initialize(this.solver, this.spaces);
+			this.events.put(event.ID, event);
+		}
+		
+		this.constraints = new ArrayList<EventConstraint>(constraints.length);
+		for (EventConstraint c : constraints) {
+			this.constraints.add(c);
 		}
 	}
 	
@@ -95,7 +120,7 @@ public class Schedule {
 			this.solver.post(events_arr[i].getConstraint());
 			
 			for (int j = i + 1; j < n; j++) {
-				constraintList.add(new EventConstraint(events_arr[i].ID, events_arr[j].ID,
+				constraintList.add(new EventConstraint(events_arr[i], events_arr[j],
 						events_arr[i].notOverlap(events_arr[j])));
 			}
 			
@@ -232,17 +257,46 @@ public class Schedule {
 	}
 	
 	public class EventConstraint {
-		public int id1;
-		public int id2;
+		public Event e1;
+		public Event e2;
 		public BoolVar satisfied;
 		
-//		public Constraint constraint;
+		public Constraint constraint;
 		
-		public EventConstraint(int id1, int id2, Constraint constraint) {
+		private int id1;
+		private int id2;
+		private String relation;
+		private boolean constraintBuilt;
+		
+		public EventConstraint(int id1, int id2, String relation) {
 			this.id1 = id1;
 			this.id2 = id2;
-			satisfied = constraint.reif();
-//			this.constraint = constraint;
+			this.relation = relation;
+		}
+		
+		public EventConstraint(Event e1, Event e2, Constraint constraint) {
+			this.e1 = e1;
+			this.e2 = e2;
+			this.satisfied = constraint.reif();
+			this.constraint = constraint;
+			this.constraintBuilt = true;
+		}
+		
+		public void initialize(Schedule schedule) {
+			if (constraintBuilt) return;
+			Map<Integer, Event> e = schedule.events;
+			switch (relation) {
+				case "<":
+					constraint = e1.before(e2);
+					break;
+				case ">":
+					constraint = e1.after(e2);
+					break;
+				case "!":
+					e1.notOverlap(e2);
+					break;
+				default:
+			}
 		}
 	}
 	
