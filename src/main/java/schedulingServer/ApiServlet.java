@@ -64,7 +64,8 @@ public class ApiServlet extends HttpServlet {
 			sc.close();
 			
 			if (uri.endsWith("/"))
-				uri = uri.substring(0, uri.length() - 1).toLowerCase();
+				uri = uri.substring(0, uri.length() - 1);
+			uri = uri.toLowerCase();
 			switch (uri) {
 				case "/check":
 				case "/new":
@@ -92,9 +93,7 @@ public class ApiServlet extends HttpServlet {
 				Schedule scheduler = new Schedule(data.name, data.events, data.spaces);
 				outputMap = scheduler.getSolution(false);
 			}
-		} catch (JsonSyntaxException e) {
-			outputMap = getError("Error parsing JSON request string");
-		} catch (JSONException e) {
+		} catch (JsonSyntaxException | JSONException e) {
 			outputMap = getError("Error parsing JSON request string");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -269,8 +268,6 @@ public class ApiServlet extends HttpServlet {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
 		// Add code for testing the module
 		String input = "{\"email\": \"dtt.vinh@gmail.com\"; \"APIKey\": 13}";
 		JsonParser parser = new JsonParser();
