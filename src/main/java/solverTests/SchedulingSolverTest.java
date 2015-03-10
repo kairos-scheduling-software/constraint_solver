@@ -136,7 +136,7 @@ public class SchedulingSolverTest
 		try 
 		{
 			ScheduleData data = ScheduleData.parseJson(json);
-			Schedule schedule = new Schedule("", data.events, data.spaces);
+			Schedule schedule = new Schedule("", data.events, data.spaces, data.constraints);
 			JSONObject solution =  new JSONObject(schedule.getSolution(true));
 			
 			output.put(testName, solution.toString());
