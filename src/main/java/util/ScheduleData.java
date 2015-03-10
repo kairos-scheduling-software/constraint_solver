@@ -25,7 +25,9 @@ public class ScheduleData {
 		
 		JSONArray jsonClasses = jsonObj.getJSONArray("EVENT");
 		JSONArray jsonResources = jsonObj.getJSONArray("SPACE");
-		JSONObject jsonConstraint = jsonObj.getJSONObject("CONSTRAINT");
+		JSONObject jsonConstraint = null;
+		if (jsonObj.has("CONSTRAINT"))
+			jsonConstraint = jsonObj.getJSONObject("CONSTRAINT");
 		
 		ScheduleData data = new ScheduleData();
 		if (jsonObj.has("name"))
@@ -106,6 +108,9 @@ public class ScheduleData {
 	private static EventConstraint[] parseConstraints(JSONObject jsonObj) throws JSONException
 	{
 		ArrayList<EventConstraint> list = new ArrayList<EventConstraint>();
+		
+		if (jsonObj == null) return list.toArray(new EventConstraint[0]);
+		
 		@SuppressWarnings("unchecked")
 		Iterator<String> keys = (Iterator<String>) jsonObj.keys();
 		
