@@ -71,9 +71,10 @@ public class Schedule {
 			this.events.put(event.ID, event);
 		}
 		
-		this.constraints = new ArrayList<EventConstraint>(constraints.length);
-		for (EventConstraint c : constraints) {
-			this.constraints.add(c);
+		this.constraints = new ArrayList<EventConstraint>();
+		if (constraints != null) {
+			for (EventConstraint c : constraints)
+				this.constraints.add(c);
 		}
 	}
 	
@@ -157,6 +158,10 @@ public class Schedule {
 				30, (new Random()).nextLong(), new FailCounter(100));
 		
 		solver.set(IntStrategyFactory.random_value(vars.toArray(new IntVar[0])));
+		
+//		Constraint c = IntConstraintFactory.arithm(satisfiedCount, "=", constraints.size());
+//		this.solver.post(c);
+//		solved = this.solver.findSolution();
 		
 		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, satisfiedCount);
 		solved = (satisfiedCount.getValue() == constraints.size());
@@ -263,8 +268,8 @@ public class Schedule {
 		
 		public Constraint constraint;
 		
-		private int id1;
-		private int id2;
+		public final int id1;
+		public final int id2;
 		private String relation;
 		private boolean constraintBuilt;
 		
@@ -277,6 +282,8 @@ public class Schedule {
 		public EventConstraint(Event e1, Event e2, Constraint constraint) {
 			this.e1 = e1;
 			this.e2 = e2;
+			this.id1 = e1.getID();
+			this.id2 = e2.getID();
 			this.satisfied = constraint.reif();
 			this.constraint = constraint;
 			this.constraintBuilt = true;
@@ -287,7 +294,9 @@ public class Schedule {
 			Map<Integer, Event> e = schedule.events;
 			e1 = e.get(id1);
 			e2 = e.get(id2);
-			switch (relation) {
+			if ((e1 == null) || (e2 == null))
+				constraint = schedule.solver.TRUE;
+			else switch (relation) {
 				case "<":
 					constraint = e1.before(e2);
 					break;
@@ -302,6 +311,8 @@ public class Schedule {
 			}
 			this.satisfied = constraint.reif();
 		}
+		
+		public boolean getStatus() { return satisfied.getValue() != 0; }
 	}
 	
 	private static List<BoolVar> getConstraintsStatus(List<EventConstraint> ec) {
