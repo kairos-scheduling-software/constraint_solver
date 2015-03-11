@@ -78,22 +78,26 @@ public class Schedule {
 		}
 	}
 	
-	public HashMap<String, Object> getSolution(boolean full) {
+	/* level == 0: schedule checking, only return events with conflicts
+	 * level == 1: schedule creating, return all events
+	 * level == 2: return everything (events, spaces, constraints, apiKey), can be used as direct input for the solver
+	 */
+	public HashMap<String, Object> getSolution(int level) {
 		boolean failure = !findSolution();
+		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
 		
 		ArrayList<Object> eventsList = new ArrayList<Object>();
 		for(Map.Entry<Integer, Event> entry : events.entrySet()) {
 			Event e = entry.getValue();
-			Map<String, Object> map = getEvent(e, full);
+			Map<String, Object> map = getEvent(e, level);
 			
-			eventsList.add(map);
+			if (map != null) eventsList.add(map);
 		}
 		
-		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
 		jsonMap.put("wasFailure", failure);
 		jsonMap.put("EVENT", eventsList);
 		
-		if (full) {
+		if (level > 1) {
 			ArrayList<Object> spacesList = new ArrayList<Object>();
 			for(Map.Entry<Integer, Space> entry : spaces.entrySet()) {
 				Space s = entry.getValue();
@@ -201,10 +205,21 @@ public class Schedule {
 		return conflicts;
 	}
 	
-	private Map<String, Object> getEvent(Event e, boolean full) {
+	private Map<String, Object> getEvent(Event e, int level) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		if (full) {
-			map.put("id", e.getID());
+		
+		List<Integer> conflicts = getConflicts(e);
+		if (conflicts.size() == 0 && level == 0) return null;
+		
+		map.put("ID", e.getID());
+		map.put("conflictsWith", conflicts);
+		
+		if (level == 1) {
+			map.put("days", e.getDays());
+			map.put("roomID", e.getSpaceID());
+			map.put("startTime", e.getStartTime());
+		}
+		else if (level > 1) {
 			map.put("space", e.getSpaceID());
 			
 			Map<String, Object> tmMap = new HashMap<String, Object>();
@@ -213,15 +228,8 @@ public class Schedule {
 			
 			map.put("duration", e.getDuration());
 			map.put("max_participants", e.getMaxParticipants());
-			map.put("persons", e.getPerson());
 			
-			map.put("conflictsWith", getConflicts(e));
-		} else {
-			map.put("ID", e.getID());
-			map.put("days", e.getDays());
-			map.put("roomID", e.getSpaceID());
-			map.put("startTime", e.getStartTime());
-			map.put("conflictsWith", getConflicts(e));
+			map.put("persons", e.getPerson());
 		}
 		return map;
 	}
@@ -255,7 +263,7 @@ public class Schedule {
 		Schedule sc = new Schedule("test schedule", new Event[]{e0, e1, e2},
 				new Space[] {s0, s1});
 		
-		Map<String, Object> jsonMap = sc.getSolution(true);
+		Map<String, Object> jsonMap = sc.getSolution(2);
 		
 		Gson gson = new Gson();
 		System.out.println(gson.toJson(jsonMap));

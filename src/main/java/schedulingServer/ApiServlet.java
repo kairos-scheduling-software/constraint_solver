@@ -68,8 +68,10 @@ public class ApiServlet extends HttpServlet {
 			uri = uri.toLowerCase();
 			switch (uri) {
 				case "/check":
+					outputMap = getSchedule(input, 0);
+					break;
 				case "/new":
-					outputMap = getSchedule(input);
+					outputMap = getSchedule(input, 1);
 					break;
 				case "/requestKey":
 					outputMap = getRequestKey(input);
@@ -83,7 +85,7 @@ public class ApiServlet extends HttpServlet {
 		response.getWriter().print(toReturn);
 	}
 	
-	private Map<String, Object> getSchedule(String input) {
+	private Map<String, Object> getSchedule(String input, int level) {
 		Map<String, Object> outputMap;
 		try {
 			if (!verifyKey(input))
@@ -91,7 +93,7 @@ public class ApiServlet extends HttpServlet {
 			else {
 				ScheduleData data = ScheduleData.parseJson(input);
 				Schedule scheduler = new Schedule(data.name, data.events, data.spaces, data.constraints);
-				outputMap = scheduler.getSolution(false);
+				outputMap = scheduler.getSolution(level);
 			}
 		} catch (JsonSyntaxException | JSONException e) {
 			outputMap = getError("Error parsing JSON request string");
