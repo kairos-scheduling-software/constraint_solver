@@ -90,7 +90,7 @@ public class SchedulingSolverTest
 				while((line = br.readLine()) != null)
 					json += line;
 				br.close();
-				runTest(new String("Test_"+Integer.toString(i)), json, expected);
+				runTest(new String("Test_"+paths[i]), json, expected);
 			}
 			catch(IOException ioe){
 				System.out.println("caught IOException while attempting to read file " +
@@ -103,13 +103,15 @@ public class SchedulingSolverTest
 	{
 		
 		boolean[] passed = new boolean[] {test0(), test1(), test2(), test3()};
+		String p = "jsonTestFiles/";
 		
 		// test satisfiable schedules
-		String[] noConflictScheds = {"jsonTestFiles/one_class_one_room"};
+		String[] noConflictScheds = {p+"one_class_one_room",
+				p+"f2000_no_labs_discs"};
 		testSchedules(noConflictScheds, true);
 		
 		// test unsatisfiable schedules
-		String[] conflictedScheds = {};
+		String[] conflictedScheds = {p+"f2000_with_labs_discs"};
 		testSchedules(conflictedScheds, false);
 		
 		//WRAP UP
@@ -123,12 +125,12 @@ public class SchedulingSolverTest
 		if (!allPassed) System.out.println("At least one test failed");
 		else System.out.println("All tests Passed");
 		
-		System.out.println("Test for spr15 cs schedule snippet");
-		test4();
+		//System.out.println("Test for spr15 cs schedule snippet");
+		//test4();
 		
-		test5();
+		//test5();
 		
-		runInteractiveTest();
+		//runInteractiveTest();
 	}
 
 	private static boolean runTest(String testName, String json, boolean expectedResult) {
