@@ -2,9 +2,14 @@ package scheduleSolver;
 
 public class Person {
 	public final String name;
-	public final String id; // or int?
+	public final int id;
 	
-	public Person(String _name, String _id) {
+	public Person(int _id) {
+		this.id = _id;
+		this.name = "default person name";
+	}
+	
+	public Person(String _name, int _id) {
 		this.name = _name;
 		this.id = _id;
 	}

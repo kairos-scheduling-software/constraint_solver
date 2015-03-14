@@ -10,15 +10,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import scheduleSolver.Event;
-import scheduleSolver.Schedule.EventConstraint;
-import scheduleSolver.Space;
+import scheduleSolver.EventConstraint;
 
 
 public class ScheduleData {
 	public String name;
 	public Event[] events;
-	public Space[] spaces;
+	public SpaceData[] spaces;
 	public EventConstraint[] constraints;
+//	public TimeData[] times = null;
 	
 	public static ScheduleData parseJson(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
@@ -33,6 +33,7 @@ public class ScheduleData {
 		if (jsonObj.has("name"))
 			data.name = jsonObj.getString("name");
 		else data.name = "Default schedule name";
+		
 		data.events = parseEvents(jsonClasses);
 		data.spaces = parseSpaces(jsonResources);
 		data.constraints = parseConstraints(jsonConstraint);
@@ -48,28 +49,29 @@ public class ScheduleData {
 			JSONObject obj = jsonEvents.getJSONObject(i);
 			
 			int id = obj.getInt("id");
-//			int days_count = obj.getInt("days_count");
+			
 			int duration = obj.getInt("duration");
 			
-			// searchResult refers to the current element in the array "search_result"
-		    JSONObject pStartTmArray = obj.getJSONObject("pStartTm");
+			JSONObject pStartTmArray = obj.getJSONObject("pStartTm");
 		    Map<String, String[]> pStartTm = parseStartTimes(pStartTmArray);
 			
-		    int space = -1;
-		    if (obj.has("space")) space = obj.getInt("space");
+		    TimeData time = new TimeData(pStartTm, duration);
+		    
+		    int[] spaces = null;
+		    if (obj.has("space")) spaces = new int[]{obj.getInt("space")};
 			int max_participants = obj.getInt("max_participants");
 			int person = obj.getInt("persons");
 			
 			events[i] = new Event(id, max_participants,
-					pStartTm, duration, person, space);
+					time, person, spaces);
 		}
 		
 		return events;
 	}
 	
-	private static Space[] parseSpaces(JSONArray jsonSpaces) throws JSONException
+	private static SpaceData[] parseSpaces(JSONArray jsonSpaces) throws JSONException
 	{
-		Space[] rooms = new Space[jsonSpaces.length()];
+		SpaceData[] rooms = new SpaceData[jsonSpaces.length()];
 		
 		for(int i = 0; i < rooms.length; i++)
 		{
@@ -78,7 +80,7 @@ public class ScheduleData {
 			int capacity = room.getInt("capacity");
 			//String times = room.getString("times");
 			
-			rooms[i] = new Space(id, capacity);
+			rooms[i] = new SpaceData(id, capacity);
 		}
 		
 		return rooms;

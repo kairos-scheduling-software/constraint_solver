@@ -1,114 +1,149 @@
 package scheduleSolver;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import com.google.common.primitives.Ints;
-
 import solver.Solver;
 import solver.constraints.Constraint;
-import solver.constraints.IntConstraintFactory;
+import solver.constraints.LCF;
 import solver.constraints.LogicalConstraintFactory;
+import solver.search.strategy.IntStrategyFactory;
 import solver.variables.IntVar;
-import solver.variables.VariableFactory;
+import util.Spaces;
+import util.TimeData;
 
 public class Event {
 //	String name;						  /* name of the event, e.g. "Computer Systems" */
 	int ID;							  /* event ID, e.g. cs4400 */
+	
 	Time time;
-	int maxParticipants;				  /* the maximum number of participants that can be included in the Event */
+	Space space;
+	
+	int maxParticipants;	/* the maximum number of participants that can be included in the Event */
 	int[] spaceIds;
+	
 	int personId;
-//	Space space;						  /* the space where the event will be held, e.g in a room */
 //	Person person;			  /* any administrative-type people associated with the event, e.g teachers, speakers, etc */
 	
-	Solver solver;
-	IntVar spaceId = null;
+	private Solver solver;
+	private Constraint constraint;
 	
-	public Event(int id, int maxParticipants,
-			Map<String, String[]> startTimes, int duration,
-			 int personId) {
-		this(id, maxParticipants, startTimes, duration, personId, -1);
-		
+	private boolean isPossible;
+	
+	public Event(int id, int maxParticipants, TimeData time,
+			int personId) {
+		this(id, maxParticipants, time, personId, null);
 	}
 	
-	public Event(int id, int maxParticipants,
-			Map<String, String[]> startTimes, int duration,
-			int personId, int spaceId) {
+	public Event(int id, int maxParticipants, TimeData time,
+			int personId, int[] spaceIds) {
 		this.ID = id;
 		this.maxParticipants = maxParticipants;
 		this.personId = personId;
 		
-		this.time = new Time(startTimes, duration);
+		this.time = new Time(time);
 		
-		if (spaceId >= 0) {
-			this.spaceIds = new int[]{spaceId};
-		}
+		this.spaceIds = spaceIds;
 	}
 	
-	public void initialize(Solver solver, Map<Integer, Space> spaces) {
+	public void initialize(Solver solver, Spaces spaces) {
 		this.solver = solver;
 		
-		// Initialize Space Id
-		ArrayList<Integer> spaceIds = new ArrayList<Integer>();
-		if (this.spaceIds == null) {
-			for (Map.Entry<Integer, Space> entry : spaces.entrySet()) {
-				if (entry.getValue().capacity >= this.maxParticipants) {
-					spaceIds.add(entry.getKey());
-				}
-			}
-		} else {
-			for (int i : this.spaceIds) {
-				if (spaces.get(i).capacity >= this.maxParticipants) {
-					spaceIds.add(i);
-				}
-			}
-		}
-		this.spaceIds = Ints.toArray(spaceIds);
-		this.spaceId = VariableFactory.enumerated("room id", this.spaceIds, this.solver);
-		
-		// Initialize Start Time
-		this.time.initialize(this.solver);
+//		isPossible = true;
+		isPossible = getStatus(spaces);
+		if (!isPossible) return;
+
+		time.initialize(solver);
+		space = new Space(spaceIds, maxParticipants, solver, spaces);
+		constraint = buildConstraint(time, space, solver, spaces);
 	}
 	
 	public Constraint defaultConstraint(Event other) {
-		Constraint _space = IntConstraintFactory.arithm(this.spaceId, "!=", other.spaceId);
-		Constraint _time = this.time.notOverlap(other.time);
-		
-		if (this.personId == other.personId)
-			return _time;
-		else
-			return LogicalConstraintFactory.or(_space, _time);
+		return getConstraint("default", other);
 	}
 	
 	public Constraint before(Event other) {
-		return this.time.before(other.time);
+		return getConstraint("before", other);
 	}
 	
 	public Constraint after(Event other) {
-		return this.time.after(other.time);
+		return getConstraint("after", other);
 	}
 	
 	public Constraint notOverlap(Event other) {
-		return this.time.notOverlap(other.time);
+		return getConstraint("notOverlap", other);
+	}
+	
+	public Constraint getConstraint() {
+		return getConstraint("self", null);
 	}
 	
 	public IntVar[] getVars() {
-//		List<IntVar> vars = new ArrayList<IntVar>();
-//		vars.add(time.getVar());
-//		vars.add(spaceId);
-//		return vars.toArray(new IntVar[0]);
-		
-		return new IntVar[]{time.getVar(), spaceId};
+		if (!isPossible) return new IntVar[0];
+		return new IntVar[]{time.getVar(), space.getVar()};
 	}
 	
-	public Constraint getConstraint() { return time.getConstraint(); }
-	
 	public int getID() { return this.ID; }
-	public int getSpaceID() { return this.spaceId.getValue(); }
+	public int getSpaceID() { return space.getId(); }
 	public String getDays() { return this.time.getDays(); }
 	public String getStartTime() { return this.time.getStartTime(); }
 	public int getDuration() { return time.getDuration(); }
 	public int getMaxParticipants() { return maxParticipants; }
 	public int getPerson() { return personId; }
+	public boolean isPossible() { return isPossible; }
+	
+	//////// Helper functions ////////
+	private boolean getStatus(Spaces spaces) {
+		Solver solver = new Solver();
+		Time time = new Time(this.time);
+		time.initialize(solver);
+		Space space = new Space(spaceIds, maxParticipants, solver, spaces);
+		
+		Constraint c = buildConstraint(time, space, solver, spaces);
+		solver.set(IntStrategyFactory.random_value(getVars()));
+		solver.post(c);
+		
+		return solver.findSolution();
+	}
+	
+	private Constraint buildConstraint(Time time, Space space, Solver solver, Spaces spaces) {
+		// Set up event constraints
+		Constraint _timeConstraint = time.getConstraint();
+		Constraint _spaceConstraint = space.getConstraint();
+		Constraint _constraint = LCF.and(_timeConstraint, _spaceConstraint);
+		
+		return _constraint;
+	}
+	
+	private Constraint getConstraint(String type, Event other) {
+		if (!isPossible ||
+				!(type.equals("self") || other.isPossible))
+			return solver.TRUE;
+		
+		Constraint c;
+		switch(type) {
+			case "self":
+				c = constraint;
+				break;
+			case "default":
+				Constraint _space = this.space.diff(other.space);
+				Constraint _time = this.time.notOverlap(other.time);
+				
+				if (this.personId == other.personId)
+					c = _time;
+				else
+					c = LogicalConstraintFactory.or(_space, _time);
+				break;
+			case "before":
+				c = this.time.before(other.time);
+				break;
+			case "after":
+				c = this.time.after(other.time);
+				break;
+			case "notOverlap":
+				c = this.time.notOverlap(other.time);
+				break;
+			default:
+				c = solver.TRUE;
+		}
+		
+		return c;
+	}
 }

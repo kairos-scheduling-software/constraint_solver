@@ -1,0 +1,46 @@
+{
+    "APIKey": "0123456789",
+    "EVENT": [
+        {
+            "id": 1, 
+            "duration": 50, 
+            "max_participants": 50, 
+            "name": "Class 1", 
+            "pStartTm": {
+                "M": [ "0940", "1255", "1500"]
+            }, 
+            "persons": 3
+        },
+        {
+            "id": 2, 
+            "duration": 50, 
+            "max_participants": 50, 
+            "name": "Class 2", 
+            "pStartTm": {
+                "M": [ "0940", "1255"]
+            }, 
+            "persons": 3
+        },
+        {
+            "id": 3, 
+            "duration": 50, 
+            "max_participants": 50, 
+            "name": "Class 3", 
+            "pStartTm": {
+                "M": [ "0940", "1255"]
+            }, 
+            "persons": 3
+        }
+    ],
+    "SPACE": [
+        {
+            "capacity": 50, 
+            "id": 20, 
+            "name": "Room 1", 
+            "type": "room"
+        }
+    ],
+    "CONSTRAINT": {
+        "<": [[1, 2]]
+    }
+}
