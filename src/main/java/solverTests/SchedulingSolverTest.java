@@ -113,8 +113,12 @@ public class SchedulingSolverTest
 		String p = "jsonTestFiles/";
 		
 		// test satisfiable schedules
-		String[] noConflictScheds = {p+"f2000_no_labs_discs",p+"f2000Cleaned"};
+		String[] noConflictScheds = {p+"f2000NoLabsDiscs",p+"f2000Cleaned"};
 		testSchedules(noConflictScheds, true);
+		
+		// printing output to see why it failed
+		// output.get("f2000_no_labs_discs")
+		//System.out.println(output.get(p+"f2000_no_labs_discs"));
 		
 		// test unsatisfiable schedules
 		String[] conflictedScheds = {p+"f2000_with_labs_discs",
@@ -150,6 +154,8 @@ public class SchedulingSolverTest
 			JSONObject solution =  new JSONObject(schedule.getSolution(OUTPUT_LEVEL));
 			
 			output.put(testName, solution.toString());
+			
+			System.out.println(output.get(testName));
 			
 			boolean result = (expectedResult != solution.getBoolean("wasFailure"));
 			
