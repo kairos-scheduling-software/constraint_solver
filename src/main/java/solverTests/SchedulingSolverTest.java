@@ -28,6 +28,8 @@ public class SchedulingSolverTest
 {
 	private static Map<String, String> output = new HashMap<String, String>();
 	
+	private static int OUTPUT_LEVEL = 0;
+	
 	public static boolean test0()
 	{
 		return runFileTest("test0", "test0.json", false);
@@ -90,7 +92,12 @@ public class SchedulingSolverTest
 				while((line = br.readLine()) != null)
 					json += line;
 				br.close();
-				runTest(new String("Test_"+paths[i]), json, expected);
+				String testName = "Test_"+paths[i];
+				if (!runTest(testName, json, expected)) {
+					System.out.println(testName + " output:");
+					System.out.println(output.get(testName));
+				}
+				
 			}
 			catch(IOException ioe){
 				System.out.println("caught IOException while attempting to read file " +
@@ -110,7 +117,8 @@ public class SchedulingSolverTest
 		testSchedules(noConflictScheds, true);
 		
 		// test unsatisfiable schedules
-		String[] conflictedScheds = {p+"f2000_with_labs_discs"};
+		String[] conflictedScheds = {p+"f2000_with_labs_discs",
+				p + "big_event.json"};
 		testSchedules(conflictedScheds, false);
 		
 		//WRAP UP
@@ -125,21 +133,21 @@ public class SchedulingSolverTest
 		//if (!allPassed) System.out.println("At least one test failed");
 		//else System.out.println("All tests Passed");
 		
-		//System.out.println("Test for spr15 cs schedule snippet");
-		//test4();
+		System.out.println("Test for spr15 cs schedule snippet");
+		test4();
 		
-		//test5();
+		test5();
 		
-		//runInteractiveTest();
+//		runInteractiveTest();
 	}
 
-	private static boolean runTest(String testName, String json, boolean expectedResult) {
+	public static boolean runTest(String testName, String json, boolean expectedResult) {
 		System.out.println("Running test " + testName);
 		try 
 		{
 			ScheduleData data = ScheduleData.parseJson(json);
 			Schedule schedule = new Schedule("", data.events, data.spaces, data.constraints);
-			JSONObject solution =  new JSONObject(schedule.getSolution(2));
+			JSONObject solution =  new JSONObject(schedule.getSolution(OUTPUT_LEVEL));
 			
 			output.put(testName, solution.toString());
 			
@@ -157,7 +165,7 @@ public class SchedulingSolverTest
 		}
 	}
 	
-	private static boolean runFileTest(String testName, String fileName, boolean expectedResult) {
+	public static boolean runFileTest(String testName, String fileName, boolean expectedResult) {
 		Scanner sc;
 		try {
 			sc = new Scanner(new File(fileName));
@@ -171,7 +179,7 @@ public class SchedulingSolverTest
 		}
 	}
 	
-	private static void runInteractiveTest() {
+	public static void runInteractiveTest() {
 		Scanner sc = new Scanner(System.in);
 		while(true) {
 			System.out.println("JSON string:");

@@ -11,59 +11,52 @@ import com.google.gson.Gson;
 
 import solver.ResolutionPolicy;
 import solver.Solver;
-import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.search.limits.FailCounter;
 import solver.search.loop.lns.LNSFactory;
+import solver.search.loop.monitors.SMF;
 import solver.search.strategy.IntStrategyFactory;
 import solver.trace.Chatterbox;
-import solver.variables.BoolVar;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
+import util.SpaceData;
+import util.Spaces;
+import util.TimeData;
 
 public class Schedule {
 	public final String name;
 	
-	public final Map<Integer, Event> events;
-	public final Map<Integer, Space> spaces;
-	public final List<EventConstraint> constraints;
+	private final Map<Integer, Event> events;
+	private final SpaceData[] sData;
+	private final Spaces spaces;
+	private final List<EventConstraint> constraints;
 //	public final Map<Integer, Person> persons;
+	
 	
 	private Solver solver;
 	private IntVar satisfiedCount;
 	private boolean modelBuilt = false;
-	private boolean solved = false;
 	
 	private static final boolean DEBUG = false;
 	
 	public Schedule(String name, Event[] events,
-			Space[] spaces /*, Map<Integer, Person> persons*/) {
-		this.name = name;
-		this.solver = new Solver(this.name);
-		
-		this.spaces = new HashMap<Integer, Space>(spaces.length);
-		for (Space space : spaces) {
-			this.spaces.put(space.ID, space);
-		}
-		
-		this.events = new HashMap<Integer, Event>(events.length);
-		for (Event event : events) {
-			event.initialize(this.solver, this.spaces);
-			this.events.put(event.ID, event);
-		}
-		
-		this.constraints = new ArrayList<EventConstraint>();
+			SpaceData[] spaces /*, Map<Integer, Person> persons*/) {
+		this(name, events, spaces, null);
 	}
 	
 	public Schedule(String name, Event[] events,
-			Space[] spaces, EventConstraint[] constraints) {
+			SpaceData[] spaces, EventConstraint[] constraints) {
 		this.name = name;
 		this.solver = new Solver(this.name);
+		SMF.limitTime(this.solver, "2m");
 		
-		this.spaces = new HashMap<Integer, Space>(spaces.length);
-		for (Space space : spaces) {
-			this.spaces.put(space.ID, space);
-		}
+		this.spaces = new Spaces(spaces);
+		this.sData = spaces;
+		
+//		this.spaces = new HashMap<Integer, SpaceData>(spaces.length);
+//		for (SpaceData space : spaces) {
+//			this.spaces.put(space.ID, space);
+//		}
 		
 		this.events = new HashMap<Integer, Event>(events.length);
 		for (Event event : events) {
@@ -99,9 +92,7 @@ public class Schedule {
 		
 		if (level > 1) {
 			ArrayList<Object> spacesList = new ArrayList<Object>();
-			for(Map.Entry<Integer, Space> entry : spaces.entrySet()) {
-				Space s = entry.getValue();
-				
+			for(SpaceData s : sData) {
 				HashMap<String, Object> map = new HashMap<String, Object>();
 				map.put("id", s.getID());
 				map.put("capacity", s.getCapacity());
@@ -118,7 +109,7 @@ public class Schedule {
 		int n = events_arr.length;
 		
 		for (EventConstraint c : constraints) {
-			c.initialize(this);
+			c.initialize(solver, events);
 		}
 		
 		for (int i = 0; i < n; i++) {
@@ -140,8 +131,7 @@ public class Schedule {
 		
 		if (constraints.size() > 0) {
 			this.solver.post(IntConstraintFactory.sum(
-					getConstraintsStatus(constraints)
-					.toArray(new BoolVar[0]), satisfiedCount));
+					EventConstraint.getStatus(constraints), satisfiedCount));
 		}
 		
 		modelBuilt = true;
@@ -168,7 +158,14 @@ public class Schedule {
 //		solved = this.solver.findSolution();
 		
 		this.solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, satisfiedCount);
-		solved = (satisfiedCount.getValue() == constraints.size());
+		boolean solved = (satisfiedCount.getValue() == constraints.size());
+		
+		for (Event e : this.events.values()) {
+			if (!e.isPossible()) {
+				solved = false;
+				break;
+			}
+		}
 		
 		if (DEBUG) {
 			printSolverData();
@@ -191,6 +188,15 @@ public class Schedule {
 		for (Event e : this.events.values()) {
 			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getID(), e.getSpaceID(), e.getDays(), e.getStartTime());
 		}
+		
+		
+//		for (Constraint c : solver.getCstrs()) {
+//			ESat esat = c.isSatisfied();
+//			System.out.println(esat);
+//			if (esat.equals(ESat.FALSE)) {
+//				System.out.println("Failed constraint: " + c);
+//			}
+//		}
 	}
 	
 	private List<Integer> getConflicts(Event e) {
@@ -207,30 +213,38 @@ public class Schedule {
 	
 	private Map<String, Object> getEvent(Event e, int level) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("ID", e.getID());
+		
+		if (!e.isPossible()) {
+			map.put("wasFailure", true);
+			if (level <= 1) return map;
+		} else {
+			// Space + DayTime
+			if (level == 1) {
+				map.put("days", e.getDays());
+				map.put("roomID", e.getSpaceID());
+				map.put("startTime", e.getStartTime());
+			}
+			else if (level > 1) {
+				map.put("space", e.getSpaceID());
+				
+				Map<String, Object> tmMap = new HashMap<String, Object>();
+				tmMap.put(e.getDays(), new String[]{e.getStartTime()});
+				map.put("pStartTm", tmMap);
+			}
+		}
 		
 		List<Integer> conflicts = getConflicts(e);
 		if (conflicts.size() == 0 && level == 0) return null;
-		
-		map.put("ID", e.getID());
 		map.put("conflictsWith", conflicts);
 		
-		if (level == 1) {
-			map.put("days", e.getDays());
-			map.put("roomID", e.getSpaceID());
-			map.put("startTime", e.getStartTime());
-		}
-		else if (level > 1) {
-			map.put("space", e.getSpaceID());
-			
-			Map<String, Object> tmMap = new HashMap<String, Object>();
-			tmMap.put(e.getDays(), new String[]{e.getStartTime()});
-			map.put("pStartTm", tmMap);
-			
+		// Extra info
+		if (level > 1) {
 			map.put("duration", e.getDuration());
 			map.put("max_participants", e.getMaxParticipants());
-			
 			map.put("persons", e.getPerson());
 		}
+		
 		return map;
 	}
 	
@@ -246,88 +260,26 @@ public class Schedule {
 		m2.put("T", new String[]{"0930"});
 		
 		Event e0 = new Event(0 /*id*/, 50 /*maxParticipants*/,
-				m /*startTimes*/, 50 /*duration*/,
-				0 /*personId*/, 1 /*spaceId*/);
+				new TimeData(m /*startTimes*/, 50 /*duration*/),
+				0 /*personId*/, new int[]{0} /*spaceId*/);
 		
 		Event e1 = new Event(1 /*id*/, 70 /*maxParticipants*/,
-				m /*startTimes*/, 70 /*duration*/,
-				1 /*personId*/, 1 /*spaceId*/);
+				new TimeData(m /*startTimes*/, 70 /*duration*/),
+				1 /*personId*/, new int[]{1} /*spaceId*/);
 		
-		Event e2 = new Event(2 /*id*/, 50 /*maxParticipants*/,
-				m2 /*startTimes*/, 50 /*duration*/,
+		Event e2 = new Event(2 /*id*/, 80 /*maxParticipants*/,
+				new TimeData(m2 /*startTimes*/, 50 /*duration*/),
 				1 /*personId*//*, 1 /*spaceId*/);
 		
-		Space s0 = new Space(0, 60);
-		Space s1 = new Space(1, 70);
+		SpaceData s0 = new SpaceData(0, 60);
+		SpaceData s1 = new SpaceData(1, 70);
 		
 		Schedule sc = new Schedule("test schedule", new Event[]{e0, e1, e2},
-				new Space[] {s0, s1});
+				new SpaceData[] {s0, s1});
 		
 		Map<String, Object> jsonMap = sc.getSolution(2);
 		
 		Gson gson = new Gson();
 		System.out.println(gson.toJson(jsonMap));
-	}
-	
-	public static class EventConstraint {
-		public Event e1;
-		public Event e2;
-		public BoolVar satisfied;
-		
-		public Constraint constraint;
-		
-		public final int id1;
-		public final int id2;
-		private String relation;
-		private boolean constraintBuilt;
-		
-		public EventConstraint(int id1, int id2, String relation) {
-			this.id1 = id1;
-			this.id2 = id2;
-			this.relation = relation;
-		}
-		
-		public EventConstraint(Event e1, Event e2, Constraint constraint) {
-			this.e1 = e1;
-			this.e2 = e2;
-			this.id1 = e1.getID();
-			this.id2 = e2.getID();
-			this.satisfied = constraint.reif();
-			this.constraint = constraint;
-			this.constraintBuilt = true;
-		}
-		
-		public void initialize(Schedule schedule) {
-			if (constraintBuilt) return;
-			Map<Integer, Event> e = schedule.events;
-			e1 = e.get(id1);
-			e2 = e.get(id2);
-			if ((e1 == null) || (e2 == null))
-				constraint = schedule.solver.TRUE;
-			else switch (relation) {
-				case "<":
-					constraint = e1.before(e2);
-					break;
-				case ">":
-					constraint = e1.after(e2);
-					break;
-				case "!":
-					constraint = e1.notOverlap(e2);
-					break;
-				default:
-					constraint = schedule.solver.TRUE;
-			}
-			this.satisfied = constraint.reif();
-		}
-		
-		public boolean getStatus() { return satisfied.getValue() != 0; }
-	}
-	
-	private static List<BoolVar> getConstraintsStatus(List<EventConstraint> ec) {
-		ArrayList<BoolVar> arr = new ArrayList<BoolVar>();
-		for (EventConstraint c : ec) {
-			arr.add(c.satisfied);
-		}
-		return arr;
 	}
 }
