@@ -2,12 +2,14 @@ package util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.common.primitives.Ints;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import scheduleSolver.Event;
 import scheduleSolver.EventConstraint;
@@ -20,47 +22,55 @@ public class ScheduleData {
 	public EventConstraint[] constraints;
 //	public TimeData[] times = null;
 	
-	public static ScheduleData parseJson(String jsonStr) throws JSONException {
-		JSONObject jsonObj = new JSONObject(jsonStr);
+	
+	/// EXPERIMENTAL AREA ///
+	
+	public static ScheduleData parseJson(String jsonStr) {
+		ScheduleData data;
 		
-		JSONArray jsonClasses = jsonObj.getJSONArray("EVENT");
-		JSONArray jsonResources = jsonObj.getJSONArray("SPACE");
-		JSONObject jsonConstraint = null;
-		if (jsonObj.has("CONSTRAINT"))
-			jsonConstraint = jsonObj.getJSONObject("CONSTRAINT");
-		
-		ScheduleData data = new ScheduleData();
-		if (jsonObj.has("name"))
-			data.name = jsonObj.getString("name");
-		else data.name = "Default schedule name";
-		
-		data.events = parseEvents(jsonClasses);
-		data.spaces = parseSpaces(jsonResources);
-		data.constraints = parseConstraints(jsonConstraint);
+		try {
+			JsonParser parser = new JsonParser();
+			JsonObject jsonObj = parser.parse(jsonStr).getAsJsonObject();
+					
+			JsonArray jsonClasses = jsonObj.getAsJsonArray("EVENT");
+			JsonArray jsonResources = jsonObj.getAsJsonArray("SPACE");
+			JsonObject jsonConstraint = null;
+			if (jsonObj.has("CONSTRAINT"))
+				jsonConstraint = jsonObj.getAsJsonObject("CONSTRAINT");
+			
+			data = new ScheduleData();
+			
+			if (jsonObj.has("name"))
+				data.name = jsonObj.get("name").getAsString();
+			else data.name = "Default schedule name";
+			
+			data.events = parseEvents(jsonClasses);
+			data.spaces = parseSpaces(jsonResources);
+			data.constraints = parseConstraints(jsonConstraint);
+		} catch (Exception e) {
+			data = null;
+		}
 		
 		return data;
 	}
 	
-	private static Event[] parseEvents(JSONArray jsonEvents) throws JSONException 
-	{
-		Event[] events = new Event[jsonEvents.length()];
-		for (int i = 0; i < events.length; i++) 
-		{
-			JSONObject obj = jsonEvents.getJSONObject(i);
+	private static Event[] parseEvents(JsonArray jsonEvents) {
+		Event[] events = new Event[jsonEvents.size()];
+		for (int i = 0; i < events.length; i++) {
+			JsonObject obj = jsonEvents.get(i).getAsJsonObject();
 			
-			int id = obj.getInt("id");
+			int id = obj.get("id").getAsInt();
 			
-			int duration = obj.getInt("duration");
+			int duration = obj.get("duration").getAsInt();
 			
-			JSONObject pStartTmArray = obj.getJSONObject("pStartTm");
+			JsonObject pStartTmArray = obj.getAsJsonObject("pStartTm");
 		    Map<String, String[]> pStartTm = parseStartTimes(pStartTmArray);
 			
 		    TimeData time = new TimeData(pStartTm, duration);
 		    
-		    int[] spaces = null;
-		    if (obj.has("space")) spaces = new int[]{obj.getInt("space")};
-			int max_participants = obj.getInt("max_participants");
-			int person = obj.getInt("persons");
+		    int[] spaces = parseInts(obj.get("space"));
+			int max_participants = obj.get("max_participants").getAsInt();
+			int person = obj.get("persons").getAsInt();
 			
 			events[i] = new Event(id, max_participants,
 					time, person, spaces);
@@ -69,15 +79,28 @@ public class ScheduleData {
 		return events;
 	}
 	
-	private static SpaceData[] parseSpaces(JSONArray jsonSpaces) throws JSONException
-	{
-		SpaceData[] rooms = new SpaceData[jsonSpaces.length()];
+	private static int[] parseInts(JsonElement obj) {
+		ArrayList<Integer> list = new ArrayList<Integer>();
+	    if (obj != null) {
+	    	if (obj.isJsonArray()) {
+	    		JsonArray arr = obj.getAsJsonArray();
+	    		for (JsonElement el : arr) {
+	    			list.add(el.getAsInt());
+	    		}
+	    	} else list.add(obj.getAsInt());
+	    } else return null;
+	    
+	    return Ints.toArray(list);
+	}
+
+	private static SpaceData[] parseSpaces(JsonArray jsonSpaces) {
+		SpaceData[] rooms = new SpaceData[jsonSpaces.size()];
 		
 		for(int i = 0; i < rooms.length; i++)
 		{
-			JSONObject room = jsonSpaces.getJSONObject(i);
-			int id = room.getInt("id");
-			int capacity = room.getInt("capacity");
+			JsonObject room = jsonSpaces.get(i).getAsJsonObject();
+			int id = room.get("id").getAsInt();
+			int capacity = room.get("capacity").getAsInt();
 			//String times = room.getString("times");
 			
 			rooms[i] = new SpaceData(id, capacity);
@@ -86,51 +109,41 @@ public class ScheduleData {
 		return rooms;
 	}
 	
-	private static Map<String, String[]> parseStartTimes(JSONObject jsonObj) throws JSONException {
+	private static Map<String, String[]> parseStartTimes(JsonObject jsonObj) {
 		HashMap<String, String[]> mapping = new HashMap<String, String[]>();
 		
-	    @SuppressWarnings("unchecked")
-		Iterator<String> keys = (Iterator<String>) jsonObj.keys();
-
-		while(keys.hasNext()) {
-			String key = keys.next();
-			
-			JSONArray jsonArr = jsonObj.getJSONArray(key);
-			String[] times = new String[jsonArr.length()];
-			for (int i = 0; i < jsonArr.length(); i++) {
-				times[i] = jsonArr.getString(i);
+	    for (Entry<String, JsonElement> entry : jsonObj.entrySet()) {
+	    	String key = entry.getKey();
+	    	JsonArray value = entry.getValue().getAsJsonArray();
+	    	String[] times = new String[value.size()];
+			for (int i = 0; i < value.size(); i++) {
+				times[i] = value.get(i).getAsString();
 			}
 			
 			mapping.put(key, times);
-		}
+	    }
 		
 		return mapping;
 	}
 	
-	private static EventConstraint[] parseConstraints(JSONObject jsonObj) throws JSONException
-	{
+	private static EventConstraint[] parseConstraints(JsonObject jsonObj) {
 		ArrayList<EventConstraint> list = new ArrayList<EventConstraint>();
 		
 		if (jsonObj == null) return list.toArray(new EventConstraint[0]);
 		
-		@SuppressWarnings("unchecked")
-		Iterator<String> keys = (Iterator<String>) jsonObj.keys();
-		
-		while(keys.hasNext())
-		{
-			String key = keys.next();
+		for (Entry<String, JsonElement> entry : jsonObj.entrySet()) {
+			String key = entry.getKey();
 			
-			JSONArray jsonArr = jsonObj.getJSONArray(key);
-			for(int i = 0; i < jsonArr.length(); i++)
+			JsonArray jsonArr = entry.getValue().getAsJsonArray();
+			for(int i = 0; i < jsonArr.size(); i++)
 			{
-				JSONArray classPair = jsonArr.getJSONArray(i);
-				list.add(new EventConstraint(classPair.getInt(0), classPair.getInt(1), key));
+				JsonArray classPair = jsonArr.get(i).getAsJsonArray();
+				list.add(new EventConstraint(classPair.get(0).getAsInt(), classPair.get(1).getAsInt(), key));
 			}
 		}
 		
 		return list.toArray(new EventConstraint[0]);
 	}
-	
 	
 	/**
 	 * @param args

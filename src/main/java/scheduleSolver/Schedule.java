@@ -20,7 +20,6 @@ import solver.trace.Chatterbox;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
 import util.SpaceData;
-import util.Spaces;
 import util.TimeData;
 
 public class Schedule {
@@ -39,6 +38,10 @@ public class Schedule {
 	
 	private static final boolean DEBUG = false;
 	
+	public enum SolutionLevel {
+		CONFLICTS, ALL_EVENTS, ALL_DATA
+	}
+	
 	public Schedule(String name, Event[] events,
 			SpaceData[] spaces /*, Map<Integer, Person> persons*/) {
 		this(name, events, spaces, null);
@@ -53,15 +56,10 @@ public class Schedule {
 		this.spaces = new Spaces(spaces);
 		this.sData = spaces;
 		
-//		this.spaces = new HashMap<Integer, SpaceData>(spaces.length);
-//		for (SpaceData space : spaces) {
-//			this.spaces.put(space.ID, space);
-//		}
-		
 		this.events = new HashMap<Integer, Event>(events.length);
 		for (Event event : events) {
 			event.initialize(this.solver, this.spaces);
-			this.events.put(event.ID, event);
+			this.events.put(event.id, event);
 		}
 		
 		this.constraints = new ArrayList<EventConstraint>();
@@ -73,9 +71,9 @@ public class Schedule {
 	
 	/* level == 0: schedule checking, only return events with conflicts
 	 * level == 1: schedule creating, return all events
-	 * level == 2: return everything (events, spaces, constraints, apiKey), can be used as direct input for the solver
+	 * level == 2: return everything (events, spaces, constraints), can be used as direct input for the solver
 	 */
-	public HashMap<String, Object> getSolution(int level) {
+	public HashMap<String, Object> getSolution(SolutionLevel level) {
 		boolean failure = !findSolution();
 		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
 		
@@ -90,11 +88,11 @@ public class Schedule {
 		jsonMap.put("wasFailure", failure);
 		jsonMap.put("EVENT", eventsList);
 		
-		if (level > 1) {
+		if (level == SolutionLevel.ALL_DATA) {
 			ArrayList<Object> spacesList = new ArrayList<Object>();
 			for(SpaceData s : sData) {
 				HashMap<String, Object> map = new HashMap<String, Object>();
-				map.put("id", s.getID());
+				map.put("id", s.getId());
 				map.put("capacity", s.getCapacity());
 				spacesList.add(map);
 			}
@@ -186,7 +184,7 @@ public class Schedule {
 		System.out.println("Conflicts count: " + conflictCount);
 		
 		for (Event e : this.events.values()) {
-			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getID(), e.getSpaceID(), e.getDays(), e.getStartTime());
+			System.out.printf("ID:%2d, Space: %2d, %s-%s\n", e.getId(), e.getSpaceId(), e.getDays(), e.getStartTime());
 		}
 		
 		
@@ -203,30 +201,30 @@ public class Schedule {
 		ArrayList<Integer> conflicts = new ArrayList<Integer>();
 		for (EventConstraint c : constraints) {
 			if (c.satisfied.getValue() == 0) {
-				if (c.id1 == e.getID()) conflicts.add(c.id2);
-				else if (c.id2 == e.getID()) conflicts.add(c.id1);
+				if (c.id1 == e.getId()) conflicts.add(c.id2);
+				else if (c.id2 == e.getId()) conflicts.add(c.id1);
 			}
 		}
 		
 		return conflicts;
 	}
 	
-	private Map<String, Object> getEvent(Event e, int level) {
+	private Map<String, Object> getEvent(Event e, SolutionLevel level) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("ID", e.getID());
+		map.put("ID", e.getId());
 		
+		// Space + DayTime
 		if (!e.isPossible()) {
 			map.put("wasFailure", true);
-			if (level <= 1) return map;
+			if (level != SolutionLevel.ALL_DATA) return map;
 		} else {
-			// Space + DayTime
-			if (level == 1) {
+			if (level == SolutionLevel.ALL_EVENTS) {
 				map.put("days", e.getDays());
-				map.put("roomID", e.getSpaceID());
+				map.put("roomID", e.getSpaceId());
 				map.put("startTime", e.getStartTime());
 			}
-			else if (level > 1) {
-				map.put("space", e.getSpaceID());
+			else if (level == SolutionLevel.ALL_DATA) {
+				map.put("space", e.getSpaceId());
 				
 				Map<String, Object> tmMap = new HashMap<String, Object>();
 				tmMap.put(e.getDays(), new String[]{e.getStartTime()});
@@ -235,11 +233,12 @@ public class Schedule {
 		}
 		
 		List<Integer> conflicts = getConflicts(e);
-		if (conflicts.size() == 0 && level == 0) return null;
+		if (conflicts.size() == 0 && level == SolutionLevel.CONFLICTS)
+			return null;
 		map.put("conflictsWith", conflicts);
 		
 		// Extra info
-		if (level > 1) {
+		if (level == SolutionLevel.ALL_DATA) {
 			map.put("duration", e.getDuration());
 			map.put("max_participants", e.getMaxParticipants());
 			map.put("persons", e.getPerson());
@@ -277,7 +276,7 @@ public class Schedule {
 		Schedule sc = new Schedule("test schedule", new Event[]{e0, e1, e2},
 				new SpaceData[] {s0, s1});
 		
-		Map<String, Object> jsonMap = sc.getSolution(2);
+		Map<String, Object> jsonMap = sc.getSolution(SolutionLevel.ALL_DATA);
 		
 		Gson gson = new Gson();
 		System.out.println(gson.toJson(jsonMap));

@@ -4,6 +4,8 @@ public class Person {
 	public final String name;
 	public final int id;
 	
+	public static final int DEFAULT_ID = -1;
+	
 	public Person(int _id) {
 		this.id = _id;
 		this.name = "default person name";

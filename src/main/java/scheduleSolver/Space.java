@@ -6,31 +6,42 @@ import solver.constraints.ICF;
 import solver.constraints.LCF;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
-import util.Spaces;
 
 public class Space {
 	public final int participants;
 	
-	protected IntVar id;
-	protected IntVar capacity;
-	protected IntVar index;
+	private IntVar id;
+	private IntVar capacity;
+	private IntVar index;
 	
 	private Constraint constraint;
+	
+	public final boolean ignore;
+	
+	public final int DEFAULT_ID = -1;
 
 	Space(int[] ids, int participants, Solver solver, Spaces spaces) {
 		this.participants = participants;
 		
-		if (ids == null) ids = spaces.ids;
+		if (ids == null || ids.length == 0) ids = spaces.getIds();
+		else if (ids.length > 1) ids = spaces.filterIds(ids);
 		
-		id = VariableFactory.enumerated("room ids", ids, solver);
-		capacity = VariableFactory.enumerated("room capacities", spaces.capacities, solver);
+		if (ids.length == 1 && ids[0] == DEFAULT_ID) {
+			ignore = true;
+			constraint = solver.TRUE;
+			id = VariableFactory.fixed("room id", DEFAULT_ID, solver);
+			index = VariableFactory.fixed("room index", -1, solver);
+			return;
+		} else ignore = false;
+		
+		id = VariableFactory.enumerated("room id", ids, solver);
+		capacity = VariableFactory.enumerated("room capacity", spaces.getCapacities(ids), solver);
 		index = VariableFactory.bounded("room index", 0, spaces.n - 1, solver);
 		
-		Constraint idConstraint = ICF.element(id, spaces.ids, index);
-		Constraint capConstraint = ICF.element(capacity, spaces.capacities, index);
+		Constraint spaceConstraint = spaces.getConstraint(id, capacity, index);
 		Constraint parConstraint = ICF.arithm(capacity, ">=", participants);
 		
-		constraint = LCF.and(idConstraint, capConstraint, parConstraint);
+		constraint = LCF.and(spaceConstraint, parConstraint);
 	}
 	
 	public Constraint getConstraint() {
@@ -38,11 +49,14 @@ public class Space {
 	}
 	
 	public Constraint diff(Space other) {
-		//TODO: Should we use index or id here? 
+		if (this.ignore) return this.constraint;
+		if (other.ignore) return other.constraint;
 		return ICF.arithm(index, "!=", other.index);
 	}
 	
-	public IntVar getVar() { return index; }
+	public IntVar getVar() {
+		return index;
+	}
 	
 	public int getId() {
 		return id.getValue();

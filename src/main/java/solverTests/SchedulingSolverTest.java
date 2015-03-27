@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
 
 import scheduleSolver.Schedule;
+import scheduleSolver.Schedule.SolutionLevel;
+import static scheduleSolver.Schedule.SolutionLevel.*;
 import util.ScheduleData;
 import static util.IO.*;
 
@@ -24,11 +26,15 @@ import static util.IO.*;
  * 
  *
  */
-public class SchedulingSolverTest 
-{
-	private static Map<String, String> output = new HashMap<String, String>();
+public class SchedulingSolverTest {
+	private static SolutionLevel SOLUTION_OUTPUT_LEVEL = CONFLICTS;
+	private static boolean RUN_ALL_TEST = true;
+	private static boolean RUN_BIG_TEST = false;
+	private static boolean INTERACTIVE_MODE = false;
 	
-	private static int OUTPUT_LEVEL = 0;
+	private static Map<String, String> outputs = new HashMap<String, String>();
+	private static Map<String, Boolean> results = new HashMap<String, Boolean>();
+	private static int interactiveTestCount = 0;
 	
 	public static boolean test0()
 	{
@@ -37,9 +43,9 @@ public class SchedulingSolverTest
 	
 	public static boolean test1()
 	{
-		String json = "{\"EVENT\":[{\"id\":313,\"days_count\":2,\"duration\":\"80\"," +
-			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":80,\"max_participants\":97," +
-			"\"persons\":15,\"constraint\":[]}],\"SPACE\":[{\"id\":80," +
+		String json = "{\"EVENT\":[{\"id\":313,\"duration\":\"80\"," +
+			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":[80],\"max_participants\":97," +
+			"\"persons\":15}],\"SPACE\":[{\"id\":80," +
 			"\"capacity\":97,\"times\":\"\"}]}";
 		
 		return runTest("test1", json, true);
@@ -47,16 +53,16 @@ public class SchedulingSolverTest
 	
 	public static boolean test2()
 	{
-		String json = "{\"EVENT\":[{\"id\":316,\"days_count\":2,\"duration\":80," +
-			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":82," +
-			"\"max_participants\":103,\"persons\":15,\"constraint\":[]}," +
-			"{\"id\":317,\"days_count\":2,\"duration\":80," +
+		String json = "{\"EVENT\":[{\"id\":316,\"duration\":80," +
+			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":[82,83]," +
+			"\"max_participants\":100,\"persons\":15}," +
+			"{\"id\":317,\"duration\":80," +
 			"\"pStartTm\":{\"TH\":[\"0730\"]}," +
-			"\"space\":82,\"max_participants\":103,\"persons\":16," +
-			"\"constraint\":[]}],\"SPACE\":[{\"id\":82,\"capacity\":103," +
-			"\"times\":\"\"},{\"id\":83,\"capacity\":102,\"times\":\"\"}]}";
+			"\"space\":82,\"max_participants\":103,\"persons\":16}]," +
+			"\"SPACE\":[{\"id\":82,\"capacity\":103," +
+			"\"times\":\"\"},{\"id\":83,\"capacity\":102}]}";
 		
-		return runTest("test2", json, false);
+		return runTest("test2", json, true);
 	}
 
 	public static boolean test3() {
@@ -68,7 +74,7 @@ public class SchedulingSolverTest
 		String fileName = "snippet_spr15_schedule.json";
 		boolean result = runFileTest("test_snippet_spr_15", fileName, true);
 		
-		System.out.println(output.get("test_snippet_spr_15"));
+		System.out.println(outputs.get("test_snippet_spr_15"));
 		
 		return result;
 	}
@@ -77,7 +83,7 @@ public class SchedulingSolverTest
 		String fileName = "new_spr15_schedule.json";
 		boolean result = runFileTest("test_spr_15", fileName, true);
 		
-		System.out.println(output.get("test_spr_15"));
+		System.out.println(outputs.get("test_spr_15"));
 		
 		return result;
 	}
@@ -95,7 +101,7 @@ public class SchedulingSolverTest
 				String testName = "Test_"+paths[i];
 				if (!runTest(testName, json, expected)) {
 					System.out.println(testName + " output:");
-					System.out.println(output.get(testName));
+					System.out.println(outputs.get(testName));
 				}
 				
 			}
@@ -106,67 +112,28 @@ public class SchedulingSolverTest
 		}
 	}
 
-	public static void main(String[] args) throws FileNotFoundException 
-	{
-		
-		boolean[] passed = new boolean[] {test0(), test1(), test2(), test3()};
-		String p = "jsonTestFiles/";
-		
-		// test satisfiable schedules
-		String[] noConflictScheds = {p+"f2000NoLabsDiscs",p+"f2000Cleaned"};
-		testSchedules(noConflictScheds, true);
-		
-		// printing output to see why it failed
-		// output.get("f2000_no_labs_discs")
-		//System.out.println(output.get(p+"f2000_no_labs_discs"));
-		
-		// test unsatisfiable schedules
-		String[] conflictedScheds = {p+"f2000_with_labs_discs",
-				p + "big_event.json"};
-		testSchedules(conflictedScheds, false);
-		
-		//WRAP UP
-		boolean allPassed = true;
-		for (boolean b : passed) {
-			if(!b) {
-				allPassed = false;
-				break;
-			}
-		}
-		System.out.println("tests complete");
-		//if (!allPassed) System.out.println("At least one test failed");
-		//else System.out.println("All tests Passed");
-		
-		System.out.println("Test for spr15 cs schedule snippet");
-		test4();
-		
-		test5();
-		
-//		runInteractiveTest();
-	}
-
 	public static boolean runTest(String testName, String json, boolean expectedResult) {
 		System.out.println("Running test " + testName);
-		try 
-		{
+		try {
 			ScheduleData data = ScheduleData.parseJson(json);
 			Schedule schedule = new Schedule("", data.events, data.spaces, data.constraints);
-			JSONObject solution =  new JSONObject(schedule.getSolution(OUTPUT_LEVEL));
+			Map<String, Object> outputMap = schedule.getSolution(SOLUTION_OUTPUT_LEVEL);
+			Gson gson = new Gson();
+			String outputStr = gson.toJson(outputMap);
 			
-			output.put(testName, solution.toString());
+			outputs.put(testName, outputStr);
 			
-			System.out.println(output.get(testName));
+			boolean result = (expectedResult != (Boolean) outputMap.get("wasFailure"));
 			
-			boolean result = (expectedResult != solution.getBoolean("wasFailure"));
-			
-			if (!result) System.out.println(testName + " failed");
-			else System.out.println(testName + " passed");
+			if (!result) System.out.println("\t" + testName + " failed");
+			else System.out.println("\t" + testName + " passed");
+			results.put(testName, result);
 			return result;
 		}
-		catch(Exception e)
-		{
+		catch(Exception e) {
 			System.out.println("Caught exception in " + testName);
 			e.printStackTrace();
+			results.put(testName, false);
 			return false;
 		}
 	}
@@ -179,7 +146,6 @@ public class SchedulingSolverTest
 			sc.close();
 			return runTest(testName, json, expectedResult);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -199,10 +165,53 @@ public class SchedulingSolverTest
 			}
 			boolean expected = (reply == 'Y');
 			
-			if (!runTest("Interactive test", json, expected)) {
-				System.out.println("Output JSON:");
-				System.out.println(output.get("Interactive test"));
+			String testName = "Interactive test " + interactiveTestCount++;
+			runTest(testName, json, expected);
+			
+			System.out.println("Output JSON:");
+			System.out.println(outputs.get(testName));
+		}
+	}
+	
+	public static void main(String[] args) throws FileNotFoundException 
+	{
+		if (RUN_ALL_TEST) {
+			test0(); test1(); test2(); test3();
+			String p = "jsonTestFiles/";
+			
+			// test satisfiable schedules
+			String[] noConflictScheds = {p+"f2000NoLabsDiscs",p+"f2000Cleaned"};
+			testSchedules(noConflictScheds, true);
+			
+			// printing output to see why it failed
+			// output.get("f2000_no_labs_discs")
+			//System.out.println(output.get(p+"f2000_no_labs_discs"));
+			
+			// test unsatisfiable schedules
+			String[] conflictedScheds = {p+"f2000_with_labs_discs",
+					p + "big_event.json"};
+			testSchedules(conflictedScheds, false);
+			
+			if (RUN_BIG_TEST) {
+				System.out.println("Test for spr15 cs schedule snippet");
+				test4();
+				
+				test5();
 			}
 		}
+		
+		if (INTERACTIVE_MODE) runInteractiveTest();
+		
+		//WRAP UP
+		System.out.println("tests complete");
+		int pass = 0;
+		int total = results.size();
+		for (Boolean result : results.values()) {
+			if (result) pass += 1;
+		}
+		System.out.println("SUMMARY");
+		System.out.printf("Passed: %d, Failed: %d, Total: %d\n", pass, total - pass, total);
+//		if (!allPassed) System.out.println("At least one test failed");
+//		else System.out.println("All tests Passed");
 	}
 }

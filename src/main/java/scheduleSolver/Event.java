@@ -3,15 +3,14 @@ package scheduleSolver;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.LCF;
-import solver.constraints.LogicalConstraintFactory;
-import solver.search.strategy.IntStrategyFactory;
+import solver.search.strategy.ISF;
 import solver.variables.IntVar;
-import util.Spaces;
+
 import util.TimeData;
 
 public class Event {
 //	String name;						  /* name of the event, e.g. "Computer Systems" */
-	int ID;							  /* event ID, e.g. cs4400 */
+	int id;							  /* event ID, e.g. cs4400 */
 	
 	Time time;
 	Space space;
@@ -34,7 +33,7 @@ public class Event {
 	
 	public Event(int id, int maxParticipants, TimeData time,
 			int personId, int[] spaceIds) {
-		this.ID = id;
+		this.id = id;
 		this.maxParticipants = maxParticipants;
 		this.personId = personId;
 		
@@ -47,7 +46,7 @@ public class Event {
 		this.solver = solver;
 		
 //		isPossible = true;
-		isPossible = getStatus(spaces);
+		isPossible = isFeasible(spaces);
 		if (!isPossible) return;
 
 		time.initialize(solver);
@@ -76,12 +75,21 @@ public class Event {
 	}
 	
 	public IntVar[] getVars() {
+//		ArrayList<IntVar> vars = new ArrayList<IntVar>();
+//		if (isPossible) {
+//			IntVar var;
+//			var = time.getVar();
+//			if (var != null) vars.add(var);
+//			var = space.getVar();
+//			if (var != null) vars.add(var);
+//		}
+//		return vars.toArray(new IntVar[0]);
 		if (!isPossible) return new IntVar[0];
-		return new IntVar[]{time.getVar(), space.getVar()};
+		else return new IntVar[] {time.getVar(), space.getVar()};
 	}
 	
-	public int getID() { return this.ID; }
-	public int getSpaceID() { return space.getId(); }
+	public int getId() { return this.id; }
+	public int getSpaceId() { return space.getId(); }
 	public String getDays() { return this.time.getDays(); }
 	public String getStartTime() { return this.time.getStartTime(); }
 	public int getDuration() { return time.getDuration(); }
@@ -90,14 +98,14 @@ public class Event {
 	public boolean isPossible() { return isPossible; }
 	
 	//////// Helper functions ////////
-	private boolean getStatus(Spaces spaces) {
+	private boolean isFeasible(Spaces spaces) {
 		Solver solver = new Solver();
 		Time time = new Time(this.time);
 		time.initialize(solver);
 		Space space = new Space(spaceIds, maxParticipants, solver, spaces);
 		
 		Constraint c = buildConstraint(time, space, solver, spaces);
-		solver.set(IntStrategyFactory.random_value(getVars()));
+		solver.set(ISF.random_value(getVars()));
 		solver.post(c);
 		
 		return solver.findSolution();
@@ -126,10 +134,11 @@ public class Event {
 				Constraint _space = this.space.diff(other.space);
 				Constraint _time = this.time.notOverlap(other.time);
 				
-				if (this.personId == other.personId)
+				if (this.personId == other.personId &&
+						this.personId != Person.DEFAULT_ID)
 					c = _time;
 				else
-					c = LogicalConstraintFactory.or(_space, _time);
+					c = LCF.or(_space, _time);
 				break;
 			case "before":
 				c = this.time.before(other.time);

@@ -29,8 +29,8 @@ public class EventConstraint {
 	public EventConstraint(Event e1, Event e2, Constraint constraint) {
 		this.e1 = e1;
 		this.e2 = e2;
-		this.id1 = e1.getID();
-		this.id2 = e2.getID();
+		this.id1 = e1.getId();
+		this.id2 = e2.getId();
 		this.satisfied = constraint.reif();
 		this.constraint = constraint;
 		this.constraintBuilt = true;

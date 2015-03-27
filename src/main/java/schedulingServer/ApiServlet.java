@@ -20,8 +20,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONException;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,6 +27,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import scheduleSolver.*;
+import scheduleSolver.Schedule.SolutionLevel;
 import util.ScheduleData;
 import static util.IO.*;
 
@@ -68,10 +67,10 @@ public class ApiServlet extends HttpServlet {
 			uri = uri.toLowerCase();
 			switch (uri) {
 				case "/check":
-					outputMap = getSchedule(input, 0);
+					outputMap = getSchedule(input, SolutionLevel.CONFLICTS);
 					break;
 				case "/new":
-					outputMap = getSchedule(input, 1);
+					outputMap = getSchedule(input, SolutionLevel.ALL_EVENTS);
 					break;
 				case "/requestKey":
 					outputMap = getRequestKey(input);
@@ -85,17 +84,21 @@ public class ApiServlet extends HttpServlet {
 		response.getWriter().print(toReturn);
 	}
 	
-	private Map<String, Object> getSchedule(String input, int level) {
+	private Map<String, Object> getSchedule(String input, SolutionLevel level) {
 		Map<String, Object> outputMap;
 		try {
 			if (!verifyKey(input))
 				outputMap = getError("Error invalid API key");
 			else {
 				ScheduleData data = ScheduleData.parseJson(input);
-				Schedule scheduler = new Schedule(data.name, data.events, data.spaces, data.constraints);
-				outputMap = scheduler.getSolution(level);
+				if (data != null) {
+					Schedule scheduler = new Schedule(data.name, data.events, data.spaces, data.constraints);
+					outputMap = scheduler.getSolution(level);
+				} else {
+					outputMap = getError("Error parsing JSON request string");
+				}
 			}
-		} catch (JsonSyntaxException | JSONException e) {
+		} catch (JsonSyntaxException e) {
 			outputMap = getError("Error parsing JSON request string");
 		} catch (Exception e) {
 			e.printStackTrace();
