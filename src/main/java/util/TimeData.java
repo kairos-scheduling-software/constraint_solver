@@ -11,15 +11,51 @@ import java.util.Map.Entry;
 import solver.constraints.extension.Tuples;
 
 import com.google.common.primitives.Ints;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class TimeData {
 	private Map<Days, List<Integer>> daysTimes;
 	private int duration;  // event's duration in minutes
 	private int count;
+	private Integer id;
 	
 	public TimeData(Map<String, String[]> startTimes, int duration) {
-		this.daysTimes = new HashMap<Days, List<Integer>>();
 		this.duration = duration;
+		initialize(startTimes);
+	}
+	
+	public TimeData(TimeData other) {
+		this.duration = other.duration;
+		this.daysTimes = other.daysTimes;
+		this.count = other.count;
+	}
+	
+	public TimeData(JsonObject jsonObj) {
+		duration = jsonObj.get("duration").getAsInt();
+		
+		if (jsonObj.has("id"))
+			id = jsonObj.get("id").getAsInt();
+		else id = null;
+		
+		JsonObject startTimesArray = jsonObj.getAsJsonObject("startTimes");
+	    Map<String, String[]> startTimes = parseStartTimes(startTimesArray);
+	    initialize(startTimes);
+	}
+	
+	public static TimeData[] parseTimes(JsonArray jsonArr) {
+		TimeData[] times = new TimeData[jsonArr.size()];
+		for (int i = 0; i < times.length; i++) {
+			JsonObject obj = jsonArr.get(i).getAsJsonObject();
+			times[i] = new TimeData(obj);
+		}
+		
+		return times;
+	}
+	
+	private void initialize(Map<String, String[]> startTimes) {
+		this.daysTimes = new HashMap<Days, List<Integer>>();
 		this.count = 0;
 		
 		for (Entry<String, String[]> entry : startTimes.entrySet()) {
@@ -36,10 +72,12 @@ public class TimeData {
 		}
 	}
 	
-	public TimeData(TimeData other) {
-		this.duration = other.duration;
-		this.daysTimes = other.daysTimes;
-		this.count = other.count;
+	public static TimeData getTimeData(int id, TimeData[] times) {
+		for (TimeData time : times) {
+			if (time.id != null && time.id == id) return time;
+		}
+		
+		return null;
 	}
 	
 	public Tuples getTuples() {
@@ -98,6 +136,23 @@ public class TimeData {
 		hour = tm / 60;
 		
 		return String.format("%02d%02d", hour, min);
+	}
+	
+	private static Map<String, String[]> parseStartTimes(JsonObject jsonObj) {
+		HashMap<String, String[]> mapping = new HashMap<String, String[]>();
+		
+	    for (Entry<String, JsonElement> entry : jsonObj.entrySet()) {
+	    	String key = entry.getKey();
+	    	JsonArray value = entry.getValue().getAsJsonArray();
+	    	String[] times = new String[value.size()];
+			for (int i = 0; i < value.size(); i++) {
+				times[i] = value.get(i).getAsString();
+			}
+			
+			mapping.put(key, times);
+	    }
+		
+		return mapping;
 	}
 	
 	private static class Days {

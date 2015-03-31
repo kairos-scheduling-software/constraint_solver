@@ -92,7 +92,7 @@ public class ApiServlet extends HttpServlet {
 			else {
 				ScheduleData data = ScheduleData.parseJson(input);
 				if (data != null) {
-					Schedule scheduler = new Schedule(data.name, data.events, data.spaces, data.constraints);
+					Schedule scheduler = new Schedule(data);
 					outputMap = scheduler.getSolution(level);
 				} else {
 					outputMap = getError("Error parsing JSON request string");

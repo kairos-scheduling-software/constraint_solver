@@ -1,553 +1,561 @@
 {
-    "EVENT": [
+    "EVENTS": [
         {
-            "contraint": [], 
-            "space": 1, 
-            "pStartTm": {
-                "F": [
-                    "1505"
-                ]
+            "spaceId": 1, 
+            "time": {
+	            "duration": 50, 
+	            "startTimes": {
+	                "F": ["1505"]
+	            }
             }, 
-            "persons": 1, 
-            "max_participants": 80, 
-            "duration": 50, 
-            "days_count": 1, 
+            "personId": 1, 
+            "maxParticipants": 80, 
             "id": 1
         }, 
         {
-            "contraint": [], 
-            "space": 2, 
-            "pStartTm": {
-                "MW": [
-                    "1150"
-                ]
+            "spaceId": 2, 
+            "time": {
+	            "duration": 50, 
+	            "startTimes": {
+	                "MW": ["1150"]
+	            }
             }, 
-            "persons": 1, 
-            "max_participants": 80, 
-            "duration": 50, 
-            "days_count": 2, 
+            "personId": 1, 
+            "maxParticipants": 80, 
             "id": 2
         }, 
         {
-            "contraint": [], 
-            "space": 3, 
-            "pStartTm": {
+            "spaceId": 3, 
+            "time": {
+            "duration": 50, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 2, 
-            "max_participants": 80, 
-            "duration": 50, 
-            "days_count": 2, 
+            "personId": 2, 
+            "maxParticipants": 80, 
             "id": 3
         }, 
         {
-            "contraint": [], 
-            "space": 1, 
-            "pStartTm": {
+            "spaceId": 1, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 3, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 3, 
+            "maxParticipants": 80, 
             "id": 4
         }, 
         {
-            "contraint": [], 
-            "space": 1, 
-            "pStartTm": {
+            "spaceId": 1, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1540"
                 ]
+            }
             }, 
-            "persons": 3, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 3, 
+            "maxParticipants": 80, 
             "id": 5
         }, 
         {
-            "contraint": [], 
-            "space": 4, 
-            "pStartTm": {
+            "spaceId": 4, 
+            "time": {
+            "duration": 50, 
+            "startTimes": {
                 "TH": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 4, 
-            "max_participants": 80, 
-            "duration": 50, 
-            "days_count": 2, 
+            "personId": 4, 
+            "maxParticipants": 80, 
             "id": 6
         }, 
         {
-            "contraint": [], 
-            "space": 5, 
-            "pStartTm": {
+            "spaceId": 5, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 5, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 5, 
+            "maxParticipants": 80, 
             "id": 7
         }, 
         {
-            "contraint": [], 
-            "space": 6, 
-            "pStartTm": {
+            "spaceId": 6, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 6, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 6, 
+            "maxParticipants": 80, 
             "id": 8
         }, 
         {
-            "contraint": [], 
-            "space": 7, 
-            "pStartTm": {
+            "spaceId": 7, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 7, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 7, 
+            "maxParticipants": 80, 
             "id": 9
         }, 
         {
-            "contraint": [], 
-            "space": 5, 
-            "pStartTm": {
+            "spaceId": 5, 
+            "time": {
+            "duration": 115, 
+            "startTimes": {
                 "TH": [
                     "0835"
                 ]
+            }
             }, 
-            "persons": 1, 
-            "max_participants": 80, 
-            "duration": 115, 
-            "days_count": 2, 
+            "personId": 1, 
+            "maxParticipants": 80, 
             "id": 10
         }, 
         {
-            "contraint": [], 
-            "space": 8, 
-            "pStartTm": {
+            "spaceId": 8, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "0910"
                 ]
+            }
             }, 
-            "persons": 8, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 8, 
+            "maxParticipants": 80, 
             "id": 11
         }, 
         {
-            "contraint": [], 
-            "space": 9, 
-            "pStartTm": {
+            "spaceId": 9, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "H": [
                     "1225"
                 ]
+            }
             }, 
-            "persons": 3, 
-            "max_participants": 80, 
-            "duration": 80, 
+            "personId": 3, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 12
         }, 
         {
-            "contraint": [], 
-            "space": 10, 
-            "pStartTm": {
+            "spaceId": 10, 
+            "time": {
+            "duration": 100, 
+            "startTimes": {
                 "M": [
                     "1820"
                 ]
+            }
             }, 
-            "persons": 9, 
-            "max_participants": 80, 
-            "duration": 100, 
+            "personId": 9, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 13
         }, 
         {
-            "contraint": [], 
-            "space": 11, 
-            "pStartTm": {
+            "spaceId": 11, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 10, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 10, 
+            "maxParticipants": 80, 
             "id": 14
         }, 
         {
-            "contraint": [], 
-            "space": 12, 
-            "pStartTm": {
+            "spaceId": 12, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 11, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 11, 
+            "maxParticipants": 80, 
             "id": 15
         }, 
         {
-            "contraint": [], 
-            "space": 6, 
-            "pStartTm": {
+            "spaceId": 6, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 12, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 12, 
+            "maxParticipants": 80, 
             "id": 16
         }, 
         {
-            "contraint": [], 
-            "space": 4, 
-            "pStartTm": {
+            "spaceId": 4, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 13, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 13, 
+            "maxParticipants": 80, 
             "id": 17
         }, 
         {
-            "contraint": [], 
-            "space": 4, 
-            "pStartTm": {
+            "spaceId": 4, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 14, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 14, 
+            "maxParticipants": 80, 
             "id": 18
         }, 
         {
-            "contraint": [], 
-            "space": 3, 
-            "pStartTm": {
+            "spaceId": 3, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 15, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 15, 
+            "maxParticipants": 80, 
             "id": 19
         }, 
         {
-            "contraint": [], 
-            "space": 3, 
-            "pStartTm": {
+            "spaceId": 3, 
+            "time": {
+            "duration": 50, 
+            "startTimes": {
                 "MWF": [
                     "0940"
                 ]
+            }
             }, 
-            "persons": 16, 
-            "max_participants": 80, 
-            "duration": 50, 
+            "personId": 16, 
+            "maxParticipants": 80, 
             "days_count": 3, 
             "id": 20
         }, 
         {
-            "contraint": [], 
-            "space": 4, 
-            "pStartTm": {
+            "spaceId": 4, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1225"
                 ]
+            }
             }, 
-            "persons": 17, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 17, 
+            "maxParticipants": 80, 
             "id": 21
         }, 
         {
-            "contraint": [], 
-            "space": 13, 
-            "pStartTm": {
+            "spaceId": 13, 
+            "time": {
+            "duration": 115, 
+            "startTimes": {
                 "MW": [
                     "1100"
                 ]
+            }
             }, 
-            "persons": 18, 
-            "max_participants": 80, 
-            "duration": 115, 
-            "days_count": 2, 
+            "personId": 18, 
+            "maxParticipants": 80, 
             "id": 22
         }, 
         {
-            "contraint": [], 
-            "space": 6, 
-            "pStartTm": {
+            "spaceId": 6, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1540"
                 ]
+            }
             }, 
-            "persons": 19, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 19, 
+            "maxParticipants": 80, 
             "id": 23
         }, 
         {
-            "contraint": [], 
-            "space": 11, 
-            "pStartTm": {
+            "spaceId": 11, 
+            "time": {
+            "duration": 150, 
+            "startTimes": {
                 "T": [
                     "1800"
                 ]
+            }
             }, 
-            "persons": 20, 
-            "max_participants": 80, 
-            "duration": 150, 
+            "personId": 20, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 24
         }, 
         {
-            "contraint": [], 
-            "space": 9, 
-            "pStartTm": {
+            "spaceId": 9, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1540"
                 ]
+            }
             }, 
-            "persons": 21, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 21, 
+            "maxParticipants": 80, 
             "id": 25
         }, 
         {
-            "contraint": [], 
-            "space": 3, 
-            "pStartTm": {
+            "spaceId": 3, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "MW": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 22, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 22, 
+            "maxParticipants": 80, 
             "id": 26
         }, 
         {
-            "contraint": [], 
-            "space": 1, 
-            "pStartTm": {
+            "spaceId": 1, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1540"
                 ]
+            }
             }, 
-            "persons": 23, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 23, 
+            "maxParticipants": 80, 
             "id": 27
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "F": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 15, 
-            "max_participants": 80, 
-            "duration": 80, 
+            "personId": 15, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 28
         }, 
         {
-            "contraint": [], 
-            "space": 15, 
-            "pStartTm": {
+            "spaceId": 15, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "F": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 16, 
-            "max_participants": 80, 
-            "duration": 80, 
+            "personId": 16, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 29
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "M": [
                     "1225"
                 ]
+            }
             }, 
-            "persons": 24, 
-            "max_participants": 80, 
-            "duration": 80, 
+            "personId": 24, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 30
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 60, 
+            "startTimes": {
                 "F": [
                     "1445"
                 ]
+            }
             }, 
-            "persons": 6, 
-            "max_participants": 80, 
-            "duration": 60, 
+            "personId": 6, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 31
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "W": [
                     "1225"
                 ]
+            }
             }, 
-            "persons": 14, 
-            "max_participants": 80, 
-            "duration": 80, 
+            "personId": 14, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 32
         }, 
         {
-            "contraint": [], 
-            "space": 16, 
-            "pStartTm": {
+            "spaceId": 16, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 25, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 25, 
+            "maxParticipants": 80, 
             "id": 33
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 50, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 16, 
-            "max_participants": 80, 
-            "duration": 50, 
-            "days_count": 2, 
+            "personId": 16, 
+            "maxParticipants": 80, 
             "id": 34
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 60, 
+            "startTimes": {
                 "T": [
                     "1500"
                 ]
+            }
             }, 
-            "persons": 26, 
-            "max_participants": 80, 
-            "duration": 60, 
+            "personId": 26, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 35
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 90, 
+            "startTimes": {
                 "F": [
                     "1300"
                 ]
+            }
             }, 
-            "persons": 24, 
-            "max_participants": 80, 
-            "duration": 90, 
+            "personId": 24, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 36
         }, 
         {
-            "contraint": [], 
-            "space": 14, 
-            "pStartTm": {
+            "spaceId": 14, 
+            "time": {
+            "duration": 180, 
+            "startTimes": {
                 "H": [
                     "1500"
                 ]
+            }
             }, 
-            "persons": 27, 
-            "max_participants": 80, 
-            "duration": 180, 
+            "personId": 27, 
+            "maxParticipants": 80, 
             "days_count": 1, 
             "id": 37
         }, 
         {
-            "contraint": [], 
-            "space": 8, 
-            "pStartTm": {
+            "spaceId": 8, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1400"
                 ]
+            }
             }, 
-            "persons": 25, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 25, 
+            "maxParticipants": 80, 
             "id": 38
         }, 
         {
-            "contraint": [], 
-            "space": 13, 
-            "pStartTm": {
+            "spaceId": 13, 
+            "time": {
+            "duration": 80, 
+            "startTimes": {
                 "TH": [
                     "1045"
                 ]
+            }
             }, 
-            "persons": 28, 
-            "max_participants": 80, 
-            "duration": 80, 
-            "days_count": 2, 
+            "personId": 28, 
+            "maxParticipants": 80, 
             "id": 39
         }
     ], 
-    "SPACE": [
+    "SPACES": [
         {
             "capacity": 100, 
             "id": 2, 

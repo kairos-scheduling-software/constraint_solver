@@ -6,19 +6,15 @@ import solver.constraints.LCF;
 import solver.search.strategy.ISF;
 import solver.variables.IntVar;
 
-import util.TimeData;
+import util.EventData;
 
 public class Event {
-//	String name;						  /* name of the event, e.g. "Computer Systems" */
-	int id;							  /* event ID, e.g. cs4400 */
+	private EventData data;
 	
-	Time time;
-	Space space;
+	private Time time;
+	private Space space;
 	
-	int maxParticipants;	/* the maximum number of participants that can be included in the Event */
-	int[] spaceIds;
-	
-	int personId;
+//	int personId;
 //	Person person;			  /* any administrative-type people associated with the event, e.g teachers, speakers, etc */
 	
 	private Solver solver;
@@ -26,33 +22,46 @@ public class Event {
 	
 	private boolean isPossible;
 	
-	public Event(int id, int maxParticipants, TimeData time,
-			int personId) {
-		this(id, maxParticipants, time, personId, null);
-	}
+//	public Event(int id, int maxParticipants, TimeData time,
+//			int personId) {
+//		this(id, maxParticipants, time, personId, null);
+//	}
+//	
+//	public Event(int id, int maxParticipants, TimeData time,
+//			int personId, int[] spaceIds) {
+//		this.id = id;
+//		this.maxParticipants = maxParticipants;
+//		this.personId = personId;
+//		
+//		this.time = new Time(time);
+//		
+//		this.spaceIds = spaceIds;
+//	}
 	
-	public Event(int id, int maxParticipants, TimeData time,
-			int personId, int[] spaceIds) {
-		this.id = id;
-		this.maxParticipants = maxParticipants;
-		this.personId = personId;
+	public Event(EventData data, Solver solver, Spaces spaces) {
+		this.data = data;
 		
-		this.time = new Time(time);
+		this.time = new Time(data.time, solver);
 		
-		this.spaceIds = spaceIds;
-	}
-	
-	public void initialize(Solver solver, Spaces spaces) {
+//		initialize(solver, spaces);
 		this.solver = solver;
 		
-//		isPossible = true;
 		isPossible = isFeasible(spaces);
 		if (!isPossible) return;
 
-		time.initialize(solver);
-		space = new Space(spaceIds, maxParticipants, solver, spaces);
+		space = new Space(data.spaceIds, data.maxParticipants, solver, spaces);
 		constraint = buildConstraint(time, space, solver, spaces);
 	}
+	
+//	private void initialize(Solver solver, Spaces spaces) {
+//		this.solver = solver;
+//		
+//		isPossible = isFeasible(spaces);
+//		if (!isPossible) return;
+//
+//		space = new Space(data.spaceIds, data.maxParticipants, solver, spaces);
+//		constraint = buildConstraint(time, space, solver, spaces);
+//	}
 	
 	public Constraint defaultConstraint(Event other) {
 		return getConstraint("default", other);
@@ -88,21 +97,21 @@ public class Event {
 		else return new IntVar[] {time.getVar(), space.getVar()};
 	}
 	
-	public int getId() { return this.id; }
+	public int getId() { return data.id; }
+	public int getMaxParticipants() { return data.maxParticipants; }
+	public int getPerson() { return data.personId; }
+	
 	public int getSpaceId() { return space.getId(); }
-	public String getDays() { return this.time.getDays(); }
-	public String getStartTime() { return this.time.getStartTime(); }
+	public String getDays() { return time.getDays(); }
+	public String getStartTime() { return time.getStartTime(); }
 	public int getDuration() { return time.getDuration(); }
-	public int getMaxParticipants() { return maxParticipants; }
-	public int getPerson() { return personId; }
 	public boolean isPossible() { return isPossible; }
 	
 	//////// Helper functions ////////
 	private boolean isFeasible(Spaces spaces) {
 		Solver solver = new Solver();
-		Time time = new Time(this.time);
-		time.initialize(solver);
-		Space space = new Space(spaceIds, maxParticipants, solver, spaces);
+		Time time = new Time(this.time, solver);
+		Space space = new Space(data.spaceIds, data.maxParticipants, solver, spaces);
 		
 		Constraint c = buildConstraint(time, space, solver, spaces);
 		solver.set(ISF.random_value(getVars()));
@@ -122,7 +131,7 @@ public class Event {
 	
 	private Constraint getConstraint(String type, Event other) {
 		if (!isPossible ||
-				!(type.equals("self") || other.isPossible))
+				(!type.equals("self") && !other.isPossible))
 			return solver.TRUE;
 		
 		Constraint c;
@@ -133,9 +142,9 @@ public class Event {
 			case "default":
 				Constraint _space = this.space.diff(other.space);
 				Constraint _time = this.time.notOverlap(other.time);
-				
-				if (this.personId == other.personId &&
-						this.personId != Person.DEFAULT_ID)
+				// time || (space && person)
+				if (this.data.personId == other.data.personId &&
+						this.data.personId != Person.DEFAULT_ID)
 					c = _time;
 				else
 					c = LCF.or(_space, _time);

@@ -7,24 +7,17 @@ import java.util.Map;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.variables.BoolVar;
+import util.ConstraintData;
 
 public class EventConstraint {
-	public Event e1;
-	public Event e2;
-	public BoolVar satisfied;
+	private Event e1;
+	private Event e2;
+	private BoolVar satisfied;
 	
-	public Constraint constraint;
+	private Constraint constraint;
 	
 	public final int id1;
 	public final int id2;
-	private String relation;
-	private boolean constraintBuilt;
-	
-	public EventConstraint(int id1, int id2, String relation) {
-		this.id1 = id1;
-		this.id2 = id2;
-		this.relation = relation;
-	}
 	
 	public EventConstraint(Event e1, Event e2, Constraint constraint) {
 		this.e1 = e1;
@@ -33,11 +26,16 @@ public class EventConstraint {
 		this.id2 = e2.getId();
 		this.satisfied = constraint.reif();
 		this.constraint = constraint;
-		this.constraintBuilt = true;
 	}
 	
-	public void initialize(Solver solver, Map<Integer, Event> events) {
-		if (constraintBuilt) return;
+	public EventConstraint(ConstraintData data, Solver solver,
+			Map<Integer, Event> events) {
+		this.id1 = data.id1;
+		this.id2 = data.id2;
+		initialize(solver, events, data.relation);
+	}
+	
+	private void initialize(Solver solver, Map<Integer, Event> events, String relation) {
 		Map<Integer, Event> e = events;
 		e1 = e.get(id1);
 		e2 = e.get(id2);
@@ -59,7 +57,7 @@ public class EventConstraint {
 		this.satisfied = constraint.reif();
 	}
 	
-	public boolean getStatus() { return satisfied.getValue() != 0; }
+	public boolean isSatisfied() { return satisfied.getValue() != 0; }
 	
 	public static BoolVar[] getStatus(List<EventConstraint> ec) {
 		ArrayList<BoolVar> arr = new ArrayList<BoolVar>();

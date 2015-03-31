@@ -1,1 +1,1100 @@
-{"APIKey":"1bb0ea87-d786-4300-903d-e3aa4e3ac670","EVENT":[{"id":560,"days_count":1,"duration":"50","pStartTm":{"T":["0835"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":561,"days_count":1,"duration":"50","pStartTm":{"W":["0835"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":562,"days_count":1,"duration":"50","pStartTm":{"F":["0835"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":563,"days_count":1,"duration":"50","pStartTm":{"F":["0835"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":564,"days_count":2,"duration":"80","pStartTm":{"TH":["0910"]},"space":154,"max_participants":80,"persons":21,"constraint":[]},{"id":565,"days_count":2,"duration":"80","pStartTm":{"TH":["0910"]},"space":155,"max_participants":90,"persons":21,"constraint":[]},{"id":566,"days_count":2,"duration":"80","pStartTm":{"TH":["0910"]},"space":155,"max_participants":90,"persons":21,"constraint":[]},{"id":567,"days_count":2,"duration":"50","pStartTm":{"MW":["0940"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":568,"days_count":1,"duration":"50","pStartTm":{"T":["0940"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":569,"days_count":1,"duration":"50","pStartTm":{"W":["0940"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":570,"days_count":1,"duration":"50","pStartTm":{"F":["0940"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":571,"days_count":1,"duration":"50","pStartTm":{"F":["0940"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":572,"days_count":1,"duration":"50","pStartTm":{"F":["0940"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":573,"days_count":2,"duration":"50","pStartTm":{"MW":["1045"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":574,"days_count":3,"duration":"50","pStartTm":{"MWF":["1045"]},"space":156,"max_participants":104,"persons":21,"constraint":[]},{"id":575,"days_count":1,"duration":"50","pStartTm":{"T":["1045"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":576,"days_count":2,"duration":"80","pStartTm":{"TH":["1045"]},"space":157,"max_participants":93,"persons":21,"constraint":[]},{"id":577,"days_count":1,"duration":"50","pStartTm":{"W":["1045"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":578,"days_count":2,"duration":"50","pStartTm":{"WF":["1045"]},"space":158,"max_participants":93,"persons":21,"constraint":[]},{"id":579,"days_count":1,"duration":"80","pStartTm":{"H":["1045"]},"space":159,"max_participants":111,"persons":21,"constraint":[]},{"id":580,"days_count":1,"duration":"50","pStartTm":{"F":["1045"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":581,"days_count":1,"duration":"50","pStartTm":{"F":["1045"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":582,"days_count":1,"duration":"50","pStartTm":{"F":["1045"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":583,"days_count":2,"duration":"50","pStartTm":{"MW":["1150"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":584,"days_count":2,"duration":"80","pStartTm":{"MW":["1150"]},"space":159,"max_participants":111,"persons":21,"constraint":[]},{"id":585,"days_count":2,"duration":"80","pStartTm":{"MW":["1150"]},"space":160,"max_participants":73,"persons":21,"constraint":[]},{"id":586,"days_count":2,"duration":"80","pStartTm":{"MW":["1150"]},"space":161,"max_participants":100,"persons":21,"constraint":[]},{"id":587,"days_count":2,"duration":"80","pStartTm":{"MW":["1150"]},"space":160,"max_participants":73,"persons":21,"constraint":[]},{"id":588,"days_count":1,"duration":"50","pStartTm":{"T":["1150"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":589,"days_count":1,"duration":"50","pStartTm":{"W":["1150"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":590,"days_count":1,"duration":"80","pStartTm":{"W":["1150"]},"space":162,"max_participants":96,"persons":21,"constraint":[]},{"id":591,"days_count":1,"duration":"50","pStartTm":{"F":["1150"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":592,"days_count":1,"duration":"50","pStartTm":{"F":["1150"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":593,"days_count":1,"duration":"50","pStartTm":{"F":["1150"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":594,"days_count":1,"duration":"60","pStartTm":{"M":["1200"]},"space":163,"max_participants":72,"persons":21,"constraint":[]},{"id":595,"days_count":2,"duration":"80","pStartTm":{"TH":["1225"]},"space":156,"max_participants":104,"persons":21,"constraint":[]},{"id":596,"days_count":1,"duration":"80","pStartTm":{"T":["1225"]},"space":164,"max_participants":99,"persons":21,"constraint":[]},{"id":597,"days_count":2,"duration":"80","pStartTm":{"TH":["1225"]},"space":157,"max_participants":93,"persons":21,"constraint":[]},{"id":598,"days_count":2,"duration":"80","pStartTm":{"TH":["1225"]},"space":159,"max_participants":111,"persons":21,"constraint":[]},{"id":599,"days_count":2,"duration":"50","pStartTm":{"MW":["1255"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":600,"days_count":1,"duration":"50","pStartTm":{"T":["1255"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":601,"days_count":1,"duration":"50","pStartTm":{"W":["1255"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":602,"days_count":1,"duration":"50","pStartTm":{"H":["1255"]},"space":161,"max_participants":100,"persons":21,"constraint":[]},{"id":603,"days_count":1,"duration":"50","pStartTm":{"F":["1255"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":604,"days_count":1,"duration":"50","pStartTm":{"F":["1255"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":605,"days_count":1,"duration":"50","pStartTm":{"F":["1255"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":606,"days_count":1,"duration":"100","pStartTm":{"W":["1310"]},"space":157,"max_participants":93,"persons":21,"constraint":[]},{"id":607,"days_count":2,"duration":"80","pStartTm":{"MW":["1325"]},"space":156,"max_participants":104,"persons":21,"constraint":[]},{"id":608,"days_count":2,"duration":"80","pStartTm":{"MW":["1325"]},"space":155,"max_participants":90,"persons":21,"constraint":[]},{"id":609,"days_count":2,"duration":"80","pStartTm":{"MW":["1325"]},"space":155,"max_participants":90,"persons":21,"constraint":[]},{"id":610,"days_count":2,"duration":"80","pStartTm":{"MW":["1325"]},"space":159,"max_participants":111,"persons":21,"constraint":[]},{"id":611,"days_count":2,"duration":"80","pStartTm":{"MW":["1325"]},"space":162,"max_participants":96,"persons":21,"constraint":[]},{"id":612,"days_count":1,"duration":"75","pStartTm":{"H":["1345"]},"space":161,"max_participants":100,"persons":21,"constraint":[]},{"id":613,"days_count":2,"duration":"50","pStartTm":{"MW":["1400"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":614,"days_count":3,"duration":"50","pStartTm":{"MWF":["1400"]},"space":164,"max_participants":99,"persons":21,"constraint":[]},{"id":615,"days_count":3,"duration":"50","pStartTm":{"MWF":["1400"]},"space":164,"max_participants":99,"persons":21,"constraint":[]},{"id":616,"days_count":2,"duration":"50","pStartTm":{"TH":["1400"]},"space":156,"max_participants":104,"persons":21,"constraint":[]},{"id":617,"days_count":1,"duration":"50","pStartTm":{"T":["1400"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":618,"days_count":2,"duration":"80","pStartTm":{"TH":["1400"]},"space":165,"max_participants":75,"persons":21,"constraint":[]},{"id":619,"days_count":2,"duration":"80","pStartTm":{"TH":["1400"]},"space":165,"max_participants":75,"persons":21,"constraint":[]},{"id":620,"days_count":2,"duration":"80","pStartTm":{"TH":["1400"]},"space":154,"max_participants":80,"persons":21,"constraint":[]},{"id":621,"days_count":1,"duration":"50","pStartTm":{"W":["1400"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":622,"days_count":1,"duration":"50","pStartTm":{"F":["1400"]},"space":163,"max_participants":72,"persons":21,"constraint":[]},{"id":623,"days_count":2,"duration":"80","pStartTm":{"MW":["1500"]},"space":154,"max_participants":80,"persons":21,"constraint":[]},{"id":624,"days_count":2,"duration":"50","pStartTm":{"MW":["1505"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":625,"days_count":2,"duration":"150","pStartTm":{"MF":["1505"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":626,"days_count":1,"duration":"50","pStartTm":{"W":["1505"]},"space":152,"max_participants":81,"persons":21,"constraint":[]},{"id":627,"days_count":2,"duration":"80","pStartTm":{"TH":["1540"]},"space":158,"max_participants":93,"persons":21,"constraint":[]},{"id":628,"days_count":2,"duration":"80","pStartTm":{"TH":["1540"]},"space":157,"max_participants":93,"persons":21,"constraint":[]},{"id":629,"days_count":2,"duration":"50","pStartTm":{"MW":["1610"]},"space":153,"max_participants":112,"persons":21,"constraint":[]},{"id":630,"days_count":2,"duration":"60","pStartTm":{"MW":["1630"]},"space":161,"max_participants":100,"persons":21,"constraint":[]},{"id":631,"days_count":2,"duration":"80","pStartTm":{"TH":["1715"]},"space":158,"max_participants":93,"persons":21,"constraint":[]},{"id":632,"days_count":2,"duration":"80","pStartTm":{"TH":["1715"]},"space":158,"max_participants":93,"persons":21,"constraint":[]}],"SPACE":[{"id":147,"capacity":0,"times":""},{"id":152,"capacity":81,"times":""},{"id":153,"capacity":112,"times":""},{"id":154,"capacity":80,"times":""},{"id":155,"capacity":90,"times":""},{"id":156,"capacity":104,"times":""},{"id":157,"capacity":93,"times":""},{"id":158,"capacity":93,"times":""},{"id":159,"capacity":111,"times":""},{"id":160,"capacity":73,"times":""},{"id":161,"capacity":100,"times":""},{"id":162,"capacity":96,"times":""},{"id":163,"capacity":72,"times":""},{"id":164,"capacity":99,"times":""},{"id":165,"capacity":75,"times":""}]}
+{
+    "APIKey": "1bb0ea87-d786-4300-903d-e3aa4e3ac670", 
+    "EVENTS": [
+        {
+            "id": 560, 
+            "maxParticipants": 81, 
+            "spaceId": 152, 
+            "personId": 21, 
+            "time": {
+                "startTimes": {
+                    "T": ["0835"]
+                }, 
+                "duration": "50"
+            }
+        }, 
+        {
+            "id": 561, 
+            "spaceId": 152, 
+            "time": {
+                "duration": "50", 
+                "startTimes": {
+                    "W": ["0835"]
+                }
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "0835"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 562
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "0835"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 563
+        }, 
+        {
+            "spaceId": 154, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "0910"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 80, 
+            "id": 564
+        }, 
+        {
+            "spaceId": 155, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "0910"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 90, 
+            "id": 565
+        }, 
+        {
+            "spaceId": 155, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "0910"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 90, 
+            "id": 566
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "0940"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 567
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "T": [
+                    "0940"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 568
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "0940"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 569
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "0940"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 570
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "0940"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 571
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "0940"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 572
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 573
+        }, 
+        {
+            "spaceId": 156, 
+            "time": {
+            "startTimes": {
+                "MWF": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 104, 
+            "id": 574
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "T": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 575
+        }, 
+        {
+            "spaceId": 157, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1045"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 576
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 577
+        }, 
+        {
+            "spaceId": 158, 
+            "time": {
+            "startTimes": {
+                "WF": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 578
+        }, 
+        {
+            "spaceId": 159, 
+            "time": {
+            "startTimes": {
+                "H": [
+                    "1045"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 111, 
+            "id": 579
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 580
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 581
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1045"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 582
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1150"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 583
+        }, 
+        {
+            "spaceId": 159, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1150"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 111, 
+            "id": 584
+        }, 
+        {
+            "spaceId": 160, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1150"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 73, 
+            "id": 585
+        }, 
+        {
+            "spaceId": 161, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1150"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 100, 
+            "id": 586
+        }, 
+        {
+            "spaceId": 160, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1150"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 73, 
+            "id": 587
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "T": [
+                    "1150"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 588
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1150"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 589
+        }, 
+        {
+            "spaceId": 162, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1150"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 96, 
+            "id": 590
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1150"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 591
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1150"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 592
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1150"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 593
+        }, 
+        {
+            "spaceId": 163, 
+            "time": {
+            "startTimes": {
+                "M": [
+                    "1200"
+                ]
+            }, 
+            "duration": "60"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 72, 
+            "id": 594
+        }, 
+        {
+            "spaceId": 156, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1225"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 104, 
+            "id": 595
+        }, 
+        {
+            "spaceId": 164, 
+            "time": {
+            "startTimes": {
+                "T": [
+                    "1225"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 99, 
+            "id": 596
+        }, 
+        {
+            "spaceId": 157, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1225"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 597
+        }, 
+        {
+            "spaceId": 159, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1225"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 111, 
+            "id": 598
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 599
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "T": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 600
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 601
+        }, 
+        {
+            "spaceId": 161, 
+            "time": {
+            "startTimes": {
+                "H": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 100, 
+            "id": 602
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 603
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 604
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1255"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 605
+        }, 
+        {
+            "spaceId": 157, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1310"
+                ]
+            }, 
+            "duration": "100"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 606
+        }, 
+        {
+            "spaceId": 156, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1325"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 104, 
+            "id": 607
+        }, 
+        {
+            "spaceId": 155, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1325"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 90, 
+            "id": 608
+        }, 
+        {
+            "spaceId": 155, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1325"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 90, 
+            "id": 609
+        }, 
+        {
+            "spaceId": 159, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1325"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 111, 
+            "id": 610
+        }, 
+        {
+            "spaceId": 162, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1325"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 96, 
+            "id": 611
+        }, 
+        {
+            "spaceId": 161, 
+            "time": {
+            "startTimes": {
+                "H": [
+                    "1345"
+                ]
+            }, 
+            "duration": "75"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 100, 
+            "id": 612
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 613
+        }, 
+        {
+            "spaceId": 164, 
+            "time": {
+            "startTimes": {
+                "MWF": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 99, 
+            "id": 614
+        }, 
+        {
+            "spaceId": 164, 
+            "time": {
+            "startTimes": {
+                "MWF": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 99, 
+            "id": 615
+        }, 
+        {
+            "spaceId": 156, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 104, 
+            "id": 616
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "T": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 617
+        }, 
+        {
+            "spaceId": 165, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1400"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 75, 
+            "id": 618
+        }, 
+        {
+            "spaceId": 165, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1400"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 75, 
+            "id": 619
+        }, 
+        {
+            "spaceId": 154, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1400"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 80, 
+            "id": 620
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 621
+        }, 
+        {
+            "spaceId": 163, 
+            "time": {
+            "startTimes": {
+                "F": [
+                    "1400"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 72, 
+            "id": 622
+        }, 
+        {
+            "spaceId": 154, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1500"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 80, 
+            "id": 623
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1505"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 624
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "MF": [
+                    "1505"
+                ]
+            }, 
+            "duration": "150"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 625
+        }, 
+        {
+            "spaceId": 152, 
+            "time": {
+            "startTimes": {
+                "W": [
+                    "1505"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 81, 
+            "id": 626
+        }, 
+        {
+            "spaceId": 158, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1540"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 627
+        }, 
+        {
+            "spaceId": 157, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1540"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 628
+        }, 
+        {
+            "spaceId": 153, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1610"
+                ]
+            }, 
+            "duration": "50"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 112, 
+            "id": 629
+        }, 
+        {
+            "spaceId": 161, 
+            "time": {
+            "startTimes": {
+                "MW": [
+                    "1630"
+                ]
+            }, 
+            "duration": "60"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 100, 
+            "id": 630
+        }, 
+        {
+            "spaceId": 158, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1715"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 631
+        }, 
+        {
+            "spaceId": 158, 
+            "time": {
+            "startTimes": {
+                "TH": [
+                    "1715"
+                ]
+            }, 
+            "duration": "80"
+            }, 
+            "personId": 21, 
+            "maxParticipants": 93, 
+            "id": 632
+        }
+    ], 
+    "SPACES": [
+        {
+            "capacity": 0, 
+            "id": 147, 
+            "times": ""
+        }, 
+        {
+            "capacity": 81, 
+            "id": 152, 
+            "times": ""
+        }, 
+        {
+            "capacity": 112, 
+            "id": 153, 
+            "times": ""
+        }, 
+        {
+            "capacity": 80, 
+            "id": 154, 
+            "times": ""
+        }, 
+        {
+            "capacity": 90, 
+            "id": 155, 
+            "times": ""
+        }, 
+        {
+            "capacity": 104, 
+            "id": 156, 
+            "times": ""
+        }, 
+        {
+            "capacity": 93, 
+            "id": 157, 
+            "times": ""
+        }, 
+        {
+            "capacity": 93, 
+            "id": 158, 
+            "times": ""
+        }, 
+        {
+            "capacity": 111, 
+            "id": 159, 
+            "times": ""
+        }, 
+        {
+            "capacity": 73, 
+            "id": 160, 
+            "times": ""
+        }, 
+        {
+            "capacity": 100, 
+            "id": 161, 
+            "times": ""
+        }, 
+        {
+            "capacity": 96, 
+            "id": 162, 
+            "times": ""
+        }, 
+        {
+            "capacity": 72, 
+            "id": 163, 
+            "times": ""
+        }, 
+        {
+            "capacity": 99, 
+            "id": 164, 
+            "times": ""
+        }, 
+        {
+            "capacity": 75, 
+            "id": 165, 
+            "times": ""
+        }
+    ]
+}

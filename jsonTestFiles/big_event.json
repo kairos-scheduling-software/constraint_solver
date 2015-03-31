@@ -1,16 +1,18 @@
 {
-    "EVENT": [
+    "EVENTS": [
         {
             "id": 1,
-            "duration": 50,
-            "max_participants": 70,
-            "persons": 5,
-            "pStartTm": {
-                "MW": ["1030", "1250"]
+            "maxParticipants": 70,
+            "personId": 5,
+            "time": {
+	            "duration": 50,
+	            "startTimes": {
+	                "MW": ["1030", "1250"]
+	            }
             }
         }
     ],
-    "SPACE": [
+    "SPACES": [
         {
             "id": 10,
             "capacity": 50

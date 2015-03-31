@@ -1,7 +1,5 @@
 package scheduleSolver;
 
-import java.util.Map;
-
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
@@ -23,19 +21,20 @@ public class Time {
 	
 	private Constraint constraint;
 	
-	public Time(TimeData time) {
+	public Time(TimeData time, Solver solver) {
 		this.time = time;
+		initialize(solver);
 	}
 	
-	public Time(Time other) {
-		this.time = other.time;
+	public Time(Time other, Solver solver) {
+		this(other.time, solver);
 	}
 	
-	public Time(Map<String, String[]> startTimes, int duration) {
-		time = new TimeData(startTimes, duration);
-	}
+//	public Time(Map<String, String[]> startTimes, int duration) {
+//		time = new TimeData(startTimes, duration);
+//	}
 	
-	public void initialize(Solver solver) {
+	private void initialize(Solver solver) {
 		// Initialize day vars
 		dayVars = new IntVar[7];
 		for (int i = 0; i < 7; i++) {

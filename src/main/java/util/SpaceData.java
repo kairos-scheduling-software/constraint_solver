@@ -1,5 +1,8 @@
 package util;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class SpaceData {
 	
 	/* members */
@@ -17,4 +20,20 @@ public class SpaceData {
 	public String getName() { return name; }
 	public int getId() { return id; }
 	public int getCapacity() { return capacity; }
+	
+	public static SpaceData[] parseSpaces(JsonArray jsonSpaces) {
+		SpaceData[] rooms = new SpaceData[jsonSpaces.size()];
+		
+		for(int i = 0; i < rooms.length; i++)
+		{
+			JsonObject room = jsonSpaces.get(i).getAsJsonObject();
+			int id = room.get("id").getAsInt();
+			int capacity = room.get("capacity").getAsInt();
+			//String times = room.getString("times");
+			
+			rooms[i] = new SpaceData(id, capacity);
+		}
+		
+		return rooms;
+	}
 }

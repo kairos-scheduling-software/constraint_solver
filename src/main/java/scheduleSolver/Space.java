@@ -18,18 +18,18 @@ public class Space {
 	
 	public final boolean ignore;
 	
-	public final int DEFAULT_ID = -1;
+	public final int SPECIAL_ID = -1;
 
-	Space(int[] ids, int participants, Solver solver, Spaces spaces) {
+	public Space(int[] ids, int participants, Solver solver, Spaces spaces) {
 		this.participants = participants;
 		
 		if (ids == null || ids.length == 0) ids = spaces.getIds();
 		else if (ids.length > 1) ids = spaces.filterIds(ids);
 		
-		if (ids.length == 1 && ids[0] == DEFAULT_ID) {
+		if (ids.length == 1 && ids[0] == SPECIAL_ID) {
 			ignore = true;
 			constraint = solver.TRUE;
-			id = VariableFactory.fixed("room id", DEFAULT_ID, solver);
+			id = VariableFactory.fixed("room id", SPECIAL_ID, solver);
 			index = VariableFactory.fixed("room index", -1, solver);
 			return;
 		} else ignore = false;
@@ -60,14 +60,6 @@ public class Space {
 	
 	public int getId() {
 		return id.getValue();
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

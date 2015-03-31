@@ -29,7 +29,7 @@ import static util.IO.*;
 public class SchedulingSolverTest {
 	private static SolutionLevel SOLUTION_OUTPUT_LEVEL = CONFLICTS;
 	private static boolean RUN_ALL_TEST = true;
-	private static boolean RUN_BIG_TEST = false;
+	private static boolean RUN_BIG_TEST = true;
 	private static boolean INTERACTIVE_MODE = false;
 	
 	private static Map<String, String> outputs = new HashMap<String, String>();
@@ -43,30 +43,30 @@ public class SchedulingSolverTest {
 	
 	public static boolean test1()
 	{
-		String json = "{\"EVENT\":[{\"id\":313,\"duration\":\"80\"," +
-			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":[80],\"max_participants\":97," +
-			"\"persons\":15}],\"SPACE\":[{\"id\":80," +
-			"\"capacity\":97,\"times\":\"\"}]}";
+		String json = "{\"EVENTS\":[{\"id\":313,\"maxParticipants\":97," +
+				"\"time\":{\"duration\":80,\"startTimes\":{\"TH\":[\"0730\"]}}," +
+				"\"spaceId\":[80],\"personId\":15}]," +
+				"\"SPACES\":[{\"id\":80,\"capacity\":97,\"times\":\"\"}]}";
 		
 		return runTest("test1", json, true);
 	}
 	
 	public static boolean test2()
 	{
-		String json = "{\"EVENT\":[{\"id\":316,\"duration\":80," +
-			"\"pStartTm\":{\"TH\":[\"0730\"]},\"space\":[82,83]," +
-			"\"max_participants\":100,\"persons\":15}," +
-			"{\"id\":317,\"duration\":80," +
-			"\"pStartTm\":{\"TH\":[\"0730\"]}," +
-			"\"space\":82,\"max_participants\":103,\"persons\":16}]," +
-			"\"SPACE\":[{\"id\":82,\"capacity\":103," +
-			"\"times\":\"\"},{\"id\":83,\"capacity\":102}]}";
+		String json = "{\"EVENTS\":[{\"id\":316,\"maxParticipants\":100," +
+				"\"time\":{\"duration\":80,\"startTimes\":{\"TH\":[\"0730\"]}}," +
+				"\"spaceId\":[82,83],\"personId\":15}," +
+				"{\"id\":317,\"maxParticipants\":103," +
+				"\"time\":{\"duration\":80,\"startTimes\":{\"TH\":[\"0730\"]}}," +
+				"\"spaceId\":82,\"personId\":16}]," +
+				"\"SPACES\":[{\"id\":82,\"capacity\":103," +
+				"\"times\":\"\"},{\"id\":83,\"capacity\":102}]}";
 		
 		return runTest("test2", json, true);
 	}
 
 	public static boolean test3() {
-		String json = "{\"EVENT\":[],\"SPACE\":[]}";
+		String json = "{\"EVENTS\":[],\"SPACES\":[]}";
 		return runTest("test3", json, true);
 	}
 	
@@ -116,14 +116,19 @@ public class SchedulingSolverTest {
 		System.out.println("Running test " + testName);
 		try {
 			ScheduleData data = ScheduleData.parseJson(json);
-			Schedule schedule = new Schedule("", data.events, data.spaces, data.constraints);
-			Map<String, Object> outputMap = schedule.getSolution(SOLUTION_OUTPUT_LEVEL);
-			Gson gson = new Gson();
-			String outputStr = gson.toJson(outputMap);
-			
+			String outputStr;
+			boolean result;
+			if (data != null) {
+				Schedule schedule = new Schedule(data);
+				Map<String, Object> outputMap = schedule.getSolution(SOLUTION_OUTPUT_LEVEL);
+				Gson gson = new Gson();
+				outputStr = gson.toJson(outputMap);
+				result = (expectedResult != (Boolean) outputMap.get("wasFailure"));
+			} else {
+				outputStr = "Invalid Json String.";
+				result = false;
+			}
 			outputs.put(testName, outputStr);
-			
-			boolean result = (expectedResult != (Boolean) outputMap.get("wasFailure"));
 			
 			if (!result) System.out.println("\t" + testName + " failed");
 			else System.out.println("\t" + testName + " passed");
@@ -176,7 +181,10 @@ public class SchedulingSolverTest {
 	public static void main(String[] args) throws FileNotFoundException 
 	{
 		if (RUN_ALL_TEST) {
-			test0(); test1(); test2(); test3();
+			test0();
+			test1();
+			test2();
+			test3();
 			String p = "jsonTestFiles/";
 			
 			// test satisfiable schedules
