@@ -106,7 +106,7 @@ public class Schedule {
 		}
 		
 		jsonMap.put("wasFailure", failure);
-		jsonMap.put("EVENT", eventsList);
+		jsonMap.put("EVENTS", eventsList);
 		
 		if (level == SolutionLevel.ALL_DATA) {
 			ArrayList<Object> spacesList = new ArrayList<Object>();
@@ -116,7 +116,7 @@ public class Schedule {
 				map.put("capacity", s.getCapacity());
 				spacesList.add(map);
 			}
-			jsonMap.put("SPACE", spacesList);
+			jsonMap.put("SPACES", spacesList);
 		}
 		
 		return jsonMap;
@@ -231,25 +231,27 @@ public class Schedule {
 	
 	private Map<String, Object> getEvent(Event e, SolutionLevel level) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("ID", e.getId());
+		map.put("id", e.getId());
 		
 		// Space + DayTime
 		if (!e.isPossible()) {
 			map.put("wasFailure", true);
 			if (level != SolutionLevel.ALL_DATA) return map;
-		} else {
+		} else if (level != SolutionLevel.CONFLICTS) {
+			map.put("spaceId", e.getSpaceId());
+			
+			Map<String, Object> tm = new HashMap<String, Object>();
 			if (level == SolutionLevel.ALL_EVENTS) {
-				map.put("days", e.getDays());
-				map.put("roomID", e.getSpaceId());
-				map.put("startTime", e.getStartTime());
+				tm.put("days", e.getDays());
+				tm.put("startTime", e.getStartTime());
 			}
 			else if (level == SolutionLevel.ALL_DATA) {
-				map.put("space", e.getSpaceId());
-				
-				Map<String, Object> tmMap = new HashMap<String, Object>();
-				tmMap.put(e.getDays(), new String[]{e.getStartTime()});
-				map.put("pStartTm", tmMap);
+				Map<String, Object> startTmMap = new HashMap<String, Object>();
+				startTmMap.put(e.getDays(), new String[]{e.getStartTime()});
+				tm.put("startTimes", startTmMap);
+				tm.put("duration", e.getDuration());
 			}
+			map.put("time", tm);
 		}
 		
 		List<Integer> conflicts = getConflicts(e);
@@ -259,9 +261,8 @@ public class Schedule {
 		
 		// Extra info
 		if (level == SolutionLevel.ALL_DATA) {
-			map.put("duration", e.getDuration());
-			map.put("max_participants", e.getMaxParticipants());
-			map.put("persons", e.getPerson());
+			map.put("maxParticipants", e.getMaxParticipants());
+			map.put("personId", e.getPerson());
 		}
 		
 		return map;
