@@ -174,6 +174,7 @@ public class ApiServlet extends HttpServlet {
 	private boolean verifyKey(String json)
 			throws URISyntaxException, SQLException, JsonSyntaxException
 	{
+		if (Main.LOCAL_RUN) return true;
 		String key = null;
 		JsonParser parser = new JsonParser();
 		JsonObject toCheck = parser.parse(json).getAsJsonObject();

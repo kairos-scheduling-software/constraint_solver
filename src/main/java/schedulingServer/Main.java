@@ -14,6 +14,7 @@ public class Main extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected static boolean LOCAL_RUN = false;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -72,6 +73,12 @@ public class Main extends HttpServlet {
 	}
 
 	public static void main(String[] args) throws Exception {
+		// Check for local-run, aka, no user database
+		String para = null;
+		if (args.length > 0) para = args[0].toLowerCase();
+		
+		if (para.equals("--local")) LOCAL_RUN = true;
+		
 		// Default port if there's no environment variable
 		int port = 8080;
 		
