@@ -60,13 +60,17 @@ public class Time {
 	
 	public IntVar getVar() { return indexVar; }
 	
-	public Constraint notOverlap(Time other) {
+	public Constraint differentDays(Time other) {
 		IntVar[] dayArr = new IntVar[14];
 		for (int i = 0; i < 7; i++) {
 			dayArr[i] = this.dayVars[i];
 			dayArr[i+7] = other.dayVars[i];
 		}
-		Constraint daysConstraint = IntConstraintFactory.alldifferent_except_0(dayArr);
+		return IntConstraintFactory.alldifferent_except_0(dayArr);
+	}
+	
+	public Constraint notOverlap(Time other) {
+		Constraint daysConstraint = this.differentDays(other);
 		Constraint time1Constraint = this.before(other);
 		Constraint time2Constraint = this.after(other);
 		
@@ -82,6 +86,11 @@ public class Time {
 	public Constraint after(Time other) {
 		return IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.getDuration());
 	}
+	
+//	public Constraint sameTime(Time other) {
+//		
+//		return null;
+//	}
 		
 	public Constraint getConstraint() { return this.constraint; }
 	
