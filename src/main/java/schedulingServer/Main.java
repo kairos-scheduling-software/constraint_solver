@@ -74,7 +74,7 @@ public class Main extends HttpServlet {
 
 	public static void main(String[] args) throws Exception {
 		// Check for local-run, aka, no user database
-		String para = null;
+		String para = "";
 		if (args.length > 0) para = args[0].toLowerCase();
 		
 		if (para.equals("--local")) LOCAL_RUN = true;
