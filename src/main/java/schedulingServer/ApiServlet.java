@@ -72,7 +72,7 @@ public class ApiServlet extends HttpServlet {
 				case "/new":
 					outputMap = getSchedule(input, SolutionLevel.ALL_EVENTS);
 					break;
-				case "/requestKey":
+				case "/requestkey":
 					outputMap = getRequestKey(input);
 					break;
 				default:

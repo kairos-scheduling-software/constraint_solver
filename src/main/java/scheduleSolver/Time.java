@@ -1,8 +1,12 @@
 package scheduleSolver;
 
+import java.util.ArrayList;
+
 import solver.Solver;
 import solver.constraints.Constraint;
+import solver.constraints.ICF;
 import solver.constraints.IntConstraintFactory;
+import solver.constraints.LCF;
 import solver.constraints.LogicalConstraintFactory;
 import solver.constraints.extension.Tuples;
 import solver.variables.IntVar;
@@ -20,6 +24,7 @@ public class Time {
 	private IntVar startTime;
 	
 	private Constraint constraint;
+	private Solver solver;
 	
 	public Time(TimeData time, Solver solver) {
 		this.time = time;
@@ -35,6 +40,7 @@ public class Time {
 //	}
 	
 	private void initialize(Solver solver) {
+		this.solver = solver;
 		// Initialize day vars
 		dayVars = new IntVar[7];
 		for (int i = 0; i < 7; i++) {
@@ -54,8 +60,8 @@ public class Time {
 		for (int i = 0; i < 7; i++) vars[i] = dayVars[i];
 		vars[7] = this.startTime;
 		vars[8] = indexVar;
-		constraint = IntConstraintFactory.mddc(
-				vars, new MultivaluedDecisionDiagram(vars, tuples));
+		constraint = ICF.mddc(vars,
+				new MultivaluedDecisionDiagram(vars, tuples));
 	}
 	
 	public IntVar getVar() { return indexVar; }
@@ -66,7 +72,15 @@ public class Time {
 			dayArr[i] = this.dayVars[i];
 			dayArr[i+7] = other.dayVars[i];
 		}
-		return IntConstraintFactory.alldifferent_except_0(dayArr);
+		return ICF.alldifferent_except_0(dayArr);
+	}
+	
+	public Constraint sameDays(Time other) {
+		ArrayList<Constraint> conList = new ArrayList<Constraint>();
+		for (int i = 0; i < 7; i++) {
+			conList.add(ICF.arithm(this.dayVars[i], "=", other.dayVars[i]));
+		}
+		return LCF.and(conList.toArray(new Constraint[0]));
 	}
 	
 	public Constraint notOverlap(Time other) {
@@ -74,23 +88,26 @@ public class Time {
 		Constraint time1Constraint = this.before(other);
 		Constraint time2Constraint = this.after(other);
 		
-		return LogicalConstraintFactory.or(daysConstraint, time1Constraint, time2Constraint);
+		return LCF.or(daysConstraint, time1Constraint, time2Constraint);
 	}
 
 	public Constraint before(Time other) {
-		Constraint timeConstraint = IntConstraintFactory.arithm(other.startTime, ">=", this.startTime, "+", this.getDuration());
+		Constraint timeConstraint = ICF.arithm(other.startTime, ">=", this.startTime, "+", this.getDuration());
 		
 		return timeConstraint;
 	}
 	
 	public Constraint after(Time other) {
-		return IntConstraintFactory.arithm(this.startTime, ">=", other.startTime, "+", other.getDuration());
+		return ICF.arithm(this.startTime, ">=", other.startTime, "+", other.getDuration());
 	}
 	
-//	public Constraint sameTime(Time other) {
-//		
-//		return null;
-//	}
+	public Constraint sameTime(Time other) {
+		if (this.getDuration() != other.getDuration())
+			return solver.FALSE;
+		Constraint dayCon = this.sameDays(other);
+		Constraint timeCon = ICF.arithm(this.startTime, "=", other.startTime);
+		return LCF.and(dayCon, timeCon);
+	}
 		
 	public Constraint getConstraint() { return this.constraint; }
 	

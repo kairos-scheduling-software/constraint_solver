@@ -134,6 +134,7 @@ public class Schedule {
 			this.solver.post(events_arr[i].getConstraint());
 			
 			for (int j = i + 1; j < n; j++) {
+				if (events_arr[i].isSameTime(events_arr[j])) continue;
 				constraints.add(new EventConstraint(events_arr[i], events_arr[j],
 						events_arr[i].defaultConstraint(events_arr[j])));
 			}

@@ -51,6 +51,9 @@ public class EventConstraint {
 			case "!":
 				constraint = e1.notOverlap(e2);
 				break;
+			case "=":
+				constraint = e1.sameTime(e2, true);
+				break;
 			default:
 				constraint = solver.TRUE;
 		}

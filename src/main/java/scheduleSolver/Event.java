@@ -1,5 +1,7 @@
 package scheduleSolver;
 
+import java.util.HashSet;
+
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.LCF;
@@ -21,6 +23,7 @@ public class Event {
 	private Constraint constraint;
 	
 	private boolean isPossible;
+	private HashSet<Integer> sameTimeList;
 	
 //	public Event(int id, int maxParticipants, TimeData time,
 //			int personId) {
@@ -48,6 +51,7 @@ public class Event {
 		
 		isPossible = isFeasible(spaces);
 		if (!isPossible) return;
+		sameTimeList = new HashSet<Integer>();
 
 		space = new Space(data.spaceIds, data.maxParticipants, solver, spaces);
 		constraint = buildConstraint(time, space, solver, spaces);
@@ -77,6 +81,18 @@ public class Event {
 	
 	public Constraint notOverlap(Event other) {
 		return getConstraint("notOverlap", other);
+	}
+	
+	public Constraint sameTime(Event other, boolean cache) {
+		if (cache) {
+			this.sameTimeList.add(other.getId());
+			other.sameTimeList.add(this.getId());
+		}
+		return getConstraint("sameTime", other);
+	}
+	
+	public boolean isSameTime(Event other) {
+		return sameTimeList.contains(other.getId());
 	}
 	
 	public Constraint getConstraint() {
@@ -134,14 +150,14 @@ public class Event {
 				(!type.equals("self") && !other.isPossible))
 			return solver.TRUE;
 		
-		Constraint c;
+		Constraint c, _space, _time;
 		switch(type) {
 			case "self":
 				c = constraint;
 				break;
 			case "default":
-				Constraint _space = this.space.diff(other.space);
-				Constraint _time = this.time.notOverlap(other.time);
+				_space = this.space.diff(other.space);
+				_time = this.time.notOverlap(other.time);
 				// time || (space && person)
 				if (this.data.personId == other.data.personId &&
 						this.data.personId != Person.DEFAULT_ID)
@@ -157,6 +173,17 @@ public class Event {
 				break;
 			case "notOverlap":
 				c = this.time.notOverlap(other.time);
+				break;
+			case "sameTime":
+				_space = this.space.equals(other.space);
+				_time = this.time.sameTime(other.time);
+				// time || (space && person)
+				if (this.data.personId != other.data.personId &&
+						this.data.personId != Person.DEFAULT_ID &&
+						other.data.personId != Person.DEFAULT_ID)
+					c = solver.FALSE;
+				else
+					c = LCF.and(_space, _time);
 				break;
 			default:
 				c = solver.TRUE;

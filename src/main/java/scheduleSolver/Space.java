@@ -54,6 +54,12 @@ public class Space {
 		return ICF.arithm(index, "!=", other.index);
 	}
 	
+	public Constraint equals(Space other) {
+		if (this.ignore) return this.constraint;
+		if (other.ignore) return other.constraint;
+		return ICF.arithm(index, "=", other.index);
+	}
+	
 	public IntVar getVar() {
 		return index;
 	}
