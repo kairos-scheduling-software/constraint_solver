@@ -49,9 +49,10 @@ public class Event {
 //		initialize(solver, spaces);
 		this.solver = solver;
 		
+		sameTimeList = new HashSet<Integer>();
+		
 		isPossible = isFeasible(spaces);
 		if (!isPossible) return;
-		sameTimeList = new HashSet<Integer>();
 
 		space = new Space(data.spaceIds, data.maxParticipants, solver, spaces);
 		constraint = buildConstraint(time, space, solver, spaces);
